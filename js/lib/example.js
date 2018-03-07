@@ -35,6 +35,7 @@ var HelloModel = widgets.DOMWidgetModel.extend({
 var HelloView = widgets.DOMWidgetView.extend({
     render: function() {
         this.canvas = document.createElement('canvas');
+        $(this.canvas).appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
         this.data = null;
@@ -42,15 +43,14 @@ var HelloView = widgets.DOMWidgetView.extend({
         this.imageShape = new Array(3);
         this.imageShape[0] = this.imageShape[1] = this.imageShape[2] = -1;
         this.model.on('change:image_array', this.image_array_changed, this);
-        $(this.canvas).appendTo(this.el);
         this.image_array_changed();
     },
 
     redrawCanvasImage: function() {
         var nx = this.imageShape[0];
         var ny = this.imageShape[1];
-        var canvasWidth  = this.canvas.width;
-        var canvasHeight = this.canvas.height;
+        var canvasWidth  = $(this.canvas).width();
+        var canvasHeight = $(this.canvas).height();
         // Clear out image first
         createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
               this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -70,6 +70,7 @@ var HelloView = widgets.DOMWidgetView.extend({
           this.imageData = this.ctx.createImageData(
             this.data.shape[0], this.data.shape[1]);
           this.imageShape = this.data.shape;
+          console.log("Allocating ", this.imageShape);
         }
         arrayImage = new Uint8ClampedArray(this.data.buffer.buffer,
          this.data.buffer.byteOffset, this.data.buffer.byteLength);
