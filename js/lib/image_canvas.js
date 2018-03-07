@@ -1,5 +1,7 @@
 var widgets = require('@jupyter-widgets/base');
+var ipydatawidgets = require('jupyter-dataserializers');
 var _ = require('lodash');
+console.log(ipydatawidgets);
 
 
 // Custom Model. Custom widgets models must at least provide default values
@@ -26,8 +28,15 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
         image_array: null
-    })
+    }),
 });
+static serializers = _.extend({
+        image_array: {
+            serialize: ipydatawidgets.unionToJSON,
+            deserialize: ipydatawidgets.JSONToUnionArray
+        }
+}, ImageCanvasModel.serializers)
+
 
 // We should try creating an image bitmap, then drawing it with drawImage
 
@@ -47,6 +56,7 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     },
 
     redrawCanvasImage: function() {
+        console.log("Redrawing");
         var nx = this.imageShape[0];
         var ny = this.imageShape[1];
         var canvasWidth  = $(this.canvas).width();
@@ -59,22 +69,30 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     },
 
     image_array_changed: function() {
-        this.data = this.model.get('image_array');
-        // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-        a1 = this.data.shape;
-        a2 = this.imageShape;
-        shapeChanged = !(a1.length==a2.length
-                     && a1.every(function(v,i) {return v === a2[i]}));
-        if (shapeChanged) {
-          // We need to reallocate our imageData and update our shape
-          this.imageData = this.ctx.createImageData(
-            this.data.shape[0], this.data.shape[1]);
-          this.imageShape = this.data.shape;
-        }
-        arrayImage = new Uint8ClampedArray(this.data.buffer.buffer,
-         this.data.buffer.byteOffset, this.data.buffer.byteLength);
-        this.imageData.data.set(arrayImage);
-        this.redrawCanvasImage();
+        console.log(this.model.get('image_array'));
+        console.log(this.model);
+        arrayModelId = this.model.get('image_array');
+        this.model.widget_manager.get_model(
+          arrayModelId.slice(10)).then(
+            function(arrayModel){
+              console.log(arrayModel);
+              this.data = arrayModel.get('array');
+              // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+              console.log(this.data);
+              a1 = this.data.shape;
+              a2 = this.imageShape;
+              shapeChanged = !(a1.length==a2.length
+                           && a1.every(function(v,i) {return v === a2[i]}));
+              if (shapeChanged) {
+                // We need to reallocate our imageData and update our shape
+                console.log("Shaped changed");
+                this.imageData = this.ctx.createImageData(
+                  this.data.shape[0], this.data.shape[1]);
+                this.imageShape = this.data.shape;
+              }
+              this.imageData.data.set(this.data.data);
+              this.redrawCanvasImage();
+        }.bind(this));
     }
 });
 

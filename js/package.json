@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@jupyter-widgets/base": "^1.0.0",
+    "jupyter-dataserializers": "^1.1.2",
     "lodash": "^4.17.4"
   }
 }
