@@ -66,8 +66,8 @@ class NPM(Command):
     node_modules = os.path.join(node_root, 'node_modules')
 
     targets = [
-        os.path.join(here, 'yt-pycanvas', 'static', 'extension.js'),
-        os.path.join(here, 'yt-pycanvas', 'static', 'index.js')
+        os.path.join(here, 'yt_pycanvas', 'static', 'extension.js'),
+        os.path.join(here, 'yt_pycanvas', 'static', 'index.js')
     ]
 
     def initialize_options(self):
@@ -121,20 +121,20 @@ class NPM(Command):
         update_package_data(self.distribution)
 
 version_ns = {}
-with open(os.path.join(here, 'yt-pycanvas', '_version.py')) as f:
+with open(os.path.join(here, 'yt_pycanvas', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
 
 setup_args = {
-    'name': 'yt-pycanvas',
+    'name': 'yt_pycanvas',
     'version': version_ns['__version__'],
     'description': 'A Custom Jupyter Widget Library',
     'long_description': LONG_DESCRIPTION,
     'include_package_data': True,
     'data_files': [
         ('share/jupyter/nbextensions/yt-jscanvas', [
-            'yt-pycanvas/static/extension.js',
-            'yt-pycanvas/static/index.js',
-            'yt-pycanvas/static/index.js.map',
+            'yt_pycanvas/static/extension.js',
+            'yt_pycanvas/static/index.js',
+            'yt_pycanvas/static/index.js.map',
         ]),
     ],
     'install_requires': [

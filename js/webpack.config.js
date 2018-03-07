@@ -20,7 +20,7 @@ module.exports = [
         entry: './lib/extension.js',
         output: {
             filename: 'extension.js',
-            path: path.resolve(__dirname, '..', 'yt-pycanvas', 'static'),
+            path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
             libraryTarget: 'amd'
         }
     },
@@ -33,7 +33,7 @@ module.exports = [
         entry: './lib/index.js',
         output: {
             filename: 'index.js',
-            path: path.resolve(__dirname, '..', 'yt-pycanvas', 'static'),
+            path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
             libraryTarget: 'amd'
         },
         devtool: 'source-map',
