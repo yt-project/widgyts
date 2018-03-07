@@ -25,71 +25,57 @@ var HelloModel = widgets.DOMWidgetModel.extend({
         _view_module : 'yt-jscanvas',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        value : 'Hello World'
+        image_array: null
     })
 });
-
-function colormap(inputArray, minVal, maxVal, colorMap) {
-  // RGBA, and 1 byte for each, so our input times 4
-  outputBuffer = new ArrayBuffer(inputArray.length * 4);
-  outputImage = new Uint8ClampedArray(outputBuffer);
-  for (i = 0; i < inputArray.length ; i++) {
-    outputImage[i*4] = (inputArray[i] - minVal) / (maxVal - minVal) * 255;
-    //outputImage[i*4] = 255;
-    outputImage[i*4+3] = 255;
-  }
-  console.log("Returning outputImage");
-  return outputImage;
-}
-
-function generateRSquared(nx, ny){
-  newBuffer = new ArrayBuffer(nx * ny * 4);
-  newArray = new Float32Array(newBuffer);
-  dx = 2.0/nx;
-  dy = 2.0/ny;
-  for (i = 0; i < nx; i++) {
-    for (j = 0; j < ny; j++) {
-      r2 = (i * dx - 1.0)**2 + (j * dy - 1.0)**2;
-      newArray[i * ny + j] = r2**0.5;
-    }
-  }
-  console.log("Returning newArray");
-  return newArray;
-}
-
 
 // We should try creating an image bitmap, then drawing it with drawImage
 
 // Custom View. Renders the widget model.
 var HelloView = widgets.DOMWidgetView.extend({
     render: function() {
-        this.value_changed();
-        this.model.on('change:value', this.value_changed, this);
         this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.imageSmoothingEnabled = false;
+        this.data = null;
+        this.imageData = null;
+        this.imageShape = new Array(3);
+        this.imageShape[0] = this.imageShape[1] = this.imageShape[2] = -1;
+        this.model.on('change:image_array', this.image_array_changed, this);
         $(this.canvas).appendTo(this.el);
-        var canvasWidth  = this.canvas.width;
-        var canvasHeight = this.canvas.height;
-        var ctx = this.canvas.getContext('2d');
-
-        nx = canvasWidth; ny = canvasHeight;
-        nx = 16; ny = 16;
-        r2 = generateRSquared(nx, ny);
-        image = colormap(r2, 0.0, 2.0, "passive");
-        console.log(image);
-        var imageData = ctx.createImageData(nx, ny);
-        imageData.data.set(image);
-        
-        // Toggle this to switch on and off
-        ctx.imageSmoothingEnabled = false;
-        
-        createImageBitmap(imageData, 0, 0, nx, ny).then(function(bitmap){
-              ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
-        });
-
+        this.image_array_changed();
     },
 
-    value_changed: function() {
-        this.el.textContent = this.model.get('value');
+    redrawCanvasImage: function() {
+        var nx = this.imageShape[0];
+        var ny = this.imageShape[1];
+        var canvasWidth  = this.canvas.width;
+        var canvasHeight = this.canvas.height;
+        createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
+              this.ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
+        }.bind(this));
+    },
+
+    image_array_changed: function() {
+        this.data = this.model.get('image_array');
+        console.log(this.data);
+        console.log(this.imageShape);
+        // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+        console.log(this.data.shape);
+        a1 = this.data.shape;
+        a2 = this.imageShape;
+        shapeChanged = !(a1.length==a2.length
+                     && a1.every(function(v,i) {return v === a2[i]}));
+        if (shapeChanged) {
+          // We need to reallocate our imageData and update our shape
+          this.imageData = this.ctx.createImageData(
+            this.data.shape[0], this.data.shape[1]);
+          this.imageShape = this.data.shape;
+        }
+        arrayImage = new Uint8ClampedArray(this.data.buffer.buffer,
+         this.data.buffer.byteOffset, this.data.buffer.byteLength);
+        this.imageData.data.set(arrayImage);
+        this.redrawCanvasImage();
     }
 });
 
