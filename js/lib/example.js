@@ -17,10 +17,10 @@ var _ = require('lodash');
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
-var HelloModel = widgets.DOMWidgetModel.extend({
+var ImageCanvasModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
-        _model_name : 'HelloModel',
-        _view_name : 'HelloView',
+        _model_name : 'ImageCanvasModel',
+        _view_name : 'ImageCanvasView',
         _model_module : 'yt-jscanvas',
         _view_module : 'yt-jscanvas',
         _model_module_version : '0.1.0',
@@ -32,7 +32,7 @@ var HelloModel = widgets.DOMWidgetModel.extend({
 // We should try creating an image bitmap, then drawing it with drawImage
 
 // Custom View. Renders the widget model.
-var HelloView = widgets.DOMWidgetView.extend({
+var ImageCanvasView = widgets.DOMWidgetView.extend({
     render: function() {
         this.canvas = document.createElement('canvas');
         $(this.canvas).appendTo(this.el);
@@ -70,7 +70,6 @@ var HelloView = widgets.DOMWidgetView.extend({
           this.imageData = this.ctx.createImageData(
             this.data.shape[0], this.data.shape[1]);
           this.imageShape = this.data.shape;
-          console.log("Allocating ", this.imageShape);
         }
         arrayImage = new Uint8ClampedArray(this.data.buffer.buffer,
          this.data.buffer.byteOffset, this.data.buffer.byteLength);
@@ -81,6 +80,6 @@ var HelloView = widgets.DOMWidgetView.extend({
 
 
 module.exports = {
-    HelloModel : HelloModel,
-    HelloView : HelloView
+    ImageCanvasModel : ImageCanvasModel,
+    ImageCanvasView : ImageCanvasView
 };
