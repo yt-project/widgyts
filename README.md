@@ -14,7 +14,7 @@ To install use pip:
 
 For a development installation (requires npm),
 
-    $ git clone https://github.com/Nathanael-Claussen/yt-canvas-widget.git
+    $ git clone https://github.com/data-exp-lab/yt-canvas-widget.git
     $ cd yt-canvas-widget
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix yt_pycanvas
