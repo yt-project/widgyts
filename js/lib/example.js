@@ -51,17 +51,16 @@ var HelloView = widgets.DOMWidgetView.extend({
         var ny = this.imageShape[1];
         var canvasWidth  = this.canvas.width;
         var canvasHeight = this.canvas.height;
+        // Clear out image first
         createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
+              this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
               this.ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
         }.bind(this));
     },
 
     image_array_changed: function() {
         this.data = this.model.get('image_array');
-        console.log(this.data);
-        console.log(this.imageShape);
         // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-        console.log(this.data.shape);
         a1 = this.data.shape;
         a2 = this.imageShape;
         shapeChanged = !(a1.length==a2.length
