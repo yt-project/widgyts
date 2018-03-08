@@ -17,4 +17,4 @@ class ImageCanvas(ipywidgets.DOMWidget):
     _model_module_version = traitlets.Unicode('^0.1.0').tag(sync=True)
     image_array = DataUnion(dtype=np.uint8,
             shape_constraint=rgba_image_shape).tag(sync=True,
-                    **ipywidgets.widget_serialization)
+                    **data_union_serialization)

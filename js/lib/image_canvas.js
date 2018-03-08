@@ -29,7 +29,7 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
     }),
 }, {
     serializers: _.extend({
-        image_array: { deserialize: widgets.unpack_models },
+        image_array: { deserialize: ipydatawidgets.JSONToUnionArray },
     }, widgets.DOMWidgetModel.serializers),
 });
 
@@ -39,7 +39,10 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
 var ImageCanvasView = widgets.DOMWidgetView.extend({
     render: function() {
         this.canvas = document.createElement('canvas');
-        $(this.canvas).appendTo(this.el);
+        $(this.canvas)
+          .width('100%')
+          .height('100%')
+          .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
         this.data = null;
@@ -65,7 +68,7 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     image_array_changed: function() {
         
         arrayModel = this.model.get('image_array');
-        this.data = arrayModel.get('array');
+        this.data = arrayModel;
         // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
         a1 = this.data.shape;
         a2 = this.imageShape;
