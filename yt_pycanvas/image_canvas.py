@@ -18,3 +18,5 @@ class ImageCanvas(ipywidgets.DOMWidget):
     image_array = DataUnion(dtype=np.uint8,
             shape_constraint=rgba_image_shape).tag(sync=True,
                     **data_union_serialization)
+    width = traitlets.Int(256).tag(sync=True)
+    height = traitlets.Int(256).tag(sync=True)
