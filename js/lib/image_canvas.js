@@ -29,7 +29,7 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
     }),
 }, {
     serializers: _.extend({
-        image_array: { deserialize: ipydatawidgets.JSONToUnionArray },
+      image_array: ipydatawidgets.data_union_array_serialization
     }, widgets.DOMWidgetModel.serializers),
 });
 
@@ -40,7 +40,7 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     render: function() {
         this.canvas = document.createElement('canvas');
         $(this.canvas)
-          .width('100%')
+          .width('auto')
           .height('100%')
           .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
