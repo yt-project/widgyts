@@ -25,13 +25,13 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
         _view_module : 'yt-jscanvas',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        image_array: undefined,
+        normalized_array: undefined,
         width: 256,
         height: 256
     }),
 }, {
     serializers: _.extend({
-      image_array: ipydatawidgets.data_union_array_serialization
+      normalized_array: ipydatawidgets.data_union_array_serialization
     }, widgets.DOMWidgetModel.serializers),
 });
 
@@ -54,10 +54,10 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
         this.imageData = null;
         this.imageShape = new Array(3);
         this.imageShape[0] = this.imageShape[1] = this.imageShape[2] = -1;
-        this.model.on('change:image_array', this.image_array_changed, this);
+        this.model.on('change:normalized_array', this.normalized_array_changed, this);
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
-        this.image_array_changed();
+        this.normalized_array_changed();
     },
 
     redrawCanvasImage: function() {
@@ -72,9 +72,9 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
         }.bind(this));
     },
 
-    image_array_changed: function() {
+    normalized_array_changed: function() {
         
-        arrayModel = this.model.get('image_array');
+        arrayModel = this.model.get('normalized_array');
         this.data = arrayModel;
         // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
         a1 = this.data.shape;
