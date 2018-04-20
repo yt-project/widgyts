@@ -26,12 +26,14 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
         image_array: undefined,
+        color_map_array: undefined,
         width: 256,
         height: 256
     }),
 }, {
     serializers: _.extend({
-      image_array: ipydatawidgets.data_union_array_serialization
+      image_array: ipydatawidgets.data_union_array_serialization,
+      color_map_array: ipydatawidgets.data_union_array_serialization
     }, widgets.DOMWidgetModel.serializers),
 });
 
@@ -72,9 +74,38 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
         }.bind(this));
     },
 
+    applyColorArray: function() {
+
+        var imageArrayModel = this.model.get('image_array');
+        var colorMapModel = this.model.get('color_map_array');
+        var vmin = Math.min.apply(null, imageArrayModel.data);
+        var vmax = Math.max.apply(null, imageArrayModel.data);
+        var arrayModel =  {};
+        arrayModel.shape = imageArrayModel.shape;
+        arrayModel.shape.push(4);
+        arrayModel.offset = imageArrayModel.offset;
+        var arrayModelData = new Array(imageArrayModel.data.length*4);
+
+        for (var i=0; i < imageArrayModel.data.length*4; i+=4) {
+
+                var val = Math.floor((imageArrayModel.data[i/4] - vmin) / (vmax - vmin) * 256);
+                if (val > 255) {
+                    val = 255
+                }
+                else if (val < 0) {
+                    val = 0
+                }
+                arrayModelData[i] = Math.floor(colorMapModel.data[val*colorMapModel.shape[1]]*255);
+                arrayModelData[i+1] = Math.floor(colorMapModel.data[val*colorMapModel.shape[1]+1]*255);
+                arrayModelData[i+2] = Math.floor(colorMapModel.data[val*colorMapModel.shape[1]+2]*255);
+                arrayModelData[i+3] = 255;
+        }
+        arrayModel.data = arrayModelData
+        return arrayModel;
+    },
     image_array_changed: function() {
-        
-        arrayModel = this.model.get('image_array');
+
+        var arrayModel = this.applyColorArray();
         this.data = arrayModel;
         // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
         a1 = this.data.shape;
