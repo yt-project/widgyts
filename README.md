@@ -19,3 +19,12 @@ For a development installation (requires npm),
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix yt_pycanvas
     $ jupyter nbextension enable --py --sys-prefix yt_pycanvas
+
+You will also likely have to include this in your `jupyter_notebook_config.py`:
+
+```
+import mimetypes
+mimetypes.add_type('application/wasm', '.wasm')
+```
+
+This will allow wasm to be served through the correct MIME type.

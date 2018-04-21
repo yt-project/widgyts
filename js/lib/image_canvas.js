@@ -1,6 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var _ = require('lodash');
+var yt_tools = require('yt-tools');
 
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes, including
