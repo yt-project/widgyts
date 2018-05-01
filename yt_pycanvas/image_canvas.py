@@ -4,6 +4,8 @@ from ipydatawidgets import DataUnion, shape_constraints, \
         data_union_serialization
 import numpy as np
 
+from .colormaps.colormaps import ColorMaps
+
 rgba_image_shape = shape_constraints(None, None, 4)
 vmesh_shape = shape_constraints(None)
 
