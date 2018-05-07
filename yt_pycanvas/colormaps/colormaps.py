@@ -4,6 +4,8 @@ from ipydatawidgets import DataUnion, shape_constraints, \
 import numpy as np
 import traitlets
 
+to_json = ipywidgets.widget_serialization['to_json']
+
 @ipywidgets.register
 class ColorMaps(ipywidgets.Widget):
     """Colormapping widget used to collect available colormaps """
@@ -11,14 +13,15 @@ class ColorMaps(ipywidgets.Widget):
     _model_name = traitlets.Unicode('CMapModel').tag(sync=True)
     _model_module = traitlets.Unicode('yt-jscanvas').tag(sync=True)
     _model_module_version = traitlets.Unicode('^0.1.0').tag(sync=True)
-    # note: maybe sync=True is unnecessary here since this isn't directly sent
-    # to the browser?
+
+    cmaps = traitlets.Dict({}).tag(sync=True)
 
     def __init__(self):
         print("getting colormaps from matplotlib...")
 
         super(ColorMaps, self).__init__()
         self.cmaps = self.get_mpl_cmaps()
+        cmaps = traitlets.Dict(self.cmaps).tag(sync=True)
 
     def get_mpl_cmaps(self):
         """ Adds available colormaps from matplotlib."""
@@ -34,4 +37,4 @@ class ColorMaps(ipywidgets.Widget):
                 vals = cmap(np.mgrid[0.0:1.0:256j])
                 cmaps[colormap] = vals
         # maybe trying to pass the Dict of arrays will work? Not sure yet.
-        return traitlets.Dict(cmaps).tag(sync=True)
+        return cmaps

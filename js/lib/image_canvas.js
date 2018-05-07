@@ -2,6 +2,7 @@ var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var yt_tools = require('yt-tools');
 var frb = require('./fixed_res_buffer.js');
+var cmaps = require('./colormaps.js')
 
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes, including
@@ -106,5 +107,6 @@ module.exports = {
     ImageCanvasModel : ImageCanvasModel,
     ImageCanvasView : ImageCanvasView,
     FRBView: frb.FRBView,
-    FRBModel: frb.FRBModel
+    FRBModel: frb.FRBModel,
+    CMapModel: cmaps.CMapModel
 };
