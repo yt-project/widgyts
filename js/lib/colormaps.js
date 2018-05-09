@@ -18,9 +18,6 @@ var CMapModel = widgets.WidgetModel.extend({
         // widgets.WidgetModel.prototype.initialize.apply(this);
 
         console.log('initializing colormaps object in WASM');
-        yt_tools.booted.then(function() {
-            this.colormaps = yt_tools.Colormaps.new();
-        }.bind(this));
         this.add_mpl_colormaps_to_wasm();
 
     },
@@ -30,16 +27,23 @@ var CMapModel = widgets.WidgetModel.extend({
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
-        var mpl_cmap_obj = this.get('cmaps');
-        console.log(mpl_cmap_obj);
-        console.log(Object.keys(mpl_cmap_obj));
-        for (var mapname in mpl_cmap_obj) {
-            if (mpl_cmap_obj.hasOwnProperty(mapname)) {
-                var maptable = mpl_cmap_obj[mapname];
-                console.log(mapname, maptable);
-                // this.colormaps.add_cmap(mapnanme, maptable);
+        yt_tools.booted.then(function() {
+            console.log('Sending available cmaps to WASM...')
+            this.colormaps = yt_tools.Colormaps.new();
+        
+            var mpl_cmap_obj = this.get('cmaps');
+            console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
+            for (var mapname in mpl_cmap_obj) {
+                if (mpl_cmap_obj.hasOwnProperty(mapname)) {
+                    var maptable = mpl_cmap_obj[mapname];
+                    this.colormaps.add_colormap(mapname, maptable);
+                }
             }
-        }
+            // just check that we can access a few of the cmaps 
+            console.log(this.colormaps.normalize('viridis', [1.0], true));
+            console.log(this.colormaps.normalize('jet', [1.0], true));
+            console.log(this.colormaps.normalize('tab20', [1.0], true));
+        }.bind(this));
     }, 
 }, {
     model_module: 'yt-jscanvas',

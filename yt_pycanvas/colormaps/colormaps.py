@@ -33,9 +33,9 @@ class ColorMaps(ipywidgets.Widget):
             cmap_list =  mplcm.cmap_d.keys()
             for colormap in cmap_list:
                 cmap = mplcm.get_cmap(colormap)
-                vals = cmap(np.mgrid[0.0:1.0:256j])
+                vals = (cmap(np.mgrid[0.0:1.0:256j])*255).astype("uint8")
                 # right now let's just flatten the arrays. Later we can
                 # serialize each cmap on its own.
-                table = vals.tolist()
+                table = vals.flatten().tolist()
                 colormaps[colormap] = table
         return colormaps
