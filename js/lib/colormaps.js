@@ -31,22 +31,16 @@ var CMapModel = widgets.WidgetModel.extend({
         // the colormaps object in wasm.
         
         var mpl_cmap_obj = this.get('cmaps');
-        console.log(typeof mpl_cmap_obj)
-        // for (var mapname in mpl_cmap_obj) {
-            // console.log('adding in colormap');
-            // console.log(typeof mapname);
-            // console.log(typeof mpl_cmap_obj);
-            // getArray is used to access something passed with NDArrayWidget. 
-            // var maptable = ipydatawidgets.getArray(somethingmapname);
-            // var maptable = mpl_cmap_obj[mapname];
-            // console.log(mapname, maptable);
-            // this.colormaps.add_cmap(mapname, maptable)
-        // },
+        console.log(mpl_cmap_obj);
+        console.log(Object.keys(mpl_cmap_obj));
+        for (var mapname in mpl_cmap_obj) {
+            if (mpl_cmap_obj.hasOwnProperty(mapname)) {
+                var maptable = mpl_cmap_obj[mapname];
+                console.log(mapname, maptable);
+                // this.colormaps.add_cmap(mapnanme, maptable);
+            }
+        }
     }, 
-// }, {
-//    serializers: _.extend({
-//        cmaps: {deserialize: widgets.unpack_models}
-//    }, widgets.WidgetModel.serializers),
 }, {
     model_module: 'yt-jscanvas',
     model_name: 'CMapModel',

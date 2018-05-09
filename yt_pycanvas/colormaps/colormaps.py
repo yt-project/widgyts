@@ -14,18 +14,17 @@ class ColorMaps(ipywidgets.Widget):
     _model_module = traitlets.Unicode('yt-jscanvas').tag(sync=True)
     _model_module_version = traitlets.Unicode('^0.1.0').tag(sync=True)
 
-    cmaps = traitlets.Dict({}).tag(sync=True)
+    cmaps = traitlets.Dict({}).tag(sync=True, config=True)
 
     def __init__(self):
         print("getting colormaps from matplotlib...")
 
-        super(ColorMaps, self).__init__()
         self.cmaps = self.get_mpl_cmaps()
-        cmaps = traitlets.Dict(self.cmaps).tag(sync=True)
+        super(ColorMaps, self).__init__()
 
     def get_mpl_cmaps(self):
         """ Adds available colormaps from matplotlib."""
-        cmaps = {}
+        colormaps = {}
         try:
             import matplotlib.cm as mplcm
         except ImportError:
@@ -35,6 +34,8 @@ class ColorMaps(ipywidgets.Widget):
             for colormap in cmap_list:
                 cmap = mplcm.get_cmap(colormap)
                 vals = cmap(np.mgrid[0.0:1.0:256j])
-                cmaps[colormap] = vals
-        # maybe trying to pass the Dict of arrays will work? Not sure yet.
-        return cmaps
+                # right now let's just flatten the arrays. Later we can
+                # serialize each cmap on its own.
+                table = vals.tolist()
+                colormaps[colormap] = table
+        return colormaps
