@@ -1,7 +1,7 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var yt_tools = require('yt-tools');
-var cmaps = require('./colormaps.js')
+var CMapModel = require('./colormaps.js').CMapModel;
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -45,29 +45,32 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
         yt_tools.booted.then(function() {
-            this.frb = yt_tools.FixedResolutionBuffer.new(
-              this.model.get('width'),
-              this.model.get('height'),
-              0.45, 0.55, 0.45, 0.55
-            );
-            this.colormaps = yt_tools.Colormaps.new();
-            this.varmesh = yt_tools.VariableMesh.new(
-                this.model.get("px").data,
-                this.model.get("py").data,
-                this.model.get("pdx").data,
-                this.model.get("pdy").data,
-                this.model.get("val").data
-            );
-            console.log(this.frb.deposit(this.varmesh));
-            console.log(this.frb.get_buffer());
-            im = this.colormaps.normalize("default",
-              this.frb.get_buffer(), true);
-            console.log(im);
-            this.imageData = this.ctx.createImageData(
-                this.model.get('width'), this.model.get('height'),
-            );
-            this.imageData.data.set(im);
-            this.redrawCanvasImage();
+            // console.log(CMapModel.prototype.initialize());
+            CMapModel.prototype.add_mpl_colormaps_to_wasm().then(function(colormaps) {
+                this.frb = yt_tools.FixedResolutionBuffer.new(
+                  this.model.get('width'),
+                  this.model.get('height'),
+                  0.45, 0.55, 0.45, 0.55
+                );
+                console.log('colormaps reference:', colormaps);
+                this.varmesh = yt_tools.VariableMesh.new(
+                    this.model.get("px").data,
+                    this.model.get("py").data,
+                    this.model.get("pdx").data,
+                    this.model.get("pdy").data,
+                    this.model.get("val").data
+                );
+                console.log(this.frb.deposit(this.varmesh));
+                console.log(this.frb.get_buffer());
+                im = colormaps.normalize("default",
+                  this.frb.get_buffer(), true);
+                console.log(im);
+                this.imageData = this.ctx.createImageData(
+                    this.model.get('width'), this.model.get('height'),
+                );
+                this.imageData.data.set(im);
+                this.redrawCanvasImage();
+            });
         }.bind(this));
 
     },
