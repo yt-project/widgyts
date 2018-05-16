@@ -23,6 +23,14 @@ var CMapModel = widgets.WidgetModel.extend({
 
     },
 
+    normalize: function(name, buffer, take_log) {
+        return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
+            console.log('normalizing buffer with %s colormap', name);
+            array = colormaps.normalize(name, buffer, take_log);
+            return array
+        });
+    },
+
     add_mpl_colormaps_to_wasm: function() {
         // initializes the colormaps module from yt tools and adds the 
         // arrays stored in the self.cmaps dict on the python side into
