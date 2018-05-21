@@ -44,11 +44,11 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
-        yt_tools.booted.then(function() {
+        yt_tools.booted.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
-              this.model.get('width'),
-              this.model.get('height'),
-              0.45, 0.55, 0.45, 0.55
+                  this.model.get('width'),
+                  this.model.get('height'),
+                  0.45, 0.55, 0.45, 0.55
             );
             this.colormaps = yt_tools.Colormaps.new();
             this.varmesh = yt_tools.VariableMesh.new(
@@ -69,7 +69,6 @@ var FRBView = widgets.DOMWidgetView.extend({
             this.imageData.data.set(im);
             this.redrawCanvasImage();
         }.bind(this));
-
     },
 
     redrawCanvasImage: function() {

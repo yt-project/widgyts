@@ -27,7 +27,7 @@ var CMapModel = widgets.WidgetModel.extend({
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
-        yt_tools.booted.then(function() {
+        yt_tools.booted.then(function(yt_tools) {
             console.log('Sending available cmaps to WASM...')
             this.colormaps = yt_tools.Colormaps.new();
         
