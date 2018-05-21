@@ -1,7 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var yt_tools = require('yt-tools');
-// var CMapModel = require('./colormaps.js').CMapModel;
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -50,10 +49,12 @@ var FRBView = widgets.DOMWidgetView.extend({
             this.colormaps = this.model.get('colormaps');
             console.log('trying colormaps ref with model');
             console.log('colormaps reference:', this.colormaps);
+            this.map_name = this.colormaps.map_name;
+            console.log('colormap used:' , this.map_name);
             this.frb = yt_tools.FixedResolutionBuffer.new(
               this.model.get('width'),
               this.model.get('height'),
-              0.45, 0.55, 0.45, 0.55
+              0.45, 0.65, 0.45, 0.65
             );
             this.varmesh = yt_tools.VariableMesh.new(
                 this.model.get("px").data,
@@ -64,7 +65,7 @@ var FRBView = widgets.DOMWidgetView.extend({
             );
             console.log(this.frb.deposit(this.varmesh));
             console.log(this.frb.get_buffer());
-            this.colormaps.normalize("viridis",
+            this.colormaps.normalize(this.map_name,
                 this.frb.get_buffer(), true).then(function(array) {
                 im =  array;
                 console.log(im);

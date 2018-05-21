@@ -11,16 +11,13 @@ var CMapModel = widgets.WidgetModel.extend({
             _model_module_version: '0.1.0',
 
             cmaps: undefined,
+            map_name: undefined,
         });
     },
 
     initialize: function() {
         console.log('initializing colormaps object in WASM');
-        this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
-            console.log('double checking refs');
-            console.log(colormaps.normalize('viridis', [1.0], true));
-        });
-
+        this.map_name = this.get('map_name')
     },
 
     normalize: function(name, buffer, take_log) {
@@ -49,9 +46,9 @@ var CMapModel = widgets.WidgetModel.extend({
                 }
             }
             // just check that we can access a few of the cmaps 
-            console.log(this.colormaps.normalize('viridis', [1.0], true));
-            console.log(this.colormaps.normalize('jet', [1.0], true));
-            console.log(this.colormaps.normalize('tab20', [1.0], true));
+            // console.log(this.colormaps.normalize('viridis', [1.0], true));
+            // console.log(this.colormaps.normalize('jet', [1.0], true));
+            // console.log(this.colormaps.normalize('tab20', [1.0], true));
             return this.colormaps
         }.bind(this));
     }, 
