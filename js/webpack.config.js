@@ -19,6 +19,7 @@ module.exports = [
      // extension.
      //
         entry: './lib/extension.js',
+        mode: 'development',
         output: {
             filename: 'extension.js',
             path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
@@ -32,6 +33,7 @@ module.exports = [
      // It must be an amd module
      //
         entry: './lib/index.js',
+        mode: 'development',
         output: {
             filename: 'index.js',
             path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
@@ -58,6 +60,7 @@ module.exports = [
      // by the custom widget embedder.
      //
         entry: './lib/embed.js',
+        mode: 'development',
         output: {
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),

@@ -49,16 +49,16 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.colormap_changed();
         this.model.on('change:colormap_name', this.colormap_changed, this);
         console.log('colormap used:' , this.map_name);
-        yt_tools.booted.then(function() {
+        yt_tools.booted.then(function(yt_tools) {
             this.colormaps = this.model.get('colormaps');
             console.log('trying colormaps ref with model');
             console.log('colormaps reference:', this.colormaps);
             // this.map_name = this.model.get('colormap_name');
             console.log('colormap used:' , this.map_name);
             this.frb = yt_tools.FixedResolutionBuffer.new(
-              this.model.get('width'),
-              this.model.get('height'),
-              0.45, 0.65, 0.45, 0.65
+                this.model.get('width'),
+                this.model.get('height'),
+                0.45, 0.65, 0.45, 0.65
             );
             this.varmesh = yt_tools.VariableMesh.new(
                 this.model.get("px").data,
@@ -80,7 +80,6 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.redrawCanvasImage();
             }.bind(this));
         }.bind(this));
-
     },
 
     redrawCanvasImage: function() {
