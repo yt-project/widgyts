@@ -3,6 +3,7 @@ import traitlets
 from ipydatawidgets import DataUnion, shape_constraints, \
         data_union_serialization
 import numpy as np
+from ipywidgets import widget_serialization
 
 from .colormaps.colormaps import ColorMaps
 
@@ -50,3 +51,10 @@ class FRBViewer(ipywidgets.DOMWidget):
     val = DataUnion(dtype=np.float64,
             shape_constraint=vmesh_shape).tag(sync = True,
                     **data_union_serialization)
+    colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
+            **widget_serialization)
+
+    @traitlets.default('colormaps')
+    def _colormap_load(self):
+        return ColorMaps()
+

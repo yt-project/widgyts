@@ -10,16 +10,25 @@ var CMapModel = widgets.WidgetModel.extend({
             _model_module: 'yt-jscanvas',
             _model_module_version: '0.1.0',
 
-            cmaps: undefined
+            cmaps: undefined,
         });
     },
 
     initialize: function() {
-        // widgets.WidgetModel.prototype.initialize.apply(this);
-
         console.log('initializing colormaps object in WASM');
-        this.add_mpl_colormaps_to_wasm();
+        this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
+            console.log('double checking refs');
+            console.log(colormaps.normalize('viridis', [1.0], true));
+        });
 
+    },
+
+    normalize: function(name, buffer, take_log) {
+        return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
+            console.log('normalizing buffer with %s colormap', name);
+            array = colormaps.normalize(name, buffer, take_log);
+            return array
+        });
     },
 
     add_mpl_colormaps_to_wasm: function() {
@@ -27,7 +36,7 @@ var CMapModel = widgets.WidgetModel.extend({
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
-        yt_tools.booted.then(function(yt_tools) {
+        return yt_tools.booted.then(function(yt_tools) {
             console.log('Sending available cmaps to WASM...')
             this.colormaps = yt_tools.Colormaps.new();
         
@@ -43,6 +52,7 @@ var CMapModel = widgets.WidgetModel.extend({
             console.log(this.colormaps.normalize('viridis', [1.0], true));
             console.log(this.colormaps.normalize('jet', [1.0], true));
             console.log(this.colormaps.normalize('tab20', [1.0], true));
+            return this.colormaps
         }.bind(this));
     }, 
 }, {
