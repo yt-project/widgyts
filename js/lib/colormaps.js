@@ -11,13 +11,11 @@ var CMapModel = widgets.WidgetModel.extend({
             _model_module_version: '0.1.0',
 
             cmaps: undefined,
-            map_name: undefined,
         });
     },
 
     initialize: function() {
         console.log('initializing colormaps object in WASM');
-        this.map_name = this.get('map_name')
     },
 
     normalize: function(name, buffer, take_log) {

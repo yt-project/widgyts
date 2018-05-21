@@ -15,14 +15,11 @@ class ColorMaps(ipywidgets.Widget):
     _model_module_version = traitlets.Unicode('^0.1.0').tag(sync=True)
 
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
-    map_name = traitlets.Unicode("").tag(sync=True,
-            config=True)
 
     def __init__(self):
         print("getting colormaps from matplotlib...")
 
         self.cmaps = self.get_mpl_cmaps()
-        self.map_name = 'viridis'
         super(ColorMaps, self).__init__()
 
     def get_mpl_cmaps(self):

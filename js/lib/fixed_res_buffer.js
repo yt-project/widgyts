@@ -17,6 +17,7 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         val: undefined,
         width: 512,
         height: 512,
+        colormap_name: 'viridis',
         colormaps: undefined,
     }),
 }, {
@@ -45,11 +46,14 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
+        this.colormap_changed();
+        this.model.on('change:colormap_name', this.colormap_changed, this);
+        console.log('colormap used:' , this.map_name);
         yt_tools.booted.then(function() {
             this.colormaps = this.model.get('colormaps');
             console.log('trying colormaps ref with model');
             console.log('colormaps reference:', this.colormaps);
-            this.map_name = this.colormaps.map_name;
+            // this.map_name = this.model.get('colormap_name');
             console.log('colormap used:' , this.map_name);
             this.frb = yt_tools.FixedResolutionBuffer.new(
               this.model.get('width'),
@@ -97,6 +101,10 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     height_changed: function() {
       $(this.canvas).height(this.model.get('height'));
+    },
+
+    colormap_changed: function() {
+      this.map_name = this.model.get('colormap_name');
     }
 });
 
