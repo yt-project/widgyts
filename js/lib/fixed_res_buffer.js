@@ -46,15 +46,8 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
-        this.colormap_changed();
-        this.model.on('change:colormap_name', this.colormap_changed, this);
-        console.log('colormap used:' , this.map_name);
         yt_tools.booted.then(function(yt_tools) {
             this.colormaps = this.model.get('colormaps');
-            console.log('trying colormaps ref with model');
-            console.log('colormaps reference:', this.colormaps);
-            // this.map_name = this.model.get('colormap_name');
-            console.log('colormap used:' , this.map_name);
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
@@ -67,8 +60,11 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.model.get("pdy").data,
                 this.model.get("val").data
             );
-            console.log(this.frb.deposit(this.varmesh));
+            this.frb.deposit(this.varmesh);
             console.log(this.frb.get_buffer());
+            this.map_name = this.model.get('colormap_name');
+            this.model.on('change:colormap_name', this.colormap_changed, this);
+            console.log('colormap used:' , this.map_name);
             this.colormaps.normalize(this.map_name,
                 this.frb.get_buffer(), true).then(function(array) {
                 im =  array;
@@ -103,7 +99,23 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     colormap_changed: function() {
+      var old_name = this.map_name;
       this.map_name = this.model.get('colormap_name');
+      console.log('updating buffer from %s to %s', old_name, this.map_name);
+
+      // If the colormap name is updated then we only need to rerun normalize. 
+      // All of the variables defined from our previous plotting routines do 
+      // not require updating.  
+      this.colormaps.normalize(this.map_name,
+          this.frb.get_buffer(), true).then(function(array) {
+          im = array;
+          console.log(im);
+          this.imageData = this.ctx.createImageData(
+              this.model.get('width'), this.model.get('height'),
+          );
+          this.imageData.data.set(im);
+          this.redrawCanvasImage();
+      }.bind(this));
     }
 });
 
