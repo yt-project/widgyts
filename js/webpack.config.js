@@ -4,7 +4,8 @@ var version = require('./package.json').version;
 // Custom webpack rules are generally the same for all webpack bundles, hence
 // stored in a separate local variable.
 var rules = [
-    { test: /\.css$/, use: ['style-loader', 'css-loader']}
+    { test: /\.css$/, use: ['style-loader', 'css-loader'] },
+    { test: /\.wasm$/, type: 'webassembly/experimental' }
 ]
 
 
@@ -18,6 +19,7 @@ module.exports = [
      // extension.
      //
         entry: './lib/extension.js',
+        mode: 'development',
         output: {
             filename: 'extension.js',
             path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
@@ -31,6 +33,7 @@ module.exports = [
      // It must be an amd module
      //
         entry: './lib/index.js',
+        mode: 'development',
         output: {
             filename: 'index.js',
             path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
@@ -57,6 +60,7 @@ module.exports = [
      // by the custom widget embedder.
      //
         entry: './lib/embed.js',
+        mode: 'development',
         output: {
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),
