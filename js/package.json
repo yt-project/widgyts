@@ -1,12 +1,26 @@
 {
   "name": "yt-jscanvas",
   "version": "0.1.0",
-  "description": "A Custom Jupyter Widget Library",
-  "author": "Nathanael-Claussen",
+  "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
+  "author": "Data Exploration Lab",
+  "contributors": [
+    {
+      "name": "Nathanael Claussen",
+      "email": "nclauss2@illinois.edu"
+    },
+    {
+      "name": "Madicken Munk",
+      "email": "madicken.munk@gmail.com"
+    },
+    {
+      "name": "Matthew Turk",
+      "email": "matthewturk@gmail.com"
+    }
+  ],
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Nathanael-Claussen/yt-canvas-widget.git"
+    "url": "https://github.com/data-exp-lab/yt-canvas-widget.git"
   },
   "keywords": [
     "jupyter",
@@ -26,7 +40,6 @@
   "devDependencies": {
     "webpack": "^4.8.3",
     "webpack-cli": "^2.0.14",
-    "wasm-loader": "^1.3.0",
     "rimraf": "^2.6.1"
   },
   "dependencies": {
@@ -34,7 +47,6 @@
     "jupyter-dataserializers": "^1.1.2",
     "jupyter-datawidgets": "^4.0.1",
     "lodash": "^4.17.4",
-    "wasm-dce": "^1.0.2",
     "yt-tools": "0.1.0"
   }
 }
