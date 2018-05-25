@@ -15,6 +15,8 @@ class ColorMaps(ipywidgets.Widget):
     _model_module_version = traitlets.Unicode('^0.1.0').tag(sync=True)
 
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
+    name = traitlets.Unicode('autumn').tag(sync=True, config=True)
+    is_log = traitlets.Bool(False).tag(sync=True, config=True)
 
     def __init__(self):
         print("getting colormaps from matplotlib...")
