@@ -12,18 +12,27 @@ var CMapModel = widgets.WidgetModel.extend({
 
             cmaps: undefined,
             name: null,
-            is_log: undefined, 
+            is_log: undefined,
+            data: undefined, 
         });
     },
 
     initialize: function() {
+        widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
 
-        this.initPromise = this.boot_tools().then(function() {
-            console.log('setting up listeners');
-            this.setupListeners();
-            console.log('listeners done');
-        }.bind(this));
+        this.name = this.get('name');
+        this.is_log = this.get('is_log');
+        this.data = this.get('data');
+        console.log('setting up listeners');
+        this.setupListeners();
+        console.log('listeners done');
+        
+        // this.initPromise = this.boot_tools().then(function() {
+        //     console.log('setting up listeners');
+        //     this.setupListeners();
+        //     console.log('listeners done');
+        // }.bind(this));
     },
 
     boot_tools: function() {
@@ -64,24 +73,44 @@ var CMapModel = widgets.WidgetModel.extend({
     
     setupListeners: function() {
         console.log('in setup_listeners function');
-        this.name = this.get('name');
-        this.is_log = this.get('is_log');
         this.on('change:name', this.name_changed, this);
         this.on('change:is_log', this.scale_changed, this);
+        this.on('change:data', this.property_changed, this);
     },
 
     name_changed: function() {
         var old_name = this.name;
         this.name = this.get('name');
         console.log('triggered name event listener: name from %s to %s', old_name, this.name);
+        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+            console.log(array);
+            return array;
+        });
     },
     
     scale_changed: function() {
         var old_scale = this.is_log;
         this.is_log = this.get('is_log');
         console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
+        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+            console.log(array);
+            return array;
+        });
     },
 
+    property_changed: function() {
+        this.data = this.get('data');
+        console.log('detected change in buffer array. Renormalizing');
+        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+            console.log(array);
+            return array;
+        });
+    },
+
+// }, {
+//    serializers: _.extend({
+//        data: ipydatawidgets.data_union_array_serialization,
+//    }, widgets.WidgetModel.serializers),
 }, {
     model_module: 'yt-jscanvas',
     model_name: 'CMapModel',

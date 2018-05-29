@@ -17,8 +17,11 @@ class ColorMaps(ipywidgets.Widget):
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
     name = traitlets.Unicode('autumn').tag(sync=True, config=True)
     is_log = traitlets.Bool(False).tag(sync=True, config=True)
+    data = traitlets.List([1.0, 2.0, 3.0]).tag(sync=True, config=True)
+    # data = DataUnion(dtype=np.float64).tag(sync=True, config=True,
+    #        **data_union_serialization)
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         print("getting colormaps from matplotlib...")
 
         self.cmaps = self.get_mpl_cmaps()
