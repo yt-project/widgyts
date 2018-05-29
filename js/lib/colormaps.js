@@ -11,19 +11,20 @@ var CMapModel = widgets.WidgetModel.extend({
             _model_module_version: '0.1.0',
 
             cmaps: undefined,
-            name: null,
+            map_name: null,
             is_log: undefined,
             data: undefined, 
         });
     },
 
     initialize: function() {
+        this.map_name = this.get('map_name');
+        this.is_log = this.get('is_log');
+        this.data = this.get('data');
+        
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
 
-        this.name = this.get('name');
-        this.is_log = this.get('is_log');
-        this.data = this.get('data');
         console.log('setting up listeners');
         this.setupListeners();
         console.log('listeners done');
@@ -73,16 +74,16 @@ var CMapModel = widgets.WidgetModel.extend({
     
     setupListeners: function() {
         console.log('in setup_listeners function');
-        this.on('change:name', this.name_changed, this);
+        this.on('change:map_name', this.name_changed, this);
         this.on('change:is_log', this.scale_changed, this);
         this.on('change:data', this.property_changed, this);
     },
 
     name_changed: function() {
-        var old_name = this.name;
-        this.name = this.get('name');
-        console.log('triggered name event listener: name from %s to %s', old_name, this.name);
-        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+        var old_name = this.map_name;
+        this.map_name = this.get('map_name');
+        console.log('triggered name event listener: name from %s to %s', old_name, this.map_name);
+        return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);
             return array;
         });
@@ -92,7 +93,7 @@ var CMapModel = widgets.WidgetModel.extend({
         var old_scale = this.is_log;
         this.is_log = this.get('is_log');
         console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
-        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+        return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);
             return array;
         });
@@ -101,7 +102,7 @@ var CMapModel = widgets.WidgetModel.extend({
     property_changed: function() {
         this.data = this.get('data');
         console.log('detected change in buffer array. Renormalizing');
-        return this.normalize(this.name, this.data, this.is_log).then(function(array){
+        return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);
             return array;
         });
