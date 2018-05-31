@@ -14,6 +14,7 @@ var CMapModel = widgets.WidgetModel.extend({
             map_name: null,
             is_log: undefined,
             data: undefined, 
+            image_array: undefined,
         });
     },
 
@@ -21,6 +22,7 @@ var CMapModel = widgets.WidgetModel.extend({
         this.map_name = this.get('map_name');
         this.is_log = this.get('is_log');
         this.data = this.get('data');
+        this.image_array = this.get('image_array');
         
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
@@ -45,9 +47,15 @@ var CMapModel = widgets.WidgetModel.extend({
     normalize: function(name, buffer, take_log) {
         // normalizes a given buffer with a colormap name. Requires colormaps
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
-        // at this time. 
+        // at this time.
+        // this.set('image_array', [1.0]);
+        //this.save_changes();
+        var that = this;
         return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
             array = colormaps.normalize(name, buffer, take_log);
+            console.log(array);
+            that.set('image_array', array);
+            that.save_changes();
             return array
         });
     },
@@ -107,11 +115,11 @@ var CMapModel = widgets.WidgetModel.extend({
             return array;
         });
     },
-
-// }, {
-//    serializers: _.extend({
-//        data: ipydatawidgets.data_union_array_serialization,
-//    }, widgets.WidgetModel.serializers),
+}, {
+   serializers: _.extend({
+       data: ipydatawidgets.data_union_array_serialization,
+       image_array: ipydatawidgets.data_union_array_serialization
+   }, widgets.WidgetModel.serializers),
 }, {
     model_module: 'yt-jscanvas',
     model_name: 'CMapModel',

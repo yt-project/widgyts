@@ -4,6 +4,8 @@ from ipydatawidgets import DataUnion, shape_constraints, \
 import numpy as np
 import traitlets
 
+rgba_image_shape = shape_constraints(None, None, 4)
+vmesh_shape = shape_constraints(None)
 to_json = ipywidgets.widget_serialization['to_json']
 
 @ipywidgets.register
@@ -17,7 +19,14 @@ class ColorMaps(ipywidgets.Widget):
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
     map_name = traitlets.Unicode('autumn').tag(sync=True, config=True)
     is_log = traitlets.Bool(False).tag(sync=True, config=True)
-    data = traitlets.List([1.0, 2.0, 3.0]).tag(sync=True, config=True)
+    # data = traitlets.List([1.0, 2.0, 3.0]).tag(sync=True, config=True)
+    # image_array = traitlets.List([]).tag(sync=True, config=True)
+    data = DataUnion(np.array([]), dtype=np.float64,
+            shape_constraint=vmesh_shape).tag(sync = True, config=True,
+                    **data_union_serialization)
+    image_array = DataUnion(np.array([]), dtype=np.uint8,
+            shape_constraint=vmesh_shape).tag(sync=True, config=True,
+                    **data_union_serialization)
     # data = DataUnion(dtype=np.float64).tag(sync=True, config=True,
     #        **data_union_serialization)
 
