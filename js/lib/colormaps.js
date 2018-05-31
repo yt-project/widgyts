@@ -21,8 +21,8 @@ var CMapModel = widgets.WidgetModel.extend({
     initialize: function() {
         this.map_name = this.get('map_name');
         this.is_log = this.get('is_log');
-        this.data = this.get('data');
-        this.image_array = this.get('image_array');
+        this.data = this.get('data').data;
+        this.image_array = this.get('image_array').data;
         
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
@@ -30,12 +30,6 @@ var CMapModel = widgets.WidgetModel.extend({
         console.log('setting up listeners');
         this.setupListeners();
         console.log('listeners done');
-        
-        // this.initPromise = this.boot_tools().then(function() {
-        //     console.log('setting up listeners');
-        //     this.setupListeners();
-        //     console.log('listeners done');
-        // }.bind(this));
     },
 
     boot_tools: function() {
@@ -48,14 +42,26 @@ var CMapModel = widgets.WidgetModel.extend({
         // normalizes a given buffer with a colormap name. Requires colormaps
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
-        // this.set('image_array', [1.0]);
-        //this.save_changes();
+        
         var that = this;
         return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
             array = colormaps.normalize(name, buffer, take_log);
+            
+            // checking to see that the returned array and the data object 
+            // are as expected. 
+            console.log(that.data);
             console.log(array);
-            that.set('image_array', array);
+            
+            // I sort of feel like this next line shouldn't be required if we 
+            // update the Python side, but whatever. 
+            // Updates the js side of image_array to our result. 
+            that.image_array = array;
+
+            // this sync isn't working yet, so on the python side we can't 
+            // access it. 
+            that.set('image_array', array).data;
             that.save_changes();
+            console.log(that.image_array);
             return array
         });
     },
@@ -108,7 +114,7 @@ var CMapModel = widgets.WidgetModel.extend({
     },
 
     property_changed: function() {
-        this.data = this.get('data');
+        this.data = this.get('data').data;
         console.log('detected change in buffer array. Renormalizing');
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);

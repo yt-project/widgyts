@@ -67,7 +67,7 @@ var FRBView = widgets.DOMWidgetView.extend({
             console.log('colormap used:' , this.map_name);
             this.colormaps.normalize(this.map_name,
                 this.frb.get_buffer(), true).then(function(array) {
-                im =  array;
+                im = array;
                 console.log(im);
                 this.imageData = this.ctx.createImageData(
                     this.model.get('width'), this.model.get('height'),
@@ -101,7 +101,6 @@ var FRBView = widgets.DOMWidgetView.extend({
     colormap_changed: function() {
       var old_name = this.map_name;
       this.map_name = this.model.get('colormap_name');
-      this.colormaps.name = this.map_name
       console.log('updating buffer from %s to %s', old_name, this.map_name);
 
       // If the colormap name is updated then we only need to rerun normalize. 
