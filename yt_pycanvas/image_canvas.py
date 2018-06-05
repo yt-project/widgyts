@@ -51,8 +51,6 @@ class FRBViewer(ipywidgets.DOMWidget):
     val = DataUnion(dtype=np.float64,
             shape_constraint=vmesh_shape).tag(sync = True,
                     **data_union_serialization)
-    colormap_name = traitlets.Unicode('viridis').tag(sync=True,
-            config=True)
     colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
             **widget_serialization)
 

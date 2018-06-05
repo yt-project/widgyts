@@ -88,9 +88,15 @@ var CMapModel = widgets.WidgetModel.extend({
     
     setupListeners: function() {
         console.log('in setup_listeners function');
+        
+        // setting up listeners on the python side.
         this.on('change:map_name', this.name_changed, this);
         this.on('change:is_log', this.scale_changed, this);
         this.on('change:data', this.property_changed, this);
+
+        // setting up js listener for change in the input data array since
+        // the js side of the frb and the image canvas modify it. 
+        this.listenTo(this, 'change:data', this.jsdata_changed(), this);
     },
 
     name_changed: function() {
@@ -115,7 +121,16 @@ var CMapModel = widgets.WidgetModel.extend({
 
     property_changed: function() {
         this.data = this.get('data').data;
-        console.log('detected change in buffer array. Renormalizing');
+        console.log('detected change in buffer array on python side. Renormalizing');
+        return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
+            console.log(array);
+            return array;
+        });
+    },
+    
+    jsdata_changed: function() {
+        console.log(this.data);
+        console.log('detected change in buffer array on js side. Renormalizing');
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);
             return array;

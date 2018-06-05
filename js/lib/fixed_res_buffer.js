@@ -17,7 +17,6 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         val: undefined,
         width: 512,
         height: 512,
-        colormap_name: 'viridis',
         colormaps: undefined,
     }),
 }, {
@@ -48,6 +47,7 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:height', this.height_changed, this);
         yt_tools.booted.then(function(yt_tools) {
             this.colormaps = this.model.get('colormaps');
+            this.colormap_events();
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
@@ -61,20 +61,14 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.model.get("val").data
             );
             this.frb.deposit(this.varmesh);
-            console.log(this.frb.get_buffer());
-            this.map_name = this.model.get('colormap_name');
-            this.model.on('change:colormap_name', this.colormap_changed, this);
-            console.log('colormap used:' , this.map_name);
-            this.colormaps.normalize(this.map_name,
-                this.frb.get_buffer(), true).then(function(array) {
-                im = array;
-                console.log(im);
-                this.imageData = this.ctx.createImageData(
-                    this.model.get('width'), this.model.get('height'),
-                );
-                this.imageData.data.set(im);
-                this.redrawCanvasImage();
-            }.bind(this));
+            this.colormaps.data = this.frb.get_buffer();
+            this.imageData = this.ctx.createImageData(
+                this.model.get('width'), this.model.get('height'),
+            );
+            // note: image array not triggering change yet on first render. 
+            console.log(this.colormaps.image_array);
+            this.imageData.data.set(this.colormaps.image_array);
+            this.redrawCanvasImage();
         }.bind(this));
     },
 
@@ -90,6 +84,38 @@ var FRBView = widgets.DOMWidgetView.extend({
         }.bind(this));
     },
 
+    colormap_events: function() {
+        // Set up listeners for the colormap name and scale. Nothing in the FRB 
+        // links to these directly so the responses are simple. 
+        this.listenTo(this.colormaps, 'change:map_name', function() {
+            var new_name = this.colormaps.get('map_name');
+            console.log('map name change detected in frb to %s', new_name);
+        }, this); 
+        this.listenTo(this.colormaps, 'change:is_log', function() {
+            var scale = this.colormaps.get('is_log');
+            console.log('image array log scale change in frb to %s', scale);
+        }, this); 
+
+        // The listener for the data array of the colormap actually links to the 
+        // FRB directly, so a little bit more needs to be done here. Also, since 
+        // the data array is set on the js side it may differ from the python side 
+        // until we resolve those issues.
+
+
+        // Last, once a change in the image array is detected, we will redraw 
+        // it on the canvas image. 
+        this.listenTo(this.colormaps, 'change:image_array', function() {
+            var array = this.colormaps.get('image_array');
+            console.log('image array updated to: ', array);
+            this.imageData = this.ctx.createImageData(
+                this.model.get('width'), this.model.get('height'),
+            );
+            this.imageData.data.set(array);
+            console.log('redrawing image array on canvas');
+            this.redrawCanvasImage();
+        }, this); 
+    },
+
     width_changed: function() {
       $(this.canvas).width(this.model.get('width'));
     },
@@ -98,25 +124,6 @@ var FRBView = widgets.DOMWidgetView.extend({
       $(this.canvas).height(this.model.get('height'));
     },
 
-    colormap_changed: function() {
-      var old_name = this.map_name;
-      this.map_name = this.model.get('colormap_name');
-      console.log('updating buffer from %s to %s', old_name, this.map_name);
-
-      // If the colormap name is updated then we only need to rerun normalize. 
-      // All of the variables defined from our previous plotting routines do 
-      // not require updating.  
-      this.colormaps.normalize(this.map_name,
-          this.frb.get_buffer(), true).then(function(array) {
-          im = array;
-          console.log(im);
-          this.imageData = this.ctx.createImageData(
-              this.model.get('width'), this.model.get('height'),
-          );
-          this.imageData.data.set(im);
-          this.redrawCanvasImage();
-      }.bind(this));
-    }
 });
 
 module.exports = {
