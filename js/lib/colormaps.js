@@ -13,6 +13,8 @@ var CMapModel = widgets.WidgetModel.extend({
             cmaps: undefined,
             map_name: null,
             is_log: undefined,
+            min_val: undefined, 
+            max_val: undefined,
             data: undefined, 
             image_array: undefined,
         });
@@ -21,6 +23,8 @@ var CMapModel = widgets.WidgetModel.extend({
     initialize: function() {
         this.map_name = this.get('map_name');
         this.is_log = this.get('is_log');
+        this.min_val = this.get('min_val');
+        this.max_val = this.get('max_val');
         this.data = this.get('data').data;
         this.image_array = this.get('image_array').data;
         
@@ -45,7 +49,23 @@ var CMapModel = widgets.WidgetModel.extend({
         
         var that = this;
         return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
-            array = colormaps.normalize(name, buffer, take_log);
+            if (that.min_val) {
+                if (that.max_val) {
+                    console.log('both min and max are user defined');
+                    array = colormaps.normalize_min_max(name, buffer, that.min_val, that.max_val, take_log);
+                } else {
+                    console.log('min val defined, max val not defined');
+                    array = colormaps.normalize_min(name, buffer, that.min_val, take_log);
+                }
+            } else if (that.max_val) {
+                console.log('max val defined, min val not defined');
+                array = colormaps.normalize_max(name, buffer, that.max_val, take_log);
+            } else {
+                console.log('neither max nor min defined');
+                array = colormaps.normalize(name, buffer, take_log);
+            };
+
+            // array = colormaps.normalize(name, buffer, take_log);
             
             // checking to see that the returned array and the data object 
             // are as expected. 
@@ -92,6 +112,8 @@ var CMapModel = widgets.WidgetModel.extend({
         // setting up listeners on the python side.
         this.on('change:map_name', this.name_changed, this);
         this.on('change:is_log', this.scale_changed, this);
+        this.on('change:min_val', this.limits_changed, this);
+        this.on('change:max_val', this.limits_changed, this);
         this.on('change:data', this.property_changed, this);
 
         // setting up js listener for change in the input data array since
@@ -113,6 +135,16 @@ var CMapModel = widgets.WidgetModel.extend({
         var old_scale = this.is_log;
         this.is_log = this.get('is_log');
         console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
+        return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
+            console.log(array);
+            return array;
+        });
+    },
+    
+    limits_changed: function() {
+        this.min_val = this.get('min_val');
+        this.max_val = this.get('max_val');
+        console.log('triggered limit event listener: min and max val', this.min_val, this.max_val);
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
             console.log(array);
             return array;

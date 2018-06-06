@@ -19,6 +19,8 @@ class ColorMaps(ipywidgets.Widget):
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
     map_name = traitlets.Unicode('autumn').tag(sync=True, config=True)
     is_log = traitlets.Bool(False).tag(sync=True, config=True)
+    min_val = traitlets.Float().tag(sync=True, config=True)
+    max_val = traitlets.Float().tag(sync=True, config=True)
     data = DataUnion(np.array([]), dtype=np.float64,
             shape_constraint=vmesh_shape).tag(sync = True, config=True,
                     **data_union_serialization)
