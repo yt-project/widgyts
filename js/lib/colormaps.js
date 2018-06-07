@@ -30,46 +30,19 @@ var CMapModel = widgets.WidgetModel.extend({
         
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
-        this.boot_tools();
 
         console.log('setting up listeners');
         this.setupListeners();
         console.log('listeners done');
     },
 
-    boot_tools: function() {
-        var that = this;
-        return yt_tools.booted.then(function(yt_tools) {
-            if (that.colormaps) {
-                console.log('yt tools do have colormaps loaded');
-                console.log(that.colormaps);
-            } else {
-                console.log('yt tools DO NOT have colormaps yet');
-                console.log(that.colormaps);
-            }
-            return yt_tools;
-        });
-    },
-
-    boot_tools2: function() {
-        console.log('checking to see if colormaps object exists..... ');
-        if (this.colormaps) {
-            console.log('colormaps exist');
-            console.log(this.colormaps);
-        } else {
-            console.log('colormaps DO NOT exist');
-        }
-    },
-
     normalize: function(name, buffer, take_log) {
         // normalizes a given buffer with a colormap name. Requires colormaps
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
-        //
-        this.boot_tools();
         
         var that = this;
-        return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
+        return this.get_cmaps().then(function(colormaps) {
             if (that.min_val) {
                 if (that.max_val) {
                     console.log('both min and max are user defined');
@@ -101,30 +74,37 @@ var CMapModel = widgets.WidgetModel.extend({
             // However, in order for the FRB to pick up that something changed 
             // in the image array, that.set must be used.  
             that.set('image_array', array).data;
-            // that.save_changes();
-            console.log(that.image_array);
+            that.save_changes();
             return array
         });
     },
 
-    add_mpl_colormaps_to_wasm: function() {
+    get_cmaps: function() {
         // initializes the wasm colormaps module from yt tools and adds the 
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
         var that = this
         return yt_tools.booted.then(function(yt_tools) {
-            that.colormaps = yt_tools.Colormaps.new();
+            console.log('checking to see if colormaps object for wasm exists..... ');
+            if (that.colormaps) {
+                console.log('colormaps exist');
+                console.log(that.colormaps);
+                return that.colormaps
+            } else {
+                console.log('colormaps DO NOT exist..... importing....... ');
+                that.colormaps = yt_tools.Colormaps.new();
         
-            var mpl_cmap_obj = that.get('cmaps');
-            // console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
-            for (var mapname in mpl_cmap_obj) {
-                if (mpl_cmap_obj.hasOwnProperty(mapname)) {
-                    var maptable = mpl_cmap_obj[mapname];
-                    that.colormaps.add_colormap(mapname, maptable);
+                var mpl_cmap_obj = that.get('cmaps');
+                console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
+                for (var mapname in mpl_cmap_obj) {
+                    if (mpl_cmap_obj.hasOwnProperty(mapname)) {
+                        var maptable = mpl_cmap_obj[mapname];
+                        that.colormaps.add_colormap(mapname, maptable);
+                    }
                 }
+                return that.colormaps
             }
-            return that.colormaps
         });
     }, 
     
@@ -148,7 +128,6 @@ var CMapModel = widgets.WidgetModel.extend({
         this.map_name = this.get('map_name');
         console.log('triggered name event listener: name from %s to %s', old_name, this.map_name);
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
-            console.log(array);
             return array;
         });
     },
@@ -158,7 +137,6 @@ var CMapModel = widgets.WidgetModel.extend({
         this.is_log = this.get('is_log');
         console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
-            console.log(array);
             return array;
         });
     },
@@ -168,7 +146,6 @@ var CMapModel = widgets.WidgetModel.extend({
         this.max_val = this.get('max_val');
         console.log('triggered limit event listener: min and max val', this.min_val, this.max_val);
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
-            console.log(array);
             return array;
         });
     },
@@ -177,7 +154,6 @@ var CMapModel = widgets.WidgetModel.extend({
         this.data = this.get('data').data;
         console.log('detected change in buffer array on python side. Renormalizing');
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
-            console.log(array);
             return array;
         });
     },
@@ -186,7 +162,6 @@ var CMapModel = widgets.WidgetModel.extend({
         console.log(this.data);
         console.log('detected change in buffer array on js side. Renormalizing');
         return this.normalize(this.map_name, this.data, this.is_log).then(function(array){
-            console.log(array);
             return array;
         });
     },

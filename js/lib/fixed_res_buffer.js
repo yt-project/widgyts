@@ -66,6 +66,8 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.model.get('width'), this.model.get('height'),
             );
             // note: image array not triggering change yet on first render. 
+            // this is likely due to the fact that it's executed before the 
+            // new promises have been resolved in the colormapper
             console.log(this.colormaps.image_array);
             this.imageData.data.set(this.colormaps.image_array);
             this.redrawCanvasImage();
