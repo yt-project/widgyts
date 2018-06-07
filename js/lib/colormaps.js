@@ -30,6 +30,7 @@ var CMapModel = widgets.WidgetModel.extend({
         
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
         console.log('initializing colormaps object in WASM');
+        this.boot_tools();
 
         console.log('setting up listeners');
         this.setupListeners();
@@ -37,15 +38,35 @@ var CMapModel = widgets.WidgetModel.extend({
     },
 
     boot_tools: function() {
+        var that = this;
         return yt_tools.booted.then(function(yt_tools) {
+            if (that.colormaps) {
+                console.log('yt tools do have colormaps loaded');
+                console.log(that.colormaps);
+            } else {
+                console.log('yt tools DO NOT have colormaps yet');
+                console.log(that.colormaps);
+            }
             return yt_tools;
-        }.bind(this));
+        });
+    },
+
+    boot_tools2: function() {
+        console.log('checking to see if colormaps object exists..... ');
+        if (this.colormaps) {
+            console.log('colormaps exist');
+            console.log(this.colormaps);
+        } else {
+            console.log('colormaps DO NOT exist');
+        }
     },
 
     normalize: function(name, buffer, take_log) {
         // normalizes a given buffer with a colormap name. Requires colormaps
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
+        //
+        this.boot_tools();
         
         var that = this;
         return this.add_mpl_colormaps_to_wasm().then(function(colormaps) {
@@ -65,8 +86,6 @@ var CMapModel = widgets.WidgetModel.extend({
                 array = colormaps.normalize(name, buffer, take_log);
             };
 
-            // array = colormaps.normalize(name, buffer, take_log);
-            
             // checking to see that the returned array and the data object 
             // are as expected. 
             console.log(that.data);
@@ -79,8 +98,10 @@ var CMapModel = widgets.WidgetModel.extend({
 
             // this sync isn't working yet, so on the python side we can't 
             // access it. 
+            // However, in order for the FRB to pick up that something changed 
+            // in the image array, that.set must be used.  
             that.set('image_array', array).data;
-            that.save_changes();
+            // that.save_changes();
             console.log(that.image_array);
             return array
         });
@@ -91,19 +112,20 @@ var CMapModel = widgets.WidgetModel.extend({
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
+        var that = this
         return yt_tools.booted.then(function(yt_tools) {
-            this.colormaps = yt_tools.Colormaps.new();
+            that.colormaps = yt_tools.Colormaps.new();
         
-            var mpl_cmap_obj = this.get('cmaps');
+            var mpl_cmap_obj = that.get('cmaps');
             // console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
             for (var mapname in mpl_cmap_obj) {
                 if (mpl_cmap_obj.hasOwnProperty(mapname)) {
                     var maptable = mpl_cmap_obj[mapname];
-                    this.colormaps.add_colormap(mapname, maptable);
+                    that.colormaps.add_colormap(mapname, maptable);
                 }
             }
-            return this.colormaps
-        }.bind(this));
+            return that.colormaps
+        });
     }, 
     
     setupListeners: function() {
