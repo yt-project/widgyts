@@ -80,7 +80,7 @@ var CMapModel = widgets.WidgetModel.extend({
             that.set('image_array', array).data;
             that.save_changes();
             return array
-        }.bind(this));
+        });
     },
 
     get_cmaps: function() {
@@ -131,46 +131,33 @@ var CMapModel = widgets.WidgetModel.extend({
         var old_name = this.map_name;
         this.map_name = this.get('map_name');
         console.log('triggered name event listener: name from %s to %s', old_name, this.map_name);
-        // console.log(this.map_name, this.is_log, this.min_val, this.max_val); 
-        return this.normalize().then(function(array){
-            return array;
-        });
+        this.normalize();
     },
     
     scale_changed: function() {
         var old_scale = this.is_log;
         this.is_log = this.get('is_log');
         console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
-        // console.log(this.map_name, this.is_log, this.min_val, this.max_val); 
-        return this.normalize().then(function(array){
-            this.image_array = array;
-            return array;
-        }.bind(this));
+        this.normalize();
     },
     
     limits_changed: function() {
         this.min_val = this.get('min_val');
         this.max_val = this.get('max_val');
         console.log('triggered limit event listener: min and max val', this.min_val, this.max_val);
-        return this.normalize().then(function(array){
-            return array;
-        });
+        this.normalize();
     },
 
     property_changed: function() {
-        this.data = this.get('data').data;
+        this.data = this.get('data_array').data;
         console.log('detected change in buffer array on python side. Renormalizing');
-        return this.normalize().then(function(array){
-            return array;
-        });
+        this.normalize();
     },
     
     jsdata_changed: function() {
-        console.log(this.data);
+        console.log(this.data_array);
         console.log('detected change in buffer array on js side. Renormalizing');
-        return this.normalize().then(function(array){
-            return array;
-        });
+        this.normalize();
     },
 }, {
    serializers: _.extend({
