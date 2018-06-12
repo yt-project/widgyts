@@ -61,7 +61,7 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.model.get("val").data
             );
             this.frb.deposit(this.varmesh);
-            this.colormaps.data = this.frb.get_buffer();
+            this.colormaps.data_array = this.frb.get_buffer();
             this.imageData = this.ctx.createImageData(
                 this.model.get('width'), this.model.get('height'),
             );

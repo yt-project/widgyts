@@ -21,7 +21,7 @@ class ColorMaps(ipywidgets.Widget):
     is_log = traitlets.Bool(False).tag(sync=True, config=True)
     min_val = traitlets.Float().tag(sync=True, config=True)
     max_val = traitlets.Float().tag(sync=True, config=True)
-    data = DataUnion(np.array([]), dtype=np.float64,
+    data_array = DataUnion(np.array([]), dtype=np.float64,
             shape_constraint=vmesh_shape).tag(sync = True, config=True,
                     **data_union_serialization)
     image_array = DataUnion(np.array([]), dtype=np.uint8,
