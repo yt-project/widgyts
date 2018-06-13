@@ -53,8 +53,11 @@ class FRBViewer(ipywidgets.DOMWidget):
                     **data_union_serialization)
     colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
             **widget_serialization)
+    canvas_edges = traitlets.List([0.45, 0.65, 0.45, 0.65]).tag(sync = True,
+            config=True)
 
     @traitlets.default('colormaps')
     def _colormap_load(self):
         return ColorMaps()
+
 

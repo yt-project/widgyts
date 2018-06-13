@@ -18,6 +18,7 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         width: 512,
         height: 512,
         colormaps: undefined,
+        canvas_edges: undefined,
     }),
 }, {
     serializers: _.extend({
@@ -46,12 +47,17 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
         yt_tools.booted.then(function(yt_tools) {
+            // set up events for changes in the colormap or buffer
             this.colormaps = this.model.get('colormaps');
             this.colormap_events();
+            this.canvas_edges = this.model.get('canvas_edges');
+            this.model.on('change:canvas_edges', this.buffer_changed, this);
+            
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
-                0.45, 0.65, 0.45, 0.65
+                this.canvas_edges[0], this.canvas_edges[1],
+                this.canvas_edges[2], this.canvas_edges[3]
             );
             this.varmesh = yt_tools.VariableMesh.new(
                 this.model.get("px").data,
@@ -116,6 +122,30 @@ var FRBView = widgets.DOMWidgetView.extend({
             console.log('redrawing image array on canvas');
             this.redrawCanvasImage();
         }, this); 
+    },
+
+    buffer_changed: function() {
+        this.canvas_edges = this.model.get('canvas_edges');
+        console.log('canvas edge array changed to:');
+        console.log(this.canvas_edges);
+        yt_tools.booted.then(function(yt_tools) {
+            this.frb = yt_tools.FixedResolutionBuffer.new(
+                this.model.get('width'),
+                this.model.get('height'),
+                this.canvas_edges[0], this.canvas_edges[1],
+                this.canvas_edges[2], this.canvas_edges[3]
+            );
+            this.frb.deposit(this.varmesh);
+            this.colormaps.data_array = this.frb.get_buffer();
+            this.colormaps.normalize();
+            console.log(this.colormaps.data_array);
+            this.imageData = this.ctx.createImageData(
+                this.model.get('width'), this.model.get('height'),
+            );
+            console.log(this.colormaps.image_array);
+            this.imageData.data.set(this.colormaps.image_array);
+            this.redrawCanvasImage();
+        }.bind(this));
     },
 
     width_changed: function() {
