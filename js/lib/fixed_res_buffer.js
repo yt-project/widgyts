@@ -137,14 +137,9 @@ var FRBView = widgets.DOMWidgetView.extend({
             );
             this.frb.deposit(this.varmesh);
             this.colormaps.data_array = this.frb.get_buffer();
+            // data array not triggering listeners in colormaps. 
+            // Normalize() call required to update image array. 
             this.colormaps.normalize();
-            console.log(this.colormaps.data_array);
-            this.imageData = this.ctx.createImageData(
-                this.model.get('width'), this.model.get('height'),
-            );
-            console.log(this.colormaps.image_array);
-            this.imageData.data.set(this.colormaps.image_array);
-            this.redrawCanvasImage();
         }.bind(this));
     },
 

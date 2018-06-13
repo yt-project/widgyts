@@ -60,4 +60,41 @@ class FRBViewer(ipywidgets.DOMWidget):
     def _colormap_load(self):
         return ColorMaps()
 
+    def setup_controls(self):
+        down = ipywidgets.Button(description="Down")
+        up = ipywidgets.Button(description="Up")
+        right = ipywidgets.Button(description="Right")
+        left = ipywidgets.Button(description="Left")
+
+        down.on_click(self.on_xdownclick)
+        up.on_click(self.on_xupclick)
+        right.on_click(self.on_yrightclick)
+        left.on_click(self.on_yleftclick)
+
+        all_buttons = ipywidgets.VBox([down,up,left,right])
+        return all_buttons
+
+    def on_xdownclick(self, b):
+        array = self.canvas_edges.copy()
+        array[0] += 0.01
+        array[1] += 0.01
+        self.canvas_edges = array
+
+    def on_xupclick(self, b):
+        array = self.canvas_edges.copy()
+        array[0] -= 0.01
+        array[1] -= 0.01
+        self.canvas_edges = array
+
+    def on_yrightclick(self, b):
+        array = self.canvas_edges.copy()
+        array[2] += 0.01
+        array[3] += 0.01
+        self.canvas_edges = array
+
+    def on_yleftclick(self, b):
+        array = self.canvas_edges.copy()
+        array[2] -= 0.01
+        array[3] -= 0.01
+        self.canvas_edges = array
 
