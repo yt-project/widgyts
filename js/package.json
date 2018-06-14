@@ -44,9 +44,9 @@
   },
   "dependencies": {
     "@jupyter-widgets/base": "^1.0.0",
+    "@data-exp-lab/yt-tools": "^0.1.0",
     "jupyter-dataserializers": "^1.1.2",
     "jupyter-datawidgets": "^4.0.1",
-    "lodash": "^4.17.4",
-    "yt-tools": "0.1.0"
+    "lodash": "^4.17.4"
   }
 }
