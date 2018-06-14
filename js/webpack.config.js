@@ -5,7 +5,8 @@ var version = require('./package.json').version;
 // stored in a separate local variable.
 var rules = [
     { test: /\.css$/, use: ['style-loader', 'css-loader'] },
-    { test: /\.wasm$/, type: 'webassembly/experimental' }
+    { test: /\.wasm$/, type: 'javascript/auto', loader: "file-loader" }
+    //{ test: /\.wasm$/, type: 'webassembly/experimental' }
 ]
 
 
