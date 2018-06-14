@@ -1,6 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var yt_tools = require('yt-tools');
+var yt_tools = require('@data-exp-lab/yt-tools');
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
