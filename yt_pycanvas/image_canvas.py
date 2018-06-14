@@ -53,7 +53,7 @@ class FRBViewer(ipywidgets.DOMWidget):
                     **data_union_serialization)
     colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
             **widget_serialization)
-    canvas_edges = traitlets.List([0.45, 0.65, 0.45, 0.65]).tag(sync = True,
+    canvas_edges = traitlets.Tuple((0.45, 0.65, 0.45, 0.65)).tag(sync = True,
             config=True)
 
     @traitlets.default('colormaps')
@@ -75,26 +75,18 @@ class FRBViewer(ipywidgets.DOMWidget):
         return all_buttons
 
     def on_xdownclick(self, b):
-        array = self.canvas_edges.copy()
-        array[0] += 0.01
-        array[1] += 0.01
-        self.canvas_edges = array
+        ce = self.canvas_edges
+        self.canvas_edges = (ce[0]+0.01, ce[1]+0.01)+ce[2:]
 
     def on_xupclick(self, b):
-        array = self.canvas_edges.copy()
-        array[0] -= 0.01
-        array[1] -= 0.01
-        self.canvas_edges = array
+        ce = self.canvas_edges
+        self.canvas_edges = (ce[0]-0.01, ce[1]-0.01)+ce[2:]
 
     def on_yrightclick(self, b):
-        array = self.canvas_edges.copy()
-        array[2] += 0.01
-        array[3] += 0.01
-        self.canvas_edges = array
+        ce = self.canvas_edges
+        self.canvas_edges = ce[:2]+(ce[2]+0.01, ce[3]+0.01)
 
     def on_yleftclick(self, b):
-        array = self.canvas_edges.copy()
-        array[2] -= 0.01
-        array[3] -= 0.01
-        self.canvas_edges = array
+        ce = self.canvas_edges
+        self.canvas_edges = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
 
