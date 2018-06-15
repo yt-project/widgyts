@@ -1,6 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var yt_tools = import('@data-exp-lab/yt-tools');
+var _yt_tools = import('@data-exp-lab/yt-tools');
 
 var CMapModel = widgets.WidgetModel.extend({
 
@@ -22,32 +22,27 @@ var CMapModel = widgets.WidgetModel.extend({
 
     initialize: function() {
         widgets.WidgetModel.prototype.initialize.apply(this, arguments);
-        var that = this;
-        yt_tools.then(function(yt_tools) {
-          that.yt_tools = yt_tools;
-          that.map_name = that.get('map_name');
-          that.is_log = that.get('is_log');
-          that.min_val = that.get('min_val');
-          that.max_val = that.get('max_val');
-          that.data_array = that.get('data_array').data;
-          that.image_array = that.get('image_array').data;
-          
-          console.log('initializing colormaps object in WASM');
-          console.log(that.data_array);
+        this.map_name = this.get('map_name');
+        this.is_log = this.get('is_log');
+        this.min_val = this.get('min_val');
+        this.max_val = this.get('max_val');
+        this.data_array = this.get('data_array').data;
+        this.image_array = this.get('image_array').data;
+        
+        console.log('initializing colormaps object in WASM');
+        console.log(this.data_array);
 
-          console.log('setting up listeners');
-          that.setupListeners();
-          console.log('listeners done');
-        });
+        console.log('setting up listeners');
+        this.setupListeners();
+        console.log('listeners done');
     },
 
-    normalize: function() {
+    normalize: function() {return _yt_tools.then(function(yt_tools) {
         // normalizes a given buffer with a colormap name. Requires colormaps
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
         //
-        var that = this;
-        var colormaps = this.get_cmaps();
+        var colormaps = this.get_cmaps(yt_tools);
         if (this.min_val) {
             if (this.max_val) {
                 console.log('both min and max are user defined');
@@ -84,9 +79,9 @@ var CMapModel = widgets.WidgetModel.extend({
         this.set('image_array', array).data;
         this.save_changes();
         return array
-    },
+    }.bind(this)) },
 
-    get_cmaps: function() {
+    get_cmaps: function(yt_tools) {
         // initializes the wasm colormaps module from yt tools and adds the 
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
@@ -98,7 +93,7 @@ var CMapModel = widgets.WidgetModel.extend({
             return this.colormaps
         } else {
             console.log('colormaps DO NOT exist..... importing....... ');
-            this.colormaps = new this.yt_tools.Colormaps();
+            this.colormaps = new yt_tools.Colormaps();
     
             var mpl_cmap_obj = this.get('cmaps');
             console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
