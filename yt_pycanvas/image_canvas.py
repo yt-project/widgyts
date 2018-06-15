@@ -65,13 +65,16 @@ class FRBViewer(ipywidgets.DOMWidget):
         up = ipywidgets.Button(description="Up")
         right = ipywidgets.Button(description="Right")
         left = ipywidgets.Button(description="Left")
+        zoom = ipywidgets.FloatSlider(min=1, max=10, value=0.1, description="Zoom")
+
 
         down.on_click(self.on_xdownclick)
         up.on_click(self.on_xupclick)
         right.on_click(self.on_yrightclick)
         left.on_click(self.on_yleftclick)
+        zoom.observe(self.on_zoom, names='value')
 
-        all_buttons = ipywidgets.VBox([down,up,left,right])
+        all_buttons = ipywidgets.VBox([down,up,left,right, zoom])
         return all_buttons
 
     def on_xdownclick(self, b):
@@ -89,4 +92,19 @@ class FRBViewer(ipywidgets.DOMWidget):
     def on_yleftclick(self, b):
         ce = self.canvas_edges
         self.canvas_edges = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
+
+    def on_zoom(self, change):
+        ce = self.canvas_edges
+        lengths = [ce[1]-ce[0], ce[3]-ce[2]]
+        center = [np.mean(ce[:2]), np.mean(ce[2:])]
+        width = 1.0/change["new"]
+        hwidth = width/2.
+        new_edges = (center[0]-hwidth, center[0]+hwidth, center[1]-hwidth,
+                center[1]+hwidth)
+        self.canvas_edges = new_edges
+        print("canvas center is at: {}".format(center))
+        # print("zoom value is: {}".format(change["new"]))
+        # print("width of frame is: {}".format(width))
+        # print("old edges: {} \n new edges:{}".format(ce, new_edges))
+
 
