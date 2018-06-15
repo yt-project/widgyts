@@ -1,6 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var yt_tools = require('@data-exp-lab/yt-tools');
+var yt_tools = import('@data-exp-lab/yt-tools');
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -32,6 +32,14 @@ var FRBModel = widgets.DOMWidgetModel.extend({
 
 // Custom View. Renders the widget model.
 var FRBView = widgets.DOMWidgetView.extend({
+    initialize: function() {
+        widgets.WidgetModel.prototype.initialize.apply(this, arguments);
+        var that = this;
+        yt_tools.then(function(yt_tools) {
+          that.yt_tools = yt_tools;
+        });
+    },
+
     render: function() {
         this.canvas = document.createElement('canvas');
         $(this.canvas)
@@ -45,15 +53,15 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
-        yt_tools.booted.then(function(yt_tools) {
+        yt_tools.then(() => {
             this.colormaps = this.model.get('colormaps');
             this.colormap_events();
-            this.frb = yt_tools.FixedResolutionBuffer.new(
+            this.frb = new this.yt_tools.FixedResolutionBuffer(
                 this.model.get('width'),
                 this.model.get('height'),
                 0.45, 0.65, 0.45, 0.65
             );
-            this.varmesh = yt_tools.VariableMesh.new(
+            this.varmesh = new this.yt_tools.VariableMesh(
                 this.model.get("px").data,
                 this.model.get("py").data,
                 this.model.get("pdx").data,
@@ -71,7 +79,7 @@ var FRBView = widgets.DOMWidgetView.extend({
             console.log(this.colormaps.image_array);
             this.imageData.data.set(this.colormaps.image_array);
             this.redrawCanvasImage();
-        }.bind(this));
+        });
     },
 
     redrawCanvasImage: function() {
