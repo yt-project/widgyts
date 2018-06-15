@@ -48,12 +48,12 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:height', this.height_changed, this);
             this.colormaps = this.model.get('colormaps');
             this.colormap_events();
-            this.frb = new yt_tools.FixedResolutionBuffer(
+            this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
                 0.45, 0.65, 0.45, 0.65
             );
-            this.varmesh = new yt_tools.VariableMesh(
+            this.varmesh = yt_tools.VariableMesh.new(
                 this.model.get("px").data,
                 this.model.get("py").data,
                 this.model.get("pdx").data,

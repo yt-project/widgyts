@@ -93,7 +93,7 @@ var CMapModel = widgets.WidgetModel.extend({
             return this.colormaps
         } else {
             console.log('colormaps DO NOT exist..... importing....... ');
-            this.colormaps = new yt_tools.Colormaps();
+            this.colormaps = yt_tools.Colormaps.new();
     
             var mpl_cmap_obj = this.get('cmaps');
             console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
