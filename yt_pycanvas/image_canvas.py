@@ -62,14 +62,14 @@ class FRBViewer(ipywidgets.DOMWidget):
 
     def setup_controls(self):
         down = ipywidgets.Button(icon="arrow-down",
-                layout=ipywidgets.Layout(width='10%'))
+                layout=ipywidgets.Layout(width='40px'))
         up = ipywidgets.Button(icon="arrow-up",
-                layout=ipywidgets.Layout(width='10%'))
+                layout=ipywidgets.Layout(width='40px'))
         right = ipywidgets.Button(icon="arrow-right",
-                layout=ipywidgets.Layout(width='30%')
+                layout=ipywidgets.Layout(width='40px')
                 )
         left = ipywidgets.Button(icon="arrow-left",
-                layout=ipywidgets.Layout(width='30%')
+                layout=ipywidgets.Layout(width='40px')
                 )
         zoom = ipywidgets.FloatSlider(min=1, max=10, step=0.1, description="Zoom")
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
@@ -96,12 +96,11 @@ class FRBViewer(ipywidgets.DOMWidget):
 
         sides = ipywidgets.HBox([left,right],
                 layout=ipywidgets.Layout(justify_content='space-between',
-                    width='30%'))
+                    width='122px'))
         nav_buttons = ipywidgets.VBox([up, sides, down],
                 layout=ipywidgets.Layout(
                     align_items='center',
-                    width='100%'))
-
+                    width='150px'))
 
         all_navigation = ipywidgets.VBox([nav_buttons, zoom],
                 layout=ipywidgets.Layout(align_items='center')
