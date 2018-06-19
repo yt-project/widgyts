@@ -1,6 +1,6 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var yt_tools = require('yt-tools');
+var _yt_tools = import('@data-exp-lab/yt-tools');
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -33,7 +33,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
 
 // Custom View. Renders the widget model.
 var FRBView = widgets.DOMWidgetView.extend({
-    render: function() {
+
+    render: function() {return _yt_tools.then(function(yt_tools) {
         this.canvas = document.createElement('canvas');
         $(this.canvas)
           .css("max-width", "100%")
@@ -46,39 +47,36 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
-        yt_tools.booted.then(function(yt_tools) {
-            // set up events for changes in the colormap or buffer
-            this.colormaps = this.model.get('colormaps');
-            this.colormap_events();
-            this.canvas_edges = this.model.get('canvas_edges');
-            this.model.on('change:canvas_edges', this.buffer_changed, this);
-            
-            this.frb = yt_tools.FixedResolutionBuffer.new(
-                this.model.get('width'),
-                this.model.get('height'),
-                this.canvas_edges[0], this.canvas_edges[1],
-                this.canvas_edges[2], this.canvas_edges[3]
-            );
-            this.varmesh = yt_tools.VariableMesh.new(
-                this.model.get("px").data,
-                this.model.get("py").data,
-                this.model.get("pdx").data,
-                this.model.get("pdy").data,
-                this.model.get("val").data
-            );
-            this.frb.deposit(this.varmesh);
-            this.colormaps.data_array = this.frb.get_buffer();
-            this.imageData = this.ctx.createImageData(
-                this.model.get('width'), this.model.get('height'),
-            );
-            // note: image array not triggering change yet on first render. 
-            // this is likely due to the fact that it's executed before the 
-            // new promises have been resolved in the colormapper
-            console.log(this.colormaps.image_array);
-            this.imageData.data.set(this.colormaps.image_array);
-            this.redrawCanvasImage();
-        }.bind(this));
-    },
+        this.colormaps = this.model.get('colormaps');
+        this.colormap_events();
+        this.canvas_edges = this.model.get('canvas_edges');
+        this.model.on('change:canvas_edges', this.buffer_changed, this);
+
+        this.frb = yt_tools.FixedResolutionBuffer.new(
+            this.model.get('width'),
+            this.model.get('height'),
+            this.canvas_edges[0], this.canvas_edges[1],
+            this.canvas_edges[2], this.canvas_edges[3]
+        );
+        this.varmesh = yt_tools.VariableMesh.new(
+            this.model.get("px").data,
+            this.model.get("py").data,
+            this.model.get("pdx").data,
+            this.model.get("pdy").data,
+            this.model.get("val").data
+        );
+        this.frb.deposit(this.varmesh);
+        this.colormaps.data_array = this.frb.get_buffer();
+        this.imageData = this.ctx.createImageData(
+            this.model.get('width'), this.model.get('height'),
+        );
+        // note: image array not triggering change yet on first render. 
+        // this is likely due to the fact that it's executed before the 
+        // new promises have been resolved in the colormapper
+        console.log(this.colormaps.image_array);
+        this.imageData.data.set(this.colormaps.image_array);
+        this.redrawCanvasImage();
+    }.bind(this));},
 
     redrawCanvasImage: function() {
         var nx = this.model.get('width');
@@ -128,7 +126,7 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.canvas_edges = this.model.get('canvas_edges');
         console.log('canvas edge array changed to:');
         console.log(this.canvas_edges);
-        yt_tools.booted.then(function(yt_tools) {
+        _yt_tools.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),

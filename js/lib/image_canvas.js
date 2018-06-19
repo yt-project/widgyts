@@ -1,6 +1,5 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
-var yt_tools = require('yt-tools');
 var frb = require('./fixed_res_buffer.js');
 var cmaps = require('./colormaps.js')
 
