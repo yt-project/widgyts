@@ -53,8 +53,96 @@ class FRBViewer(ipywidgets.DOMWidget):
                     **data_union_serialization)
     colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
             **widget_serialization)
+    canvas_edges = traitlets.Tuple((0.45, 0.65, 0.45, 0.65)).tag(sync = True,
+            config=True)
 
     @traitlets.default('colormaps')
     def _colormap_load(self):
         return ColorMaps()
+
+    def setup_controls(self):
+        down = ipywidgets.Button(icon="arrow-down",
+                layout=ipywidgets.Layout(width='40px'))
+        up = ipywidgets.Button(icon="arrow-up",
+                layout=ipywidgets.Layout(width='40px'))
+        right = ipywidgets.Button(icon="arrow-right",
+                layout=ipywidgets.Layout(width='40px')
+                )
+        left = ipywidgets.Button(icon="arrow-left",
+                layout=ipywidgets.Layout(width='40px')
+                )
+        zoom = ipywidgets.FloatSlider(min=1, max=10, step=0.1, description="Zoom")
+        is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
+        colormaps = ipywidgets.Dropdown(
+                options=list(self.colormaps.cmaps.keys()),
+                description="colormap",
+                value = "viridis")
+        min_val = ipywidgets.BoundedFloatText(description="lower colorbar bound:",
+                value=self.val.min(), min=self.val.min(), max=self.val.max())
+        max_val = ipywidgets.BoundedFloatText(description="upper colorbar bound:",
+                value=self.val.max(), min=self.val.min(), max=self.val.max())
+        minmax = ipywidgets.FloatRangeSlider(min=self.val.min(), max=self.val.max())
+
+
+        down.on_click(self.on_xdownclick)
+        up.on_click(self.on_xupclick)
+        right.on_click(self.on_yrightclick)
+        left.on_click(self.on_yleftclick)
+        zoom.observe(self.on_zoom, names='value')
+        ipywidgets.link((is_log, 'value'), (self.colormaps, 'is_log'))
+        ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
+        ipywidgets.link((min_val, 'value'), (self.colormaps, 'min_val'))
+        ipywidgets.link((max_val, 'value'), (self.colormaps, 'max_val'))
+
+        sides = ipywidgets.HBox([left,right],
+                layout=ipywidgets.Layout(justify_content='space-between',
+                    width='122px'))
+        nav_buttons = ipywidgets.VBox([up, sides, down],
+                layout=ipywidgets.Layout(
+                    align_items='center',
+                    width='150px'))
+
+        all_navigation = ipywidgets.VBox([nav_buttons, zoom],
+                layout=ipywidgets.Layout(align_items='center')
+                )
+        all_normalizers = ipywidgets.VBox([is_log,
+                colormaps, min_val, max_val],
+                layout=ipywidgets.Layout(align_items='center')
+                )
+        accordion = ipywidgets.Accordion(children=[all_navigation,
+            all_normalizers])
+        accordion.set_title(0, 'navigation')
+        accordion.set_title(1, 'colormap controls')
+        return accordion
+
+    def on_xdownclick(self, b):
+        ce = self.canvas_edges
+        self.canvas_edges = (ce[0]+0.01, ce[1]+0.01)+ce[2:]
+
+    def on_xupclick(self, b):
+        ce = self.canvas_edges
+        self.canvas_edges = (ce[0]-0.01, ce[1]-0.01)+ce[2:]
+
+    def on_yrightclick(self, b):
+        ce = self.canvas_edges
+        self.canvas_edges = ce[:2]+(ce[2]+0.01, ce[3]+0.01)
+
+    def on_yleftclick(self, b):
+        ce = self.canvas_edges
+        self.canvas_edges = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
+
+    def on_zoom(self, change):
+        ce = self.canvas_edges
+        lengths = [ce[1]-ce[0], ce[3]-ce[2]]
+        center = [np.mean(ce[:2]), np.mean(ce[2:])]
+        width = 1.0/change["new"]
+        hwidth = width/2.
+        new_edges = (center[0]-hwidth, center[0]+hwidth, center[1]-hwidth,
+                center[1]+hwidth)
+        self.canvas_edges = new_edges
+        # print("canvas center is at: {}".format(center))
+        # print("zoom value is: {}".format(change["new"]))
+        # print("width of frame is: {}".format(width))
+        # print("old edges: {} \n new edges:{}".format(ce, new_edges))
+
 

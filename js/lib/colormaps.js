@@ -28,13 +28,8 @@ var CMapModel = widgets.WidgetModel.extend({
         this.max_val = this.get('max_val');
         this.data_array = this.get('data_array').data;
         this.image_array = this.get('image_array').data;
-        
-        console.log('initializing colormaps object in WASM');
-        console.log(this.data_array);
 
-        console.log('setting up listeners');
         this.setupListeners();
-        console.log('listeners done');
     },
 
     normalize: function() {return _yt_tools.then(function(yt_tools) {
@@ -45,27 +40,18 @@ var CMapModel = widgets.WidgetModel.extend({
         var colormaps = this.get_cmaps(yt_tools);
         if (this.min_val) {
             if (this.max_val) {
-                console.log('both min and max are user defined');
                 array = colormaps.normalize_min_max(this.map_name, this.data_array, 
                         this.min_val, this.max_val, this.is_log);
             } else {
-                console.log('min val defined, max val not defined');
                 array = colormaps.normalize_min(this.map_name, this.data_array, 
                         this.min_val, this.is_log);
             }
         } else if (this.max_val) {
-            console.log('max val defined, min val not defined');
             array = colormaps.normalize_max(this.map_name, this.data_array, 
                     this.max_val, this.is_log);
         } else {
-            console.log('neither max nor min defined');
             array = colormaps.normalize(this.map_name, this.data_array, this.is_log);
         };
-
-        // checking to see that the returned array and the data object 
-        // are as expected. 
-        console.log(this.data_array);
-        console.log(array);
         
         // I sort of feel like this next line shouldn't be required if we 
         // update the Python side, but whatever. 
@@ -86,17 +72,14 @@ var CMapModel = widgets.WidgetModel.extend({
         // arrays stored in the self.cmaps dict on the python side into
         // the colormaps object in wasm.
         
-        console.log('checking to see if colormaps object for wasm exists..... ');
         if (this.colormaps) {
             console.log('colormaps exist');
-            console.log(this.colormaps);
             return this.colormaps
         } else {
-            console.log('colormaps DO NOT exist..... importing....... ');
+            console.log('importing colormaps into wasm... ');
             this.colormaps = yt_tools.Colormaps.new();
     
             var mpl_cmap_obj = this.get('cmaps');
-            console.log("imported the following maps:", Object.keys(mpl_cmap_obj));
             for (var mapname in mpl_cmap_obj) {
                 if (mpl_cmap_obj.hasOwnProperty(mapname)) {
                     var maptable = mpl_cmap_obj[mapname];
@@ -108,7 +91,7 @@ var CMapModel = widgets.WidgetModel.extend({
     }, 
     
     setupListeners: function() {
-        console.log('in setup_listeners function');
+        console.log('setting up listeners for trait changes');
         
         // setting up listeners on the python side.
         this.on('change:map_name', this.name_changed, this);
@@ -150,7 +133,6 @@ var CMapModel = widgets.WidgetModel.extend({
     },
     
     jsdata_changed: function() {
-        console.log(this.data_array);
         console.log('detected change in buffer array on js side. Renormalizing');
         this.normalize();
     },
