@@ -70,10 +70,6 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.imageData = this.ctx.createImageData(
             this.model.get('width'), this.model.get('height'),
         );
-        // note: image array not triggering change yet on first render. 
-        // this is likely due to the fact that it's executed before the 
-        // new promises have been resolved in the colormapper
-        console.log(this.colormaps.image_array);
         this.imageData.data.set(this.colormaps.image_array);
         this.redrawCanvasImage();
     }.bind(this));},
@@ -95,11 +91,9 @@ var FRBView = widgets.DOMWidgetView.extend({
         // links to these directly so the responses are simple. 
         this.listenTo(this.colormaps, 'change:map_name', function() {
             var new_name = this.colormaps.get('map_name');
-            console.log('map name change detected in frb to %s', new_name);
         }, this); 
         this.listenTo(this.colormaps, 'change:is_log', function() {
             var scale = this.colormaps.get('is_log');
-            console.log('image array log scale change in frb to %s', scale);
         }, this); 
 
         // The listener for the data array of the colormap actually links to the 
@@ -112,7 +106,7 @@ var FRBView = widgets.DOMWidgetView.extend({
         // it on the canvas image. 
         this.listenTo(this.colormaps, 'change:image_array', function() {
             var array = this.colormaps.get('image_array');
-            console.log('image array updated to: ', array);
+            console.log('image array updated');
             this.imageData = this.ctx.createImageData(
                 this.model.get('width'), this.model.get('height'),
             );
