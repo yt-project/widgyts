@@ -71,7 +71,10 @@ class FRBViewer(ipywidgets.DOMWidget):
         left = ipywidgets.Button(icon="arrow-left",
                 layout=ipywidgets.Layout(width='40px')
                 )
-        zoom = ipywidgets.FloatSlider(min=1, max=10, step=0.1, description="Zoom")
+        zoom_start = 1./(self.canvas_edges[1]-self.canvas_edges[0])
+        zoom = ipywidgets.FloatSlider(min=0.1, max=10, step=0.1,
+                value=zoom_start,
+                description="Zoom")
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
         colormaps = ipywidgets.Dropdown(
                 options=list(self.colormaps.cmaps.keys()),
@@ -84,10 +87,10 @@ class FRBViewer(ipywidgets.DOMWidget):
         minmax = ipywidgets.FloatRangeSlider(min=self.val.min(), max=self.val.max())
 
 
-        down.on_click(self.on_xdownclick)
-        up.on_click(self.on_xupclick)
-        right.on_click(self.on_yrightclick)
-        left.on_click(self.on_yleftclick)
+        down.on_click(self.on_ydownclick)
+        up.on_click(self.on_yupclick)
+        right.on_click(self.on_xrightclick)
+        left.on_click(self.on_xleftclick)
         zoom.observe(self.on_zoom, names='value')
         ipywidgets.link((is_log, 'value'), (self.colormaps, 'is_log'))
         ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
@@ -115,19 +118,19 @@ class FRBViewer(ipywidgets.DOMWidget):
         accordion.set_title(1, 'colormap controls')
         return accordion
 
-    def on_xdownclick(self, b):
+    def on_xrightclick(self, b):
         ce = self.canvas_edges
         self.canvas_edges = (ce[0]+0.01, ce[1]+0.01)+ce[2:]
 
-    def on_xupclick(self, b):
+    def on_xleftclick(self, b):
         ce = self.canvas_edges
         self.canvas_edges = (ce[0]-0.01, ce[1]-0.01)+ce[2:]
 
-    def on_yrightclick(self, b):
+    def on_yupclick(self, b):
         ce = self.canvas_edges
         self.canvas_edges = ce[:2]+(ce[2]+0.01, ce[3]+0.01)
 
-    def on_yleftclick(self, b):
+    def on_ydownclick(self, b):
         ce = self.canvas_edges
         self.canvas_edges = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
 
