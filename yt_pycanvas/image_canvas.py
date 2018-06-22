@@ -71,7 +71,10 @@ class FRBViewer(ipywidgets.DOMWidget):
         left = ipywidgets.Button(icon="arrow-left",
                 layout=ipywidgets.Layout(width='40px')
                 )
-        zoom = ipywidgets.FloatSlider(min=1, max=10, step=0.1, description="Zoom")
+        zoom_start = 1./(self.canvas_edges[1]-self.canvas_edges[0])
+        zoom = ipywidgets.FloatSlider(min=0.1, max=10, step=0.1,
+                value=zoom_start,
+                description="Zoom")
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
         colormaps = ipywidgets.Dropdown(
                 options=list(self.colormaps.cmaps.keys()),
