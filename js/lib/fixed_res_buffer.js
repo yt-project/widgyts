@@ -90,25 +90,27 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     mouse_events: function() {
+        this.canvas.addEventListener('click', this.onClick.bind(this), false);
+    },
+
+    onClick: function(e) {
         var loc = {x: 0, y:0};
-        this.canvas.addEventListener('click', function(e) {
-            var bounds = this.canvas.getBoundingClientRect();
-            loc.x = (e.clientX - bounds.left)/bounds.width;
-            loc.y = (bounds.bottom - e.clientY)/bounds.height;
-            console.log("loc x:", loc.x, "loc y:", loc.y);
-            view_width = (this.view_bounds[1]-this.view_bounds[0]);
-            view_height = (this.view_bounds[3]-this.view_bounds[2]);
-            center_x = loc.x*(view_width)+this.view_bounds[0];
-            center_y = loc.y*(view_height)+this.view_bounds[2];
-            updated_bounds = [center_x-view_width/2.0,
-                    center_x+view_width/2.0,
-                    center_y-view_height/2.0,
-                    center_y+view_height/2.0];
-            console.log('setting new bounds to:', updated_bounds);
-            this.model.set({'view_bounds':updated_bounds});
-            this.model.save_changes();
-            console.log('done updating bounds');
-        }.bind(this), false);
+        var bounds = this.canvas.getBoundingClientRect();
+        loc.x = (e.clientX - bounds.left)/bounds.width;
+        loc.y = (bounds.bottom - e.clientY)/bounds.height;
+        console.log("loc x:", loc.x, "loc y:", loc.y);
+        view_width = (this.view_bounds[1]-this.view_bounds[0]);
+        view_height = (this.view_bounds[3]-this.view_bounds[2]);
+        center_x = loc.x*(view_width)+this.view_bounds[0];
+        center_y = loc.y*(view_height)+this.view_bounds[2];
+        updated_bounds = [center_x-view_width/2.0,
+                center_x+view_width/2.0,
+                center_y-view_height/2.0,
+                center_y+view_height/2.0];
+        console.log('setting new bounds to:', updated_bounds);
+        this.model.set({'view_bounds':updated_bounds});
+        this.model.save_changes();
+        console.log('done updating bounds');
     },
 
     colormap_events: function() {
