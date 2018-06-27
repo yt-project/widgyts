@@ -45,12 +45,15 @@ var FRBView = widgets.DOMWidgetView.extend({
           .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
+        console.log(this.canvas);
+        console.log(this.ctx);
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
         this.colormaps = this.model.get('colormaps');
         this.colormap_events();
         this.view_bounds = this.model.get('view_bounds');
         this.model.on('change:view_bounds', this.buffer_changed, this);
+        this.mouse_events();
 
         this.frb = yt_tools.FixedResolutionBuffer.new(
             this.model.get('width'),
@@ -84,6 +87,28 @@ var FRBView = widgets.DOMWidgetView.extend({
               this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
               this.ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
         }.bind(this));
+    },
+
+    mouse_events: function() {
+        var loc = {x: 0, y:0};
+        this.canvas.addEventListener('click', function(e) {
+            var bounds = this.canvas.getBoundingClientRect();
+            loc.x = (e.clientX - bounds.left)/bounds.width;
+            loc.y = (bounds.bottom - e.clientY)/bounds.height;
+            console.log("loc x:", loc.x, "loc y:", loc.y);
+            view_width = (this.view_bounds[1]-this.view_bounds[0]);
+            view_height = (this.view_bounds[3]-this.view_bounds[2]);
+            center_x = loc.x*(view_width)+this.view_bounds[0];
+            center_y = loc.y*(view_height)+this.view_bounds[2];
+            updated_bounds = [center_x-view_width/2.0,
+                    center_x+view_width/2.0,
+                    center_y-view_height/2.0,
+                    center_y+view_height/2.0];
+            console.log('setting new bounds to:', updated_bounds);
+            this.model.set({'view_bounds':updated_bounds});
+            this.model.save_changes();
+            console.log('done updating bounds');
+        }.bind(this), false);
     },
 
     colormap_events: function() {
