@@ -53,7 +53,7 @@ class FRBViewer(ipywidgets.DOMWidget):
                     **data_union_serialization)
     colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
             **widget_serialization)
-    canvas_edges = traitlets.Tuple((0.45, 0.65, 0.45, 0.65)).tag(sync = True,
+    view_bounds = traitlets.Tuple((0.45, 0.65, 0.45, 0.65)).tag(sync = True,
             config=True)
 
     @traitlets.default('colormaps')
@@ -71,7 +71,7 @@ class FRBViewer(ipywidgets.DOMWidget):
         left = ipywidgets.Button(icon="arrow-left",
                 layout=ipywidgets.Layout(width='40px')
                 )
-        zoom_start = 1./(self.canvas_edges[1]-self.canvas_edges[0])
+        zoom_start = 1./(self.view_bounds[1]-self.view_bounds[0])
         zoom = ipywidgets.FloatSlider(min=0.1, max=10, step=0.1,
                 value=zoom_start,
                 description="Zoom")
@@ -119,33 +119,33 @@ class FRBViewer(ipywidgets.DOMWidget):
         return accordion
 
     def on_xrightclick(self, b):
-        ce = self.canvas_edges
-        self.canvas_edges = (ce[0]+0.01, ce[1]+0.01)+ce[2:]
+        ce = self.view_bounds
+        self.view_bounds = (ce[0]+0.01, ce[1]+0.01)+ce[2:]
 
     def on_xleftclick(self, b):
-        ce = self.canvas_edges
-        self.canvas_edges = (ce[0]-0.01, ce[1]-0.01)+ce[2:]
+        ce = self.view_bounds
+        self.view_bounds = (ce[0]-0.01, ce[1]-0.01)+ce[2:]
 
     def on_yupclick(self, b):
-        ce = self.canvas_edges
-        self.canvas_edges = ce[:2]+(ce[2]+0.01, ce[3]+0.01)
+        ce = self.view_bounds
+        self.view_bounds = ce[:2]+(ce[2]+0.01, ce[3]+0.01)
 
     def on_ydownclick(self, b):
-        ce = self.canvas_edges
-        self.canvas_edges = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
+        ce = self.view_bounds
+        self.view_bounds = ce[:2]+(ce[2]-0.01, ce[3]-0.01)
 
     def on_zoom(self, change):
-        ce = self.canvas_edges
+        ce = self.view_bounds
         lengths = [ce[1]-ce[0], ce[3]-ce[2]]
         center = [np.mean(ce[:2]), np.mean(ce[2:])]
         width = 1.0/change["new"]
         hwidth = width/2.
-        new_edges = (center[0]-hwidth, center[0]+hwidth, center[1]-hwidth,
+        new_bounds = (center[0]-hwidth, center[0]+hwidth, center[1]-hwidth,
                 center[1]+hwidth)
-        self.canvas_edges = new_edges
+        self.view_bounds = new_bounds
         # print("canvas center is at: {}".format(center))
         # print("zoom value is: {}".format(change["new"]))
         # print("width of frame is: {}".format(width))
-        # print("old edges: {} \n new edges:{}".format(ce, new_edges))
+        # print("old edges: {} \n new edges:{}".format(ce, new_bounds))
 
 

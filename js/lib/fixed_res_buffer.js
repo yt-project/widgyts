@@ -18,7 +18,7 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         width: 512,
         height: 512,
         colormaps: undefined,
-        canvas_edges: undefined,
+        view_bounds: undefined,
     }),
 }, {
     serializers: _.extend({
@@ -49,14 +49,14 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:height', this.height_changed, this);
         this.colormaps = this.model.get('colormaps');
         this.colormap_events();
-        this.canvas_edges = this.model.get('canvas_edges');
-        this.model.on('change:canvas_edges', this.buffer_changed, this);
+        this.view_bounds = this.model.get('view_bounds');
+        this.model.on('change:view_bounds', this.buffer_changed, this);
 
         this.frb = yt_tools.FixedResolutionBuffer.new(
             this.model.get('width'),
             this.model.get('height'),
-            this.canvas_edges[0], this.canvas_edges[1],
-            this.canvas_edges[2], this.canvas_edges[3]
+            this.view_bounds[0], this.view_bounds[1],
+            this.view_bounds[2], this.view_bounds[3]
         );
         this.varmesh = yt_tools.VariableMesh.new(
             this.model.get("px").data,
@@ -117,15 +117,15 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     buffer_changed: function() {
-        this.canvas_edges = this.model.get('canvas_edges');
+        this.view_bounds = this.model.get('view_bounds');
         console.log('canvas edge array changed to:');
-        console.log(this.canvas_edges);
+        console.log(this.view_bounds);
         _yt_tools.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
-                this.canvas_edges[0], this.canvas_edges[1],
-                this.canvas_edges[2], this.canvas_edges[3]
+                this.view_bounds[0], this.view_bounds[1],
+                this.view_bounds[2], this.view_bounds[3]
             );
             this.frb.deposit(this.varmesh);
             this.colormaps.data_array = this.frb.get_buffer();
