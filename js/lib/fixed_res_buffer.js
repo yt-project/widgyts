@@ -18,7 +18,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         width: 512,
         height: 512,
         colormaps: undefined,
-        view_bounds: undefined,
+        view_center: undefined,
+        view_width: undefined
     }),
 }, {
     serializers: _.extend({
@@ -51,15 +52,18 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:height', this.height_changed, this);
         this.colormaps = this.model.get('colormaps');
         this.colormap_events();
-        this.view_bounds = this.model.get('view_bounds');
-        this.model.on('change:view_bounds', this.buffer_changed, this);
+        this.view_width = this.model.get('wiew_width');
+        this.view_center = this.model.get('view_center');
+        this.model.on('change:view_width', this.buffer_changed, this);
+        this.model.on('change:view_center', this.buffer_changed, this);
         this.mouse_events();
+        bounds = this.calculate_view_bounds();
 
         this.frb = yt_tools.FixedResolutionBuffer.new(
             this.model.get('width'),
             this.model.get('height'),
-            this.view_bounds[0], this.view_bounds[1],
-            this.view_bounds[2], this.view_bounds[3]
+            bounds[0], bounds[1],
+            bounds[2], bounds[3]
         );
         this.varmesh = yt_tools.VariableMesh.new(
             this.model.get("px").data,
@@ -95,22 +99,20 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     onClick: function(e) {
         var loc = {x: 0, y:0};
-        var bounds = this.canvas.getBoundingClientRect();
-        loc.x = (e.clientX - bounds.left)/bounds.width;
-        loc.y = (bounds.bottom - e.clientY)/bounds.height;
+        var cbounds = this.canvas.getBoundingClientRect();
+        loc.x = (e.clientX - cbounds.left)/cbounds.width;
+        loc.y = (cbounds.bottom - e.clientY)/cbounds.height;
         console.log("loc x:", loc.x, "loc y:", loc.y);
-        view_width = (this.view_bounds[1]-this.view_bounds[0]);
-        view_height = (this.view_bounds[3]-this.view_bounds[2]);
-        center_x = loc.x*(view_width)+this.view_bounds[0];
-        center_y = loc.y*(view_height)+this.view_bounds[2];
-        updated_bounds = [center_x-view_width/2.0,
-                center_x+view_width/2.0,
-                center_y-view_height/2.0,
-                center_y+view_height/2.0];
-        console.log('setting new bounds to:', updated_bounds);
-        this.model.set({'view_bounds':updated_bounds});
+        left_edge = this.view_center[0]-this.view_width[0]/2;
+        bottom_edge = this.view_center[1]-this.view_width[1]/2;
+        center_x = loc.x*this.view_width[0]+left_edge;
+        center_y = loc.y*this.view_width[1]+bottom_edge;
+        updated_center = [center_x, center_y];
+        console.log('old center:', this.view_center);
+        console.log('setting new center to:', updated_center);
+        this.model.set({'view_center':updated_center});
         this.model.save_changes();
-        console.log('done updating bounds');
+        console.log('done updating center');
     },
 
     colormap_events: function() {
@@ -144,15 +146,14 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     buffer_changed: function() {
-        this.view_bounds = this.model.get('view_bounds');
-        console.log('canvas edge array changed to:');
-        console.log(this.view_bounds);
+        bounds = this.calculate_view_bounds();
+        console.log(bounds);
         _yt_tools.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
-                this.view_bounds[0], this.view_bounds[1],
-                this.view_bounds[2], this.view_bounds[3]
+                bounds[0], bounds[1],
+                bounds[2], bounds[3]
             );
             this.frb.deposit(this.varmesh);
             this.colormaps.data_array = this.frb.get_buffer();
@@ -160,6 +161,17 @@ var FRBView = widgets.DOMWidgetView.extend({
             // Normalize() call required to update image array. 
             this.colormaps.normalize();
         }.bind(this));
+    },
+
+    calculate_view_bounds: function() {
+        this.view_width = this.model.get('view_width');
+        this.view_center = this.model.get('view_center');
+        hwidths = [this.view_width[0]/2, this.view_width[1]/2];
+        var bounds = [this.view_center[0]-hwidths[0],
+                  this.view_center[0]+hwidths[0], 
+                  this.view_center[1]-hwidths[1], 
+                  this.view_center[1]+hwidths[1]];
+        return bounds
     },
 
     width_changed: function() {
