@@ -37,12 +37,11 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     render: function() {return _yt_tools.then(function(yt_tools) {
         this.canvas = document.createElement('canvas');
+        this.canvas.width = this.model.get('width');
+        this.canvas.height = this.model.get('height');
         $(this.canvas)
-          .css("max-width", "100%")
-          .css("min-width", "100px")
-          .css("min-height", "100px")
-          .height(this.model.get('height'))
-          .width(this.model.get('width'))
+          .css("width", "100%")
+          .css("height", "100%")
           .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
@@ -50,6 +49,8 @@ var FRBView = widgets.DOMWidgetView.extend({
         console.log(this.ctx);
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
+        this.model.on('change:width', this.buffer_changed, this);
+        this.model.on('change:height', this.buffer_changed, this);
         this.colormaps = this.model.get('colormaps');
         this.colormap_events();
         this.view_width = this.model.get('wiew_width');
@@ -84,12 +85,10 @@ var FRBView = widgets.DOMWidgetView.extend({
     redrawCanvasImage: function() {
         var nx = this.model.get('width');
         var ny = this.model.get('height');
-        var canvasWidth  = $(this.canvas).width();
-        var canvasHeight = $(this.canvas).height();
         // Clear out image first
         createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
-              this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-              this.ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
+              this.ctx.clearRect(0, 0, nx, ny);
+              this.ctx.drawImage(bitmap, 0, 0, nx, ny);
         }.bind(this));
     },
 
@@ -175,11 +174,12 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     width_changed: function() {
-      $(this.canvas).width(this.model.get('width'));
+      this.canvas.width = this.model.get('width');
+
     },
 
     height_changed: function() {
-      $(this.canvas).height(this.model.get('height'));
+      this.canvas.height = this.model.get('height');
     },
 
 });
