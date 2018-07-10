@@ -39,6 +39,9 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.model.get('width');
         this.canvas.height = this.model.get('height');
+        size = this.model.get('width') * this.model.get('height') * 8;
+        this._buffer = new ArrayBuffer(size);
+        this.buffer = new Float64Array(this._buffer);
         $(this.canvas)
           .css("width", "100%")
           .css("height", "100%")
@@ -73,8 +76,8 @@ var FRBView = widgets.DOMWidgetView.extend({
             this.model.get("pdy").data,
             this.model.get("val").data
         );
-        this.frb.deposit(this.varmesh);
-        this.colormaps.data_array = this.frb.get_buffer();
+        this.frb.deposit(this.varmesh, this.buffer);
+        this.colormaps.data_array = this.buffer;
         this.imageData = this.ctx.createImageData(
             this.model.get('width'), this.model.get('height'),
         );
@@ -155,7 +158,7 @@ var FRBView = widgets.DOMWidgetView.extend({
                 bounds[2], bounds[3]
             );
             this.frb.deposit(this.varmesh);
-            this.colormaps.data_array = this.frb.get_buffer();
+            this.colormaps.data_array = this.buffer;
             // data array not triggering listeners in colormaps. 
             // Normalize() call required to update image array. 
             this.colormaps.normalize();
@@ -175,7 +178,6 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     width_changed: function() {
       this.canvas.width = this.model.get('width');
-
     },
 
     height_changed: function() {
