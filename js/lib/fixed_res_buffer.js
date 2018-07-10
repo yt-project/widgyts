@@ -39,9 +39,6 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.model.get('width');
         this.canvas.height = this.model.get('height');
-        size = this.model.get('width') * this.model.get('height') * 8;
-        this._buffer = new ArrayBuffer(size);
-        this.buffer = new Float64Array(this._buffer);
         $(this.canvas)
           .css("width", "100%")
           .css("height", "100%")
@@ -55,6 +52,7 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:width', this.buffer_changed, this);
         this.model.on('change:height', this.buffer_changed, this);
         this.colormaps = this.model.get('colormaps');
+        this.setupBuffers();
         this.colormap_events();
         this.view_width = this.model.get('wiew_width');
         this.view_center = this.model.get('view_center');
@@ -84,6 +82,18 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.imageData.data.set(this.colormaps.image_array);
         this.redrawCanvasImage();
     }.bind(this));},
+
+    setupBuffers: function() {
+        nx = this.model.get('width');
+        ny = this.model.get('height');
+        this._buffer = new ArrayBuffer(nx * ny * 8);
+        this._image_buffer = new ArrayBuffer(nx * ny);
+        this.buffer = new Float64Array(this._buffer);
+        // RGBA
+        this.image_buffer = new Uint8Array(nx * ny * 4);
+        this.colormaps.data_array = this.buffer;
+        this.colormaps.image_array = this.image_buffer;
+    },
 
     redrawCanvasImage: function() {
         var nx = this.model.get('width');
@@ -135,13 +145,11 @@ var FRBView = widgets.DOMWidgetView.extend({
 
         // Last, once a change in the image array is detected, we will redraw 
         // it on the canvas image. 
-        this.listenTo(this.colormaps, 'change:image_array', function() {
-            var array = this.colormaps.get('image_array');
-            console.log('image array updated');
+        this.listenTo(this.colormaps, 'change:generation', function() {
             this.imageData = this.ctx.createImageData(
                 this.model.get('width'), this.model.get('height'),
             );
-            this.imageData.data.set(array);
+            this.imageData.data.set(this.colormaps.image_array);
             console.log('redrawing image array on canvas');
             this.redrawCanvasImage();
         }, this); 
@@ -157,7 +165,7 @@ var FRBView = widgets.DOMWidgetView.extend({
                 bounds[0], bounds[1],
                 bounds[2], bounds[3]
             );
-            this.frb.deposit(this.varmesh);
+            this.frb.deposit(this.varmesh, this.buffer);
             this.colormaps.data_array = this.buffer;
             // data array not triggering listeners in colormaps. 
             // Normalize() call required to update image array. 
@@ -178,10 +186,12 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     width_changed: function() {
       this.canvas.width = this.model.get('width');
+      this.setupBuffers();
     },
 
     height_changed: function() {
       this.canvas.height = this.model.get('height');
+      this.setupBuffers();
     },
 
 });

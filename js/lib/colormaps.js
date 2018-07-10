@@ -15,8 +15,7 @@ var CMapModel = widgets.WidgetModel.extend({
             is_log: undefined,
             min_val: undefined, 
             max_val: undefined,
-            data_array: undefined, 
-            image_array: undefined,
+            generation: undefined
         });
     },
 
@@ -26,8 +25,9 @@ var CMapModel = widgets.WidgetModel.extend({
         this.is_log = this.get('is_log');
         this.min_val = this.get('min_val');
         this.max_val = this.get('max_val');
-        this.data_array = this.get('data_array').data;
-        this.image_array = this.get('image_array').data;
+        this.generation = this.get('generation');
+        this.data_array = null;
+        this.image_array = null;
 
         this.setupListeners();
     },
@@ -37,34 +37,38 @@ var CMapModel = widgets.WidgetModel.extend({
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
         //
+        console.log("Inside normalize");
         var colormaps = this.get_cmaps(yt_tools);
         if (this.min_val) {
             if (this.max_val) {
-                array = colormaps.normalize_min_max(this.map_name, this.data_array, 
-                        this.min_val, this.max_val, this.is_log);
+                colormaps.normalize_min_max(this.map_name, this.data_array, 
+                        this.image_array, this.min_val, this.max_val, this.is_log);
             } else {
-                array = colormaps.normalize_min(this.map_name, this.data_array, 
-                        this.min_val, this.is_log);
+                colormaps.normalize_min(this.map_name, this.data_array, 
+                        this.image_array, this.min_val, this.is_log);
             }
         } else if (this.max_val) {
-            array = colormaps.normalize_max(this.map_name, this.data_array, 
-                    this.max_val, this.is_log);
+            colormaps.normalize_max(this.map_name, this.data_array, 
+                    this.image_array, this.max_val, this.is_log);
         } else {
-            array = colormaps.normalize(this.map_name, this.data_array, this.is_log);
+            colormaps.normalize(this.map_name, this.data_array, this.image_array,
+              this.is_log);
         };
         
         // I sort of feel like this next line shouldn't be required if we 
         // update the Python side, but whatever. 
         // Updates the js side of image_array to our result. 
-        this.image_array = array;
+        //this.image_array = array;
 
         // this sync isn't working yet, so on the python side we can't 
         // access it. 
         // However, in order for the FRB to pick up that something changed 
         // in the image array, this.set must be used.  
-        this.set('image_array', array).data;
+        console.log("Setting generation to ", this.generation + 1);
+        this.generation = this.generation + 1;
+        this.set('generation', this.generation);
         this.save_changes();
-        return array
+        return this.image_array;
     }.bind(this)) },
 
     get_cmaps: function(yt_tools) {
@@ -98,11 +102,6 @@ var CMapModel = widgets.WidgetModel.extend({
         this.on('change:is_log', this.scale_changed, this);
         this.on('change:min_val', this.limits_changed, this);
         this.on('change:max_val', this.limits_changed, this);
-        this.on('change:data_array', this.property_changed, this);
-
-        // setting up js listener for change in the input data array since
-        // the js side of the frb and the image canvas modify it. 
-        this.listenTo(this, 'change:data_array', this.jsdata_changed(), this);
     },
 
     name_changed: function() {
@@ -127,8 +126,6 @@ var CMapModel = widgets.WidgetModel.extend({
     },
 
     property_changed: function() {
-        this.data = this.get('data_array').data;
-        console.log('detected change in buffer array on python side. Renormalizing');
         this.normalize();
     },
     
@@ -136,11 +133,6 @@ var CMapModel = widgets.WidgetModel.extend({
         console.log('detected change in buffer array on js side. Renormalizing');
         this.normalize();
     },
-}, {
-   serializers: _.extend({
-       data: ipydatawidgets.data_union_array_serialization,
-       image_array: ipydatawidgets.data_union_array_serialization
-   }, widgets.WidgetModel.serializers),
 }, {
     model_module: 'yt-jscanvas',
     model_name: 'CMapModel',
