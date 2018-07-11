@@ -18,7 +18,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         width: 512,
         height: 512,
         colormaps: undefined,
-        canvas_edges: undefined,
+        view_center: undefined,
+        view_width: undefined
     }),
 }, {
     serializers: _.extend({
@@ -36,27 +37,35 @@ var FRBView = widgets.DOMWidgetView.extend({
 
     render: function() {return _yt_tools.then(function(yt_tools) {
         this.canvas = document.createElement('canvas');
+        this.canvas.width = this.model.get('width');
+        this.canvas.height = this.model.get('height');
         $(this.canvas)
-          .css("max-width", "100%")
-          .css("min-width", "100px")
-          .css("min-height", "100px")
-          .height(this.model.get('height'))
-          .width(this.model.get('width'))
+          .css("width", "100%")
+          .css("height", "100%")
           .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
+        console.log(this.canvas);
+        console.log(this.ctx);
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
+        this.model.on('change:width', this.buffer_changed, this);
+        this.model.on('change:height', this.buffer_changed, this);
         this.colormaps = this.model.get('colormaps');
+        this.setupBuffers();
         this.colormap_events();
-        this.canvas_edges = this.model.get('canvas_edges');
-        this.model.on('change:canvas_edges', this.buffer_changed, this);
+        this.view_width = this.model.get('wiew_width');
+        this.view_center = this.model.get('view_center');
+        this.model.on('change:view_width', this.buffer_changed, this);
+        this.model.on('change:view_center', this.buffer_changed, this);
+        this.mouse_events();
+        bounds = this.calculate_view_bounds();
 
         this.frb = yt_tools.FixedResolutionBuffer.new(
             this.model.get('width'),
             this.model.get('height'),
-            this.canvas_edges[0], this.canvas_edges[1],
-            this.canvas_edges[2], this.canvas_edges[3]
+            bounds[0], bounds[1],
+            bounds[2], bounds[3]
         );
         this.varmesh = yt_tools.VariableMesh.new(
             this.model.get("px").data,
@@ -65,8 +74,8 @@ var FRBView = widgets.DOMWidgetView.extend({
             this.model.get("pdy").data,
             this.model.get("val").data
         );
-        this.frb.deposit(this.varmesh);
-        this.colormaps.data_array = this.frb.get_buffer();
+        this.frb.deposit(this.varmesh, this.buffer);
+        this.colormaps.data_array = this.buffer;
         this.imageData = this.ctx.createImageData(
             this.model.get('width'), this.model.get('height'),
         );
@@ -74,16 +83,48 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.redrawCanvasImage();
     }.bind(this));},
 
+    setupBuffers: function() {
+        nx = this.model.get('width');
+        ny = this.model.get('height');
+        this._buffer = new ArrayBuffer(nx * ny * 8);
+        this._image_buffer = new ArrayBuffer(nx * ny);
+        this.buffer = new Float64Array(this._buffer);
+        // RGBA
+        this.image_buffer = new Uint8Array(nx * ny * 4);
+        this.colormaps.data_array = this.buffer;
+        this.colormaps.image_array = this.image_buffer;
+    },
+
     redrawCanvasImage: function() {
         var nx = this.model.get('width');
         var ny = this.model.get('height');
-        var canvasWidth  = $(this.canvas).width();
-        var canvasHeight = $(this.canvas).height();
         // Clear out image first
         createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
-              this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-              this.ctx.drawImage(bitmap, 0, 0, canvasWidth, canvasHeight);
+              this.ctx.clearRect(0, 0, nx, ny);
+              this.ctx.drawImage(bitmap, 0, 0, nx, ny);
         }.bind(this));
+    },
+
+    mouse_events: function() {
+        this.canvas.addEventListener('click', this.onClick.bind(this), false);
+    },
+
+    onClick: function(e) {
+        var loc = {x: 0, y:0};
+        var cbounds = this.canvas.getBoundingClientRect();
+        loc.x = (e.clientX - cbounds.left)/cbounds.width;
+        loc.y = (cbounds.bottom - e.clientY)/cbounds.height;
+        console.log("loc x:", loc.x, "loc y:", loc.y);
+        left_edge = this.view_center[0]-this.view_width[0]/2;
+        bottom_edge = this.view_center[1]-this.view_width[1]/2;
+        center_x = loc.x*this.view_width[0]+left_edge;
+        center_y = loc.y*this.view_width[1]+bottom_edge;
+        updated_center = [center_x, center_y];
+        console.log('old center:', this.view_center);
+        console.log('setting new center to:', updated_center);
+        this.model.set({'view_center':updated_center});
+        this.model.save_changes();
+        console.log('done updating center');
     },
 
     colormap_events: function() {
@@ -104,43 +145,53 @@ var FRBView = widgets.DOMWidgetView.extend({
 
         // Last, once a change in the image array is detected, we will redraw 
         // it on the canvas image. 
-        this.listenTo(this.colormaps, 'change:image_array', function() {
-            var array = this.colormaps.get('image_array');
-            console.log('image array updated');
+        this.listenTo(this.colormaps, 'change:generation', function() {
             this.imageData = this.ctx.createImageData(
                 this.model.get('width'), this.model.get('height'),
             );
-            this.imageData.data.set(array);
+            this.imageData.data.set(this.colormaps.image_array);
             console.log('redrawing image array on canvas');
             this.redrawCanvasImage();
         }, this); 
     },
 
     buffer_changed: function() {
-        this.canvas_edges = this.model.get('canvas_edges');
-        console.log('canvas edge array changed to:');
-        console.log(this.canvas_edges);
+        bounds = this.calculate_view_bounds();
+        console.log(bounds);
         _yt_tools.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
                 this.model.get('height'),
-                this.canvas_edges[0], this.canvas_edges[1],
-                this.canvas_edges[2], this.canvas_edges[3]
+                bounds[0], bounds[1],
+                bounds[2], bounds[3]
             );
-            this.frb.deposit(this.varmesh);
-            this.colormaps.data_array = this.frb.get_buffer();
+            this.frb.deposit(this.varmesh, this.buffer);
+            this.colormaps.data_array = this.buffer;
             // data array not triggering listeners in colormaps. 
             // Normalize() call required to update image array. 
             this.colormaps.normalize();
         }.bind(this));
     },
 
+    calculate_view_bounds: function() {
+        this.view_width = this.model.get('view_width');
+        this.view_center = this.model.get('view_center');
+        hwidths = [this.view_width[0]/2, this.view_width[1]/2];
+        var bounds = [this.view_center[0]-hwidths[0],
+                  this.view_center[0]+hwidths[0], 
+                  this.view_center[1]-hwidths[1], 
+                  this.view_center[1]+hwidths[1]];
+        return bounds
+    },
+
     width_changed: function() {
-      $(this.canvas).width(this.model.get('width'));
+      this.canvas.width = this.model.get('width');
+      this.setupBuffers();
     },
 
     height_changed: function() {
-      $(this.canvas).height(this.model.get('height'));
+      this.canvas.height = this.model.get('height');
+      this.setupBuffers();
     },
 
 });
