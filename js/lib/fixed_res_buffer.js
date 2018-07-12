@@ -1,6 +1,7 @@
 var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var _yt_tools = import('@data-exp-lab/yt-tools');
+var _ = require('lodash');
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -8,8 +9,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         _view_name : 'FRBView',
         _model_module : '@data-exp-lab/yt-jscanvas',
         _view_module : '@data-exp-lab/yt-jscanvas',
-        _model_module_version : '0.1.4',
-        _view_module_version : '0.1.4',
+        _model_module_version : '0.1.5',
+        _view_module_version : '0.1.5',
         px: undefined,
         py: undefined,
         pdx: undefined,

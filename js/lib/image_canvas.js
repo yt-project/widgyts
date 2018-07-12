@@ -2,6 +2,7 @@ var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var frb = require('./fixed_res_buffer.js');
 var cmaps = require('./colormaps.js')
+var _ = require('lodash');
 
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes, including
@@ -24,8 +25,8 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
         _view_name : 'ImageCanvasView',
         _model_module : '@data-exp-lab/yt-jscanvas',
         _view_module : '@data-exp-lab/yt-jscanvas',
-        _model_module_version : '0.1.4',
-        _view_module_version : '0.1.4',
+        _model_module_version : '0.1.5',
+        _view_module_version : '0.1.5',
         image_array: undefined,
         width: 256,
         height: 256
