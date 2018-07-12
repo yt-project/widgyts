@@ -65,7 +65,7 @@ module.exports = [
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),
             libraryTarget: 'amd',
-            publicPath: 'https://unpkg.com/yt-jscanvas@' + version + '/dist/'
+            publicPath: 'https://unpkg.com/@data-exp-lab/yt-jscanvas@' + version + '/dist/'
         },
         devtool: 'source-map',
         module: {
