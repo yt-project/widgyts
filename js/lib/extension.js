@@ -7,7 +7,7 @@ if (window.require) {
     window.require.config({
         map: {
             "*" : {
-                "yt-jscanvas": "nbextensions/yt-jscanvas/index",
+                "@data-exp-lab/yt-jscanvas": "nbextensions/yt-jscanvas/index",
             }
         }
     });
