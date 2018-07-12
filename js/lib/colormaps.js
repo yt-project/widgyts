@@ -7,7 +7,7 @@ var CMapModel = widgets.WidgetModel.extend({
     defaults: function() {
         return _.extend(widgets.WidgetModel.prototype.defaults.call(this), {
             _model_name: 'CMapModel',
-            _model_module: 'yt-jscanvas',
+            _model_module: '@data-exp-lab/yt-jscanvas',
             _model_module_version: '0.1.0',
 
             cmaps: undefined,

@@ -6,8 +6,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
         _model_name : 'FRBMovel',
         _view_name : 'FRBView',
-        _model_module : 'yt-jscanvas',
-        _view_module : 'yt-jscanvas',
+        _model_module : '@data-exp-lab/yt-jscanvas',
+        _view_module : '@data-exp-lab/yt-jscanvas',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
         px: undefined,
