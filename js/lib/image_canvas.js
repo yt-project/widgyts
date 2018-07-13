@@ -25,8 +25,8 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
         _view_name : 'ImageCanvasView',
         _model_module : '@data-exp-lab/yt-jscanvas',
         _view_module : '@data-exp-lab/yt-jscanvas',
-        _model_module_version : '0.1.5',
-        _view_module_version : '0.1.5',
+        _model_module_version : '0.1.6',
+        _view_module_version : '0.1.6',
         image_array: undefined,
         width: 256,
         height: 256

@@ -1,6 +1,6 @@
 {
   "name": "@data-exp-lab/yt-jscanvas",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": "Data Exploration Lab",
   "contributors": [
@@ -44,7 +44,7 @@
     "webpack-cli": "^2.1.5"
   },
   "dependencies": {
-    "@data-exp-lab/yt-tools": "^0.2.0",
+    "@data-exp-lab/yt-tools": "file:../../rust-yt-tools/pkg",
     "@jupyter-widgets/base": "^1.0.0",
     "file-loader": "^1.1.11",
     "jupyter-dataserializers": "^1.1.2",
