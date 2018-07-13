@@ -107,9 +107,11 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     mouse_events: function() {
-        this.canvas.addEventListener('click', this.onClick.bind(this), false);
+        this.dragging = false;
+        this.canvas.addEventListener('dblclick', this.onClick.bind(this), false);
         this.canvas.addEventListener('mousedown', this.onDownClick.bind(this), false);
         this.canvas.addEventListener('mouseup', this.onUpClick.bind(this), false);
+        this.canvas.addEventListener('mousemove', this.onMove.bind(this), false);
     },
 
     onClick: function(e) {
@@ -117,53 +119,52 @@ var FRBView = widgets.DOMWidgetView.extend({
         var cbounds = this.canvas.getBoundingClientRect();
         loc.x = (e.clientX - cbounds.left)/cbounds.width;
         loc.y = (cbounds.bottom - e.clientY)/cbounds.height;
-        console.log("loc x:", loc.x, "loc y:", loc.y);
         left_edge = this.view_center[0]-this.view_width[0]/2;
         bottom_edge = this.view_center[1]-this.view_width[1]/2;
         center_x = loc.x*this.view_width[0]+left_edge;
         center_y = loc.y*this.view_width[1]+bottom_edge;
         updated_center = [center_x, center_y];
-        console.log('old center:', this.view_center);
-        console.log('setting new center to:', updated_center);
         this.model.set({'view_center':updated_center});
         this.model.save_changes();
-        console.log('done updating center');
     },
 
     onDownClick: function(e) {
         this.startloc = {x:0, y:0, centerx:0, centery:0};
+        
         // get the starting location of the mouse in units relative to the data
         var cbounds = this.canvas.getBoundingClientRect();
         this.startloc.x = ((e.clientX - cbounds.left)/cbounds.width)*this.view_width[0];
         this.startloc.y = ((cbounds.bottom - e.clientY)/cbounds.height)*this.view_width[1];
+        
         // also save the starting center before the drag
         this.startloc.centerx = (this.view_center[0]);
         this.startloc.centery = (this.view_center[1]);
-        console.log('starting drag event');
-        this.canvas.addEventListener('mousemove', this.onMove.bind(this), false);
+        this.dragging = true;
     },
 
     onUpClick: function() {
-        console.log('done dragging');
-        this.canvas.removeEventListener('mousemove', this.onMove.bind(this), false);
+        this.dragging = false;
     },
 
     onMove: function(e) {
-        var moveloc = {x:0, y:0, diffx:0, diffy:0};
-        var cbounds = this.canvas.getBoundingClientRect();
-        moveloc.x = ((e.clientX - cbounds.left)/cbounds.width)*this.view_width[0];
-        moveloc.y = ((cbounds.bottom - e.clientY)/cbounds.height)*this.view_width[1];
+        if (this.dragging){
+            var moveloc = {x:0, y:0, diffx:0, diffy:0};
+            var cbounds = this.canvas.getBoundingClientRect();
+            moveloc.x = ((e.clientX - cbounds.left)/cbounds.width)*this.view_width[0];
+            moveloc.y = ((cbounds.bottom - e.clientY)/cbounds.height)*this.view_width[1];
 
-        moveloc.diffx = this.startloc.x-moveloc.x;
-        moveloc.diffy = this.startloc.y-moveloc.y;
+            // get the x and y distance moved 
+            moveloc.diffx = this.startloc.x-moveloc.x;
+            moveloc.diffy = this.startloc.y-moveloc.y;
 
-        var newx = this.startloc.centerx + moveloc.diffx; 
-        var newy = this.startloc.centery + moveloc.diffy;
+            // use the x and y distances moved to update the center
+            var newx = this.startloc.centerx + moveloc.diffx; 
+            var newy = this.startloc.centery + moveloc.diffy;
 
-        updated_center = [newx, newy]
-        console.log('setting new center to:', updated_center);
-        this.model.set({'view_center':updated_center});
-        this.model.save_changes();
+            this.updated_center = [newx, newy]
+            this.model.set({'view_center': this.updated_center});
+            this.model.save_changes();
+        }
     },
 
     colormap_events: function() {
@@ -189,14 +190,12 @@ var FRBView = widgets.DOMWidgetView.extend({
                 this.model.get('width'), this.model.get('height'),
             );
             this.imageData.data.set(this.colormaps.image_array);
-            console.log('redrawing image array on canvas');
             this.redrawCanvasImage();
         }, this); 
     },
 
     buffer_changed: function() {
         bounds = this.calculate_view_bounds();
-        console.log(bounds);
         _yt_tools.then(function(yt_tools) {
             this.frb = yt_tools.FixedResolutionBuffer.new(
                 this.model.get('width'),
