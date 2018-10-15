@@ -62,13 +62,13 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.mouse_events();
         bounds = this.calculate_view_bounds();
 
-        this.frb = yt_tools.FixedResolutionBuffer.new(
+        this.frb = new yt_tools.FixedResolutionBuffer(
             this.model.get('width'),
             this.model.get('height'),
             bounds[0], bounds[1],
             bounds[2], bounds[3]
         );
-        this.varmesh = yt_tools.VariableMesh.new(
+        this.varmesh = new yt_tools.VariableMesh(
             this.model.get("px").data,
             this.model.get("py").data,
             this.model.get("pdx").data,
@@ -197,7 +197,7 @@ var FRBView = widgets.DOMWidgetView.extend({
     buffer_changed: function() {
         bounds = this.calculate_view_bounds();
         _yt_tools.then(function(yt_tools) {
-            this.frb = yt_tools.FixedResolutionBuffer.new(
+            this.frb = new yt_tools.FixedResolutionBuffer(
                 this.model.get('width'),
                 this.model.get('height'),
                 bounds[0], bounds[1],

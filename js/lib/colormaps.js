@@ -40,22 +40,8 @@ var CMapModel = widgets.WidgetModel.extend({
         //
         console.log("Inside normalize");
         var colormaps = this.get_cmaps(yt_tools);
-        if (this.min_val) {
-            if (this.max_val) {
-                colormaps.normalize_min_max(this.map_name, this.data_array, 
-                        this.image_array, this.min_val, this.max_val, this.is_log);
-            } else {
-                colormaps.normalize_min(this.map_name, this.data_array, 
-                        this.image_array, this.min_val, this.is_log);
-            }
-        } else if (this.max_val) {
-            colormaps.normalize_max(this.map_name, this.data_array, 
-                    this.image_array, this.max_val, this.is_log);
-        } else {
-            colormaps.normalize(this.map_name, this.data_array, this.image_array,
-              this.is_log);
-        };
-        
+        colormaps.normalize(this.map_name, this.data_array, 
+          this.image_array, this.min_val, this.max_val, this.is_log);
         // I sort of feel like this next line shouldn't be required if we 
         // update the Python side, but whatever. 
         // Updates the js side of image_array to our result. 
@@ -82,7 +68,7 @@ var CMapModel = widgets.WidgetModel.extend({
             return this.colormaps
         } else {
             console.log('importing colormaps into wasm... ');
-            this.colormaps = yt_tools.Colormaps.new();
+            this.colormaps = new yt_tools.Colormaps();
     
             var mpl_cmap_obj = this.get('cmaps');
             for (var mapname in mpl_cmap_obj) {
