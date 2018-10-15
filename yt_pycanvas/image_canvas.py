@@ -106,10 +106,12 @@ class FRBViewer(ipywidgets.DOMWidget):
         right.on_click(self.on_xrightclick)
         left.on_click(self.on_xleftclick)
         zoom.observe(self.on_zoom, names='value')
-        ipywidgets.link((is_log, 'value'), (self.colormaps, 'is_log'))
+        # These can be jslinked, so we will do so.
+        ipywidgets.jslink((is_log, 'value'), (self.colormaps, 'is_log'))
+        ipywidgets.jslink((min_val, 'value'), (self.colormaps, 'min_val'))
+        ipywidgets.jslink((max_val, 'value'), (self.colormaps, 'max_val'))
+        # This one seemingly cannot be.
         ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
-        ipywidgets.link((min_val, 'value'), (self.colormaps, 'min_val'))
-        ipywidgets.link((max_val, 'value'), (self.colormaps, 'max_val'))
 
         sides = ipywidgets.HBox([left,right],
                 layout=ipywidgets.Layout(justify_content='space-between',
@@ -161,11 +163,13 @@ class FRBViewer(ipywidgets.DOMWidget):
 
 
 def display_yt(data_object, field):
-    frb = FRBViewer(px = data_object["px"],
-                    py = data_object["py"],
-                    pdx = data_object["pdx"],
-                    pdy = data_object["pdy"],
-                    val = data_object[field])
+    # Note what we are doing here: we are taking *views* of these,
+    # as the logic in the ndarray traittype doesn't check for subclasses.
+    frb = FRBViewer(px = data_object["px"].d,
+                    py = data_object["py"].d,
+                    pdx = data_object["pdx"].d,
+                    pdy = data_object["pdy"].d,
+                    val = data_object[field].d)
     controls = frb.setup_controls()
     return ipywidgets.HBox([controls, frb])
 
