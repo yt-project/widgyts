@@ -9,3 +9,15 @@ def _jupyter_nbextension_paths():
         'dest': 'yt-jscanvas',
         'require': 'yt-jscanvas/extension'
     }]
+
+def _jupyter_server_extension_paths():
+    return [{
+        "module": "yt_pycanvas"
+    }]
+
+def load_jupyter_server_extension(nb_app):
+    '''
+    Just add to mimetypes.
+    '''
+    import mimetypes
+    mimetypes.add_type("application/wasm", ".wasm")
