@@ -7,6 +7,15 @@ from ipywidgets import widget_serialization
 
 from .colormaps.colormaps import ColorMaps
 
+from yt.data_objects.selection_data_containers import \
+        YTSlice
+from yt.data_objects.construction_data_containers import \
+        YTQuadTreeProj
+from yt.visualization.fixed_resolution import \
+        FixedResolutionBuffer as frb
+from yt.funcs import \
+        ensure_list
+
 rgba_image_shape = shape_constraints(None, None, 4)
 vmesh_shape = shape_constraints(None)
 
@@ -55,6 +64,11 @@ class FRBViewer(ipywidgets.DOMWidget):
             **widget_serialization)
     view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
     view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
+
+    @traitlets.default('layout')
+    def _layout_default(self):
+        return ipywidgets.Layout(width = '{}px'.format(self.width),
+                                 height ='{}px'.format(self.height))
 
     @traitlets.default('colormaps')
     def _colormap_load(self):
@@ -146,3 +160,26 @@ class FRBViewer(ipywidgets.DOMWidget):
         # print("old edges: {} \n new edges:{}".format(ce, new_bounds))
 
 
+def display_yt(data_object, field):
+    frb = FRBViewer(px = data_object["px"],
+                    py = data_object["py"],
+                    pdx = data_object["pdx"],
+                    pdy = data_object["pdy"],
+                    val = data_object[field])
+    controls = frb.setup_controls()
+    return ipywidgets.HBox([controls, frb])
+
+def _2d_display(self, fields = None):
+    axis = self.axis
+    skip = self._key_fields
+    skip += list(set(frb._exclude_fields).difference(set(self._key_fields)))
+    self.fields = [k for k in self.field_data if k not in skip]
+    if fields is not None:
+        self.fields = ensure_list(fields) + self.fields
+    if len(self.fields) == 0:
+        raise ValueError("No fields found to plot in display()")
+    return display_yt(self, self.fields[0])
+
+
+YTSlice.display = _2d_display
+YTQuadTreeProj.display = _2d_display
