@@ -136,7 +136,13 @@ setup_args = {
             'yt_pycanvas/static/index.js',
             'yt_pycanvas/static/index.js.map',
         ]),
-    ],
+        ("etc/jupyter/nbconfig/notebook.d", [
+            "jupyter-config/nbconfig/notebook.d/yt_pycanvas.json"
+        ]),
+        ("etc/jupyter/jupyter_notebook_config.d", [
+            "jupyter-config/jupyter_notebook_config.d/yt_pycanvas.json"
+        ])
+        ],
     'install_requires': [
         'ipywidgets>=7.0.0',
     ],
