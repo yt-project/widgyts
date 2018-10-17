@@ -4,6 +4,7 @@ from setuptools.command.sdist import sdist
 from setuptools.command.build_py import build_py
 from setuptools.command.egg_info import egg_info
 from subprocess import check_call
+import glob
 import os
 import sys
 import platform
@@ -56,6 +57,20 @@ def update_package_data(distribution):
     # distribution.package_data = find_package_data()
     # re-init build_py options which load package_data
     build_py.finalize_options()
+
+
+def get_data_files():
+    return [
+        ('share/jupyter/nbextensions/yt-jscanvas', [
+            os.path.relpath(f, '.') for f in glob.glob('yt_pycanvas/static/*')
+        ]),
+        ("etc/jupyter/nbconfig/notebook.d", [
+            "jupyter-config/nbconfig/notebook.d/yt_pycanvas.json"
+        ]),
+        ("etc/jupyter/jupyter_notebook_config.d", [
+            "jupyter-config/jupyter_notebook_config.d/yt_pycanvas.json"
+        ])
+    ]
 
 
 class NPM(Command):
@@ -117,6 +132,7 @@ class NPM(Command):
                     msg += '\nnpm is required to build a development version of a widget extension'
                 raise ValueError(msg)
 
+        self.distribution.data_files = get_data_files()
         # update package data in case this created new files
         update_package_data(self.distribution)
 
@@ -130,19 +146,7 @@ setup_args = {
     'description': 'A Custom Jupyter Widget Library',
     'long_description': LONG_DESCRIPTION,
     'include_package_data': True,
-    'data_files': [
-        ('share/jupyter/nbextensions/yt-jscanvas', [
-            'yt_pycanvas/static/extension.js',
-            'yt_pycanvas/static/index.js',
-            'yt_pycanvas/static/index.js.map',
-        ]),
-        ("etc/jupyter/nbconfig/notebook.d", [
-            "jupyter-config/nbconfig/notebook.d/yt_pycanvas.json"
-        ]),
-        ("etc/jupyter/jupyter_notebook_config.d", [
-            "jupyter-config/jupyter_notebook_config.d/yt_pycanvas.json"
-        ])
-        ],
+    'data_files': get_data_files(),
     'install_requires': [
         'ipywidgets>=7.0.0',
     ],
