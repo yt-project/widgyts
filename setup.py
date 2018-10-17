@@ -149,6 +149,8 @@ setup_args = {
     'data_files': get_data_files(),
     'install_requires': [
         'ipywidgets>=7.0.0',
+        'ipydatawidgets>=3.2.0',
+        'yt'
     ],
     'packages': find_packages(),
     'zip_safe': False,
