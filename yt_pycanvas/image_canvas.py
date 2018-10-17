@@ -86,9 +86,14 @@ class FRBViewer(ipywidgets.DOMWidget):
                 layout=ipywidgets.Layout(width='40px')
                 )
         zoom_start = 1./(self.view_width[0])
-        zoom = ipywidgets.FloatSlider(min=0.1, max=10, step=0.1,
-                value=zoom_start,
-                description="Zoom")
+        # By setting the dynamic range to be the ratio between coarsest and
+        # finest, we ensure that at the fullest zoom, our smallest point will
+        # be the size of our biggest point at the outermost zoom.
+        dynamic_range = (max(self.pdx.max(), self.pdy.max()) / 
+                         min(self.pdx.min(), self.pdy.min()))
+        
+        zoom = ipywidgets.FloatSlider(min=0.5, max=dynamic_range, step=0.1,
+                value=zoom_start, description="Zoom")
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
         colormaps = ipywidgets.Dropdown(
                 options=list(self.colormaps.cmaps.keys()),
