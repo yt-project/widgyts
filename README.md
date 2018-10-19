@@ -1,7 +1,16 @@
 yt-canvas-widget
 ===============================
 
-A Custom Jupyter Widget Library
+A fully client-side pan-and-zoom widget, using WebAssembly, for variable mesh
+datasets from yt.  It runs in the browser, so once the data hits your notebook,
+it's super fast and responsive!
+
+If you'd like to dig into the Rust and WebAssembly portion of the code, you can
+find it at https://github.com/data-exp-lab/rust-yt-tools/ and in the npm
+package `@data-exp-lab/yt-tools`.
+
+Check out our [SciPy 2018 talk](https://www.youtube.com/watch?v=5dl_m_6T2bU)
+and the [associated slides](https://munkm.github.io/2018-07-13-scipy/) for more info!
 
 Installation
 ------------

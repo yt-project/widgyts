@@ -9,8 +9,8 @@ var FRBModel = widgets.DOMWidgetModel.extend({
         _view_name : 'FRBView',
         _model_module : '@data-exp-lab/yt-jscanvas',
         _view_module : '@data-exp-lab/yt-jscanvas',
-        _model_module_version : '0.1.8',
-        _view_module_version : '0.1.8',
+        _model_module_version : '0.2.0',
+        _view_module_version : '0.2.0',
         px: undefined,
         py: undefined,
         pdx: undefined,
@@ -46,8 +46,6 @@ var FRBView = widgets.DOMWidgetView.extend({
           .appendTo(this.el);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
-        console.log(this.canvas);
-        console.log(this.ctx);
         this.model.on('change:width', this.width_changed, this);
         this.model.on('change:height', this.height_changed, this);
         this.model.on('change:width', this.buffer_changed, this);

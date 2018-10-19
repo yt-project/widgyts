@@ -26,8 +26,8 @@ class ImageCanvas(ipywidgets.DOMWidget):
     _model_name = traitlets.Unicode('ImageCanvasModel').tag(sync=True)
     _view_module = traitlets.Unicode('@data-exp-lab/yt-jscanvas').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-jscanvas').tag(sync=True)
-    _view_module_version = traitlets.Unicode('^0.1.8').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.1.8').tag(sync=True)
+    _view_module_version = traitlets.Unicode('^0.2.0').tag(sync=True)
+    _model_module_version = traitlets.Unicode('^0.2.0').tag(sync=True)
     image_array = DataUnion(dtype=np.uint8,
             shape_constraint=rgba_image_shape).tag(sync=True,
                     **data_union_serialization)
@@ -41,8 +41,8 @@ class FRBViewer(ipywidgets.DOMWidget):
     _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
     _view_module = traitlets.Unicode('@data-exp-lab/yt-jscanvas').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-jscanvas').tag(sync=True)
-    _view_module_version = traitlets.Unicode('^0.1.8').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.1.8').tag(sync=True)
+    _view_module_version = traitlets.Unicode('^0.2.0').tag(sync=True)
+    _model_module_version = traitlets.Unicode('^0.2.0').tag(sync=True)
     width = traitlets.Int(512).tag(sync=True)
     height = traitlets.Int(512).tag(sync=True)
     px = DataUnion(dtype=np.float64,

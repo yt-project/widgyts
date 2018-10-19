@@ -9,7 +9,7 @@ var CMapModel = widgets.WidgetModel.extend({
         return _.extend(widgets.WidgetModel.prototype.defaults.call(this), {
             _model_name: 'CMapModel',
             _model_module: '@data-exp-lab/yt-jscanvas',
-            _model_module_version: '0.1.8',
+            _model_module_version: '0.2.0',
 
             cmaps: undefined,
             map_name: null,
@@ -38,7 +38,6 @@ var CMapModel = widgets.WidgetModel.extend({
         // to be loaded in to wasm, so requires add_mpl_colormaps to be called 
         // at this time.
         //
-        console.log("Inside normalize");
         var colormaps = this.get_cmaps(yt_tools);
         colormaps.normalize(this.map_name, this.data_array, 
           this.image_array, this.min_val, this.max_val, this.is_log);
@@ -51,7 +50,6 @@ var CMapModel = widgets.WidgetModel.extend({
         // access it. 
         // However, in order for the FRB to pick up that something changed 
         // in the image array, this.set must be used.  
-        console.log("Setting generation to ", this.generation + 1);
         this.generation = this.generation + 1;
         this.set('generation', this.generation);
         this.save_changes();
@@ -64,10 +62,8 @@ var CMapModel = widgets.WidgetModel.extend({
         // the colormaps object in wasm.
         
         if (this.colormaps) {
-            console.log('colormaps exist');
             return this.colormaps
         } else {
-            console.log('importing colormaps into wasm... ');
             this.colormaps = new yt_tools.Colormaps();
     
             var mpl_cmap_obj = this.get('cmaps');
@@ -82,7 +78,6 @@ var CMapModel = widgets.WidgetModel.extend({
     }, 
     
     setupListeners: function() {
-        console.log('setting up listeners for trait changes');
         
         // setting up listeners on the python side.
         this.on('change:map_name', this.name_changed, this);
@@ -94,21 +89,18 @@ var CMapModel = widgets.WidgetModel.extend({
     name_changed: function() {
         var old_name = this.map_name;
         this.map_name = this.get('map_name');
-        console.log('triggered name event listener: name from %s to %s', old_name, this.map_name);
         this.normalize();
     },
     
     scale_changed: function() {
         var old_scale = this.is_log;
         this.is_log = this.get('is_log');
-        console.log('triggered scale event listener: log from %s to %s', old_scale, this.is_log);
         this.normalize();
     },
     
     limits_changed: function() {
         this.min_val = this.get('min_val');
         this.max_val = this.get('max_val');
-        console.log('triggered limit event listener: min and max val', this.min_val, this.max_val);
         this.normalize();
     },
 
@@ -117,13 +109,12 @@ var CMapModel = widgets.WidgetModel.extend({
     },
     
     jsdata_changed: function() {
-        console.log('detected change in buffer array on js side. Renormalizing');
         this.normalize();
     },
 }, {
     model_module: '@data-exp-lab/yt-jscanvas',
     model_name: 'CMapModel',
-    model_module_version: '0.1.8',
+    model_module_version: '0.2.0',
 });
 
 module.exports = {
