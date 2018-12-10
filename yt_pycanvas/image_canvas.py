@@ -76,24 +76,23 @@ class FRBViewer(ipywidgets.DOMWidget):
 
     def setup_controls(self):
         down = ipywidgets.Button(icon="arrow-down",
-                layout=ipywidgets.Layout(width='40px'))
+                layout=ipywidgets.Layout(width='auto', grid_area="down"))
         up = ipywidgets.Button(icon="arrow-up",
-                layout=ipywidgets.Layout(width='40px'))
+                layout=ipywidgets.Layout(width='auto', grid_area="up"))
         right = ipywidgets.Button(icon="arrow-right",
-                layout=ipywidgets.Layout(width='40px')
-                )
+                layout=ipywidgets.Layout(width='auto', grid_area="right"))
         left = ipywidgets.Button(icon="arrow-left",
-                layout=ipywidgets.Layout(width='40px')
-                )
+                layout=ipywidgets.Layout(width='auto', grid_area="left"))
         zoom_start = 1./(self.view_width[0])
         # By setting the dynamic range to be the ratio between coarsest and
         # finest, we ensure that at the fullest zoom, our smallest point will
         # be the size of our biggest point at the outermost zoom.
-        dynamic_range = (max(self.pdx.max(), self.pdy.max()) / 
+        dynamic_range = (max(self.pdx.max(), self.pdy.max()) /
                          min(self.pdx.min(), self.pdy.min()))
-        
+
         zoom = ipywidgets.FloatSlider(min=0.5, max=dynamic_range, step=0.1,
-                value=zoom_start, description="Zoom")
+                value=zoom_start, description="Zoom",
+                layout=ipywidgets.Layout(width="auto", grid_area="zoom"))
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
         colormaps = ipywidgets.Dropdown(
                 options=list(self.colormaps.cmaps.keys()),
@@ -118,17 +117,27 @@ class FRBViewer(ipywidgets.DOMWidget):
         # This one seemingly cannot be.
         ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
 
-        sides = ipywidgets.HBox([left,right],
-                layout=ipywidgets.Layout(justify_content='space-between',
-                    width='122px'))
-        nav_buttons = ipywidgets.VBox([up, sides, down],
-                layout=ipywidgets.Layout(
-                    align_items='center',
-                    width='150px'))
+        nav_buttons = ipywidgets.GridBox(children = [up, left, right, down],
+                         layout=ipywidgets.Layout(width='100%',
+                                    grid_template_columns = '33% 34% 33%',
+                                    grid_template_rows = 'auto auto auto',
+                                    grid_template_areas = '''
+                                    " . up . "
+                                    " left . right "
+                                    " . down . "
+                                    ''',
+                                    grid_area='nav_buttons'))
 
-        all_navigation = ipywidgets.VBox([nav_buttons, zoom],
-                layout=ipywidgets.Layout(align_items='center')
-                )
+        all_navigation = ipywidgets.GridBox(children = [nav_buttons, zoom],
+                layout=ipywidgets.Layout(width="300px",
+                    grid_template_columns="25% 50% 25%",
+                    grid_template_rows="auto auto",
+                    grid_template_areas='''
+                    ". nav_buttons ."
+                    "zoom zoom zoom"
+                    '''
+                    ))
+
         all_normalizers = ipywidgets.VBox([is_log,
                 colormaps, min_val, max_val],
                 layout=ipywidgets.Layout(align_items='center')
