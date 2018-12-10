@@ -138,14 +138,17 @@ class FRBViewer(ipywidgets.DOMWidget):
                     '''
                     ))
 
-        all_normalizers = ipywidgets.VBox([is_log,
+        all_normalizers = ipywidgets.GridBox(children = [is_log,
                 colormaps, min_val, max_val],
-                layout=ipywidgets.Layout(align_items='center')
+                layout=ipywidgets.Layout(width="auto")
                 )
+
         accordion = ipywidgets.Accordion(children=[all_navigation,
             all_normalizers])
+
         accordion.set_title(0, 'navigation')
         accordion.set_title(1, 'colormap controls')
+
         return accordion
 
     def on_xrightclick(self, b):
