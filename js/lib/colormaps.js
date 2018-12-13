@@ -64,7 +64,7 @@ var CMapModel = widgets.WidgetModel.extend({
         if (this.colormaps) {
             return this.colormaps
         } else {
-            this.colormaps = new yt_tools.Colormaps();
+            this.colormaps = new yt_tools.ColormapCollection();
     
             var mpl_cmap_obj = this.get('cmaps');
             for (var mapname in mpl_cmap_obj) {
