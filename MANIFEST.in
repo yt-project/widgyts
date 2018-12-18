@@ -1,2 +1,2 @@
-recursive-include yt_pycanvas/static *.*
+recursive-include widgyts/static *.*
 recursive-include jupyter-config *.json

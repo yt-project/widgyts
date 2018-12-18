@@ -12,7 +12,7 @@ def _jupyter_nbextension_paths():
 
 def _jupyter_server_extension_paths():
     return [{
-        "module": "yt_pycanvas"
+        "module": "widgyts"
     }]
 
 def load_jupyter_server_extension(nb_app):

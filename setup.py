@@ -62,13 +62,13 @@ def update_package_data(distribution):
 def get_data_files():
     return [
         ('share/jupyter/nbextensions/yt-jscanvas', [
-            os.path.relpath(f, '.') for f in glob.glob('yt_pycanvas/static/*')
+            os.path.relpath(f, '.') for f in glob.glob('widgyts/static/*')
         ]),
         ("etc/jupyter/nbconfig/notebook.d", [
-            "jupyter-config/nbconfig/notebook.d/yt_pycanvas.json"
+            "jupyter-config/nbconfig/notebook.d/widgyts.json"
         ]),
         ("etc/jupyter/jupyter_notebook_config.d", [
-            "jupyter-config/jupyter_notebook_config.d/yt_pycanvas.json"
+            "jupyter-config/jupyter_notebook_config.d/widgyts.json"
         ])
     ]
 
@@ -81,8 +81,8 @@ class NPM(Command):
     node_modules = os.path.join(node_root, 'node_modules')
 
     targets = [
-        os.path.join(here, 'yt_pycanvas', 'static', 'extension.js'),
-        os.path.join(here, 'yt_pycanvas', 'static', 'index.js')
+        os.path.join(here, 'widgyts', 'static', 'extension.js'),
+        os.path.join(here, 'widgyts', 'static', 'index.js')
     ]
 
     def initialize_options(self):
@@ -137,11 +137,11 @@ class NPM(Command):
         update_package_data(self.distribution)
 
 version_ns = {}
-with open(os.path.join(here, 'yt_pycanvas', '_version.py')) as f:
+with open(os.path.join(here, 'widgyts', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
 
 setup_args = {
-    'name': 'yt_pycanvas',
+    'name': 'widgyts',
     'version': version_ns['__version__'],
     'description': 'A Custom Jupyter Widget Library',
     'long_description': LONG_DESCRIPTION,

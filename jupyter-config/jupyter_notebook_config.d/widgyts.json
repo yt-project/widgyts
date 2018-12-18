@@ -1,7 +1,7 @@
 {
   "NotebookApp": {
     "nbserver_extensions": {
-      "yt_pycanvas": true
+      "widgyts": true
     }
   }
 }

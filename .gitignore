@@ -23,7 +23,7 @@ wheels/
 .installed.cfg
 *.egg
 node_modules/
-yt_pycanvas/static/
+widgyts/static/
 js/package-lock.json
 
 # PyInstaller

@@ -17,22 +17,22 @@ Installation
 
 To install using pip from the most recent released version:
 
-    $ pip install yt_pycanvas
+    $ pip install widgyts
 
 To install using pip from this directory:
 
     $ git clone https://github.com/data-exp-lab/yt-canvas-widget.git
-    $ cd yt-canvas-widget
+    $ cd widgyts
     $ pip install .
 
 For a development installation (requires npm),
 
-    $ git clone https://github.com/data-exp-lab/yt-canvas-widget.git
-    $ cd yt-canvas-widget
+    $ git clone https://github.com/data-exp-lab/widgyts.git
+    $ cd widgyts
     $ pip install -e .
-    $ jupyter serverextension enable --py --sys-prefix yt_pycanvas
-    $ jupyter nbextension install --py --symlink --sys-prefix yt_pycanvas
-    $ jupyter nbextension enable --py --sys-prefix yt_pycanvas
+    $ jupyter serverextension enable --py --sys-prefix widgyts
+    $ jupyter nbextension install --py --symlink --sys-prefix widgyts
+    $ jupyter nbextension enable --py --sys-prefix widgyts
 
 Note that in previous versions, serverextension was not provided and you were
 required to set up your own mimetype in your local configuration.  This is no
@@ -48,7 +48,7 @@ the Slice and Projection objects, so you are now able to do:
 ```
 #!python
 import yt
-import yt_pycanvas
+import widgyts
 
 ds = yt.load("data/IsolatedGalaxy/galaxy0030/galaxy0030")
 s = ds.r[:,:,0.5]

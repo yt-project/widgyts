@@ -22,7 +22,7 @@ module.exports = [
         mode: 'development',
         output: {
             filename: 'extension.js',
-            path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
+            path: path.resolve(__dirname, '..', 'widgyts', 'static'),
             libraryTarget: 'amd'
         }
     },
@@ -36,7 +36,7 @@ module.exports = [
         mode: 'development',
         output: {
             filename: 'index.js',
-            path: path.resolve(__dirname, '..', 'yt_pycanvas', 'static'),
+            path: path.resolve(__dirname, '..', 'widgyts', 'static'),
             libraryTarget: 'amd'
         },
         devtool: 'source-map',
