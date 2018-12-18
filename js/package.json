@@ -1,5 +1,5 @@
 {
-  "name": "@data-exp-lab/yt-jscanvas",
+  "name": "@data-exp-lab/yt-widgets",
   "version": "0.2.0",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": "Data Exploration Lab",

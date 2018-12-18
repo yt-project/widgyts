@@ -7,5 +7,5 @@ Package Install
 - [node](http://nodejs.org/)
 
 ```bash
-npm install --save yt-jscanvas
+npm install --save yt-widgets
 ```

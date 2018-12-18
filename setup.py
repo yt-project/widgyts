@@ -61,7 +61,7 @@ def update_package_data(distribution):
 
 def get_data_files():
     return [
-        ('share/jupyter/nbextensions/yt-jscanvas', [
+        ('share/jupyter/nbextensions/yt-widgets', [
             os.path.relpath(f, '.') for f in glob.glob('widgyts/static/*')
         ]),
         ("etc/jupyter/nbconfig/notebook.d", [

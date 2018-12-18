@@ -8,7 +8,7 @@ var CMapModel = widgets.WidgetModel.extend({
     defaults: function() {
         return _.extend(widgets.WidgetModel.prototype.defaults.call(this), {
             _model_name: 'CMapModel',
-            _model_module: '@data-exp-lab/yt-jscanvas',
+            _model_module: '@data-exp-lab/yt-widgets',
             _model_module_version: '0.2.0',
 
             cmaps: undefined,
@@ -112,7 +112,7 @@ var CMapModel = widgets.WidgetModel.extend({
         this.normalize();
     },
 }, {
-    model_module: '@data-exp-lab/yt-jscanvas',
+    model_module: '@data-exp-lab/yt-widgets',
     model_name: 'CMapModel',
     model_module_version: '0.2.0',
 });

@@ -10,7 +10,7 @@ git add and git commit
 git push
 git push --tags
 
-- To release a new version of yt-jscanvas on NPM:
+- To release a new version of yt-widgets on NPM:
 
 ```
 # clean out the `dist` and `node_modules` directories

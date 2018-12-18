@@ -6,8 +6,8 @@ def _jupyter_nbextension_paths():
     return [{
         'section': 'notebook',
         'src': 'static',
-        'dest': 'yt-jscanvas',
-        'require': 'yt-jscanvas/extension'
+        'dest': 'yt-widgets',
+        'require': 'yt-widgets/extension'
     }]
 
 def _jupyter_server_extension_paths():

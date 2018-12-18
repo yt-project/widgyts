@@ -45,7 +45,7 @@ module.exports = [
         },
         externals: ['@jupyter-widgets/base']
     },
-    {// Embeddable yt-jscanvas bundle
+    {// Embeddable yt-widgets bundle
      //
      // This bundle is generally almost identical to the notebook bundle
      // containing the custom widget views and models.
@@ -65,7 +65,7 @@ module.exports = [
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),
             libraryTarget: 'amd',
-            publicPath: 'https://unpkg.com/@data-exp-lab/yt-jscanvas@' + version + '/dist/'
+            publicPath: 'https://unpkg.com/@data-exp-lab/yt-widgets@' + version + '/dist/'
         },
         devtool: 'source-map',
         module: {
