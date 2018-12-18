@@ -44,7 +44,7 @@
     "webpack-cli": "^3.1.1"
   },
   "dependencies": {
-    "@data-exp-lab/yt-tools": "^0.2.1",
+    "@data-exp-lab/yt-tools": "^0.3.0",
     "@jupyter-widgets/base": "^1.0.0",
     "file-loader": "^1.1.11",
     "jupyter-dataserializers": "^1.1.2",
