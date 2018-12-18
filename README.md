@@ -1,4 +1,4 @@
-yt-canvas-widget
+widgyts
 ===============================
 
 A fully client-side pan-and-zoom widget, using WebAssembly, for variable mesh
@@ -21,7 +21,7 @@ To install using pip from the most recent released version:
 
 To install using pip from this directory:
 
-    $ git clone https://github.com/data-exp-lab/yt-canvas-widget.git
+    $ git clone https://github.com/data-exp-lab/widgyts.git
     $ cd widgyts
     $ pip install .
 

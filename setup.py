@@ -163,7 +163,7 @@ setup_args = {
 
     'author': 'Data Exploration Lab',
     'author_email': 'mmunk2@illinois.edu',
-    'url': 'https://github.com/data-exp-lab/yt-canvas-widget',
+    'url': 'https://github.com/data-exp-lab/widgyts',
     'keywords': [
         'ipython',
         'jupyter',
