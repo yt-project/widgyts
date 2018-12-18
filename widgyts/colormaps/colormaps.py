@@ -14,7 +14,7 @@ class ColorMaps(ipywidgets.Widget):
 
     _model_name = traitlets.Unicode('CMapModel').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.2.0').tag(sync=True)
+    _model_module_version = traitlets.Unicode('^0.3.0').tag(sync=True)
 
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
     map_name = traitlets.Unicode('autumn').tag(sync=True, config=True)

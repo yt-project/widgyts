@@ -9,7 +9,7 @@ var CMapModel = widgets.WidgetModel.extend({
         return _.extend(widgets.WidgetModel.prototype.defaults.call(this), {
             _model_name: 'CMapModel',
             _model_module: '@data-exp-lab/yt-widgets',
-            _model_module_version: '0.2.0',
+            _model_module_version: '0.3.0',
 
             cmaps: undefined,
             map_name: null,
@@ -114,7 +114,7 @@ var CMapModel = widgets.WidgetModel.extend({
 }, {
     model_module: '@data-exp-lab/yt-widgets',
     model_name: 'CMapModel',
-    model_module_version: '0.2.0',
+    model_module_version: '0.3.0',
 });
 
 module.exports = {
