@@ -1,15 +1,15 @@
-var ImageCanvasModel = require("./index").ImageCanvasModel;
-var ImageCanvasView = require("./index").ImageCanvasView;
-var FRBView= require("./index").FRBView;
-var FRBModel= require("./index").FRBModel;
-var CMapModel= require("./index").CMapModel;
+var ImageCanvasModel = require("./image_canvas").ImageCanvasModel;
+var ImageCanvasView = require("./image_canvas").ImageCanvasView;
+var FRBView= require("./image_canvas").FRBView;
+var FRBModel= require("./image_canvas").FRBModel;
+var CMapModel= require("./image_canvas").CMapModel;
 var version = require('../package.json').version;
 
 module.exports = {
     ImageCanvasModel : ImageCanvasModel,
     ImageCanvasView : ImageCanvasView,
-    FRBView: frb.FRBView,
-    FRBModel: frb.FRBModel,
-    CMapModel: cmaps.CMapModel,
+    FRBView: FRBView,
+    FRBModel: FRBModel,
+    CMapModel: CMapModel,
     version : version
 };
