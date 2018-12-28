@@ -3,6 +3,10 @@
 // which is required for any notebook extension.
 
 // Configure requirejs
+
+__webpack_public_path__ = document.querySelector('body').getAttribute('data-base-url') + 'nbextensions/yt-widgets';
+
+
 if (window.require) {
     window.require.config({
         map: {

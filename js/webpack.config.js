@@ -18,7 +18,7 @@ module.exports = [
      // "load_ipython_extension" function which is required for any notebook
      // extension.
      //
-        entry: './lib/extension.js',
+        entry: './lib/nb_extension.js',
         mode: 'development',
         output: {
             filename: 'extension.js',
@@ -32,7 +32,7 @@ module.exports = [
      // custom widget.
      // It must be an amd module
      //
-        entry: './lib/index.js',
+        entry: './lib/nb_index.js',
         mode: 'development',
         output: {
             filename: 'index.js',
