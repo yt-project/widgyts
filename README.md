@@ -39,6 +39,16 @@ required to set up your own mimetype in your local configuration.  This is no
 longer the case and you are now able to use this server extension to set up the
 correct wasm mimetype.
 
+To install the jupyterlab extension, you will need to make sure you are on a
+recent enough version of Jupyterlab, preferably 0.35 or above.  For a
+development installation, do:
+
+    $ jupyter labextension install js
+
+To install the latest released version,
+
+    $ jupyter labextension install @data-exp-lab/yt-widgets
+
 Using
 -----
 
