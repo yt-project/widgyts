@@ -43,13 +43,12 @@ var ImageCanvasModel = widgets.DOMWidgetModel.extend({
 var ImageCanvasView = widgets.DOMWidgetView.extend({
     render: function() {
         this.canvas = document.createElement('canvas');
-        $(this.canvas)
-          .css("max-width", "100%")
-          .css("min-width", "100px")
-          .css("min-height", "100px")
-          .height(this.model.get('height'))
-          .width(this.model.get('width'))
-          .appendTo(this.el);
+        this.canvas.style.maxWidth = "100%";
+        this.canvas.style.minWidth = "100px";
+        this.canvas.style.minHeight = "100px";
+        this.canvas.style.width = this.model.get('width');
+        this.canvas.style.height = this.model.get('height');
+
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
         this.data = null;
@@ -65,8 +64,8 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     redrawCanvasImage: function() {
         var nx = this.imageShape[0];
         var ny = this.imageShape[1];
-        var canvasWidth  = $(this.canvas).width();
-        var canvasHeight = $(this.canvas).height();
+        var canvasWidth  = this.canvas.style.width;
+        var canvasHeight = this.canvas.style.height;
         // Clear out image first
         createImageBitmap(this.imageData, 0, 0, nx, ny).then(function(bitmap){
               this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -94,11 +93,11 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
     },
 
     width_changed: function() {
-      $(this.canvas).width(this.model.get('width'));
+      this.canvas.style.width = this.model.get('width');
     },
 
     height_changed: function() {
-      $(this.canvas).height(this.model.get('height'));
+      this.canvas.style.height = this.model.get('height');
     }
 });
 

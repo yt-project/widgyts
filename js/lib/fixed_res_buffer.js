@@ -40,10 +40,9 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.model.get('width');
         this.canvas.height = this.model.get('height');
-        $(this.canvas)
-          .css("width", "100%")
-          .css("height", "100%")
-          .appendTo(this.el);
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.el.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false;
         this.model.on('change:width', this.width_changed, this);
