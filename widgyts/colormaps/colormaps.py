@@ -3,6 +3,7 @@ from ipydatawidgets import DataUnion, shape_constraints, \
         data_union_serialization
 import numpy as np
 import traitlets
+from .._version import EXTENSION_VERSION
 
 rgba_image_shape = shape_constraints(None, None, 4)
 vmesh_shape = shape_constraints(None)
@@ -14,7 +15,7 @@ class ColorMaps(ipywidgets.Widget):
 
     _model_name = traitlets.Unicode('CMapModel').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.3.1').tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
 
     cmaps = traitlets.Dict({}).tag(sync=True, config=True)
     map_name = traitlets.Unicode('autumn').tag(sync=True, config=True)
