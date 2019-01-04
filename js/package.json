@@ -1,6 +1,6 @@
 {
   "name": "@data-exp-lab/yt-widgets",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": "Data Exploration Lab",
   "contributors": [
