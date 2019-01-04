@@ -2,6 +2,7 @@ var widgets = require('@jupyter-widgets/base');
 var ipydatawidgets = require('jupyter-dataserializers');
 var _yt_tools = import('@data-exp-lab/yt-tools');
 var _ = require('lodash');
+var EXTENSION_VERSION = require('../package.json').version
 
 var CMapModel = widgets.WidgetModel.extend({
 
@@ -9,7 +10,7 @@ var CMapModel = widgets.WidgetModel.extend({
         return _.extend(widgets.WidgetModel.prototype.defaults.call(this), {
             _model_name: 'CMapModel',
             _model_module: '@data-exp-lab/yt-widgets',
-            _model_module_version: '0.3.1',
+            _model_module_version: EXTENSION_VERSION,
 
             cmaps: undefined,
             map_name: null,
@@ -114,7 +115,7 @@ var CMapModel = widgets.WidgetModel.extend({
 }, {
     model_module: '@data-exp-lab/yt-widgets',
     model_name: 'CMapModel',
-    model_module_version: '0.3.1',
+    model_module_version: EXTENSION_VERSION,
 });
 
 module.exports = {

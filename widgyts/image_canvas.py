@@ -15,6 +15,7 @@ from yt.visualization.fixed_resolution import \
         FixedResolutionBuffer as frb
 from yt.funcs import \
         ensure_list
+from ._version import EXTENSION_VERSION
 
 rgba_image_shape = shape_constraints(None, None, 4)
 vmesh_shape = shape_constraints(None)
@@ -26,8 +27,8 @@ class ImageCanvas(ipywidgets.DOMWidget):
     _model_name = traitlets.Unicode('ImageCanvasModel').tag(sync=True)
     _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode('^0.3.1').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.3.1').tag(sync=True)
+    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     image_array = DataUnion(dtype=np.uint8,
             shape_constraint=rgba_image_shape).tag(sync=True,
                     **data_union_serialization)
@@ -41,8 +42,8 @@ class FRBViewer(ipywidgets.DOMWidget):
     _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
     _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode('^0.3.1').tag(sync=True)
-    _model_module_version = traitlets.Unicode('^0.3.1').tag(sync=True)
+    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     width = traitlets.Int(512).tag(sync=True)
     height = traitlets.Int(512).tag(sync=True)
     px = DataUnion(dtype=np.float64,

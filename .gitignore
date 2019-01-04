@@ -25,6 +25,7 @@ wheels/
 node_modules/
 widgyts/static/
 js/package-lock.json
+js/yarn.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
