@@ -21,7 +21,6 @@ and the `associated slides <https://munkm.github.io/2018-07-13-scipy/>`_ for mor
    :maxdepth: 2
    :caption: Table of Contents:
    
-   overview
    install
    getting_started
    contributing
