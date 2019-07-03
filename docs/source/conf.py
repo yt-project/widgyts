@@ -23,6 +23,7 @@ if not on_rtd:
 
 # -- Project information -----------------------------------------------------
 
+master_doc = 'index'
 project = 'widgyts'
 copyright = '2019, Madicken Munk, Matthew Turk'
 author = 'Madicken Munk, Matthew Turk'
