@@ -6,9 +6,19 @@
 Welcome to widgyts's documentation!
 ===================================
 
+widgyts is a package built on jupyter widgets intended to aid in fast,
+interactive, exploratory visualization of data. If you have a dataset you'd
+like to explore but aren't completely sure about what parameters need to be
+tuned to make the visualization that best representes your data, widgyts is the
+package for you! widgyts has been designed to work as a companion to `yt
+<https://yt-project.org/>`_, but it is also flexible and can handle any
+mesh-based data.  
+
 widyts is a fully client-side pan-and-zoom widget, using WebAssembly, for variable mesh
 datasets from yt.  It runs in the browser, so once the data hits your notebook,
-it's super fast and responsive!
+it's super fast and responsive! This will allow you to quickly update your
+visualization to figure out how best to illustrate the interesting aspects of
+your data. 
 
 If you'd like to dig into the Rust and WebAssembly portion of the code, you can
 find it at `Github <https://github.com/data-exp-lab/rust-yt-tools/>`_ and in the npm
