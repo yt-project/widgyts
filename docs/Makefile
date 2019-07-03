@@ -8,7 +8,6 @@ SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = widgyts
 SOURCEDIR     = source
 BUILDDIR      = build
-REPODIR       = ../../widgyts_docs
 
 # Put it first so that "make" without argument is like "make help".
 help:

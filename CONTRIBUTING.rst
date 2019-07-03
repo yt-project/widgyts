@@ -88,7 +88,9 @@ a development build of widgyts on your personal machine. To build the
 documentation, we have opted to use the same method as `ipywidgets
 <https://ipywidgets.readthedocs.io/en/stable/dev_docs.html>`_ and distribute an
 ``environment.yml`` file that can be used to create an environment with the
-necessary packages to build the documentation on your personal machine. 
+necessary packages to build the documentation on your personal machine.
+However, there's no need to create an additional environment if you already
+have the environment to build the ipywidgets docs. 
 
 To install a widgyts docs environment with conda::
 
