@@ -37,7 +37,58 @@ class ImageCanvas(ipywidgets.DOMWidget):
 
 @ipywidgets.register
 class FRBViewer(ipywidgets.DOMWidget):
-    """Viewing a fixed resolution buffer"""
+    """View of a fixed resolution buffer.
+
+    FRBViewer(width, height, px, py, pdx, pdy, val)
+
+    This widget creates a view of a fixed resolution buffer of
+    size (`width`, `height`) given data variables `px`, `py`, `pdx`, `pdy`,
+    and val. Updates on the view of the fixed reolution buffer can be made
+    by modifying traitlets `view_center`, `view_width`, or `Colormaps`
+
+    Parameters
+    ----------
+
+    width : integer
+        The width of the fixed resolution buffer output, in pixels
+    height : integer
+        The height of the fixed resolution buffer, in pixels
+    px : array of floats
+        x coordinates for the center of each grid box
+    py : array of floats
+        y coordinates for the center of each grid box
+    pdx : array of floats
+        Values of the half-widths for each grid box
+    pdy : array of floats
+        Values of the half-heights for each grid box
+    val : array of floats
+        Data values for each grid box
+        The data values to be visualized in the fixed resolution buffer.
+    colormaps : :class: `widgyts.Colormaps`
+        This is the widgyt that controls traitlets associated with the
+        colormap.
+    view_center : tuple
+        This is a length two tuple that represents the normalized center of
+        the resulting FRBView.
+    view_width : tuple
+        This is a length two tuple that represents the height and with of the
+        view, normalized to the original size of the image. (0.5, 0.5)
+        represents a view of half the total data with and half the total
+        data height.
+
+    Examples
+    --------
+    To create a fixed resolution buffer view of a density field with this
+    widget, and then to display it:
+
+    >>> ds = yt.load("IsolatedGalaxy")
+    >>> proj = ds.proj("density", "z")
+    >>> frb1 = widgyts.FRBViewer(height=512, width=512, px=proj["px"],
+    ...                          py=proj["py"], pdx=proj["pdx"],
+    ...                          pdy=proj["pdy"], val = proj["density"])
+    >>> display(frb1)
+
+    """
     _view_name = traitlets.Unicode('FRBView').tag(sync=True)
     _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
     _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
