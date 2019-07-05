@@ -4,6 +4,7 @@ channels:
 - defaults
 dependencies:
 - ipykernel
+- ipydatawidgets
 - jinja2
 - jupyter_sphinx
 - ipywidgets
