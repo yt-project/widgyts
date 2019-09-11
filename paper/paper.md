@@ -21,7 +21,7 @@ bibliography: paper.bib
 # Summary
 
 widgyts is a custom jupyter widget library to assist in interactive data
-visualization and exploration with yt. yt [@turk_yt:_2010] is a python 
+visualization and exploration with yt. yt [@turk_yt:_2011] is a python 
 package designed to read, process, and visualize multidimensional
 scientific data. yt allows users to ingest and visualize data from 
 a variety of scientific domains with a nearly identical set of commands. Often,
