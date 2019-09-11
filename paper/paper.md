@@ -79,7 +79,7 @@ The time to pull an image or data is dependent on the data size and the
 transfer rate. 
 $T_{client}$ will be lower than $T_{server}$ as the number of
 interactions $n$ grows, as the size of the image (data$_{image}$) grows, and as
-the time to calculate the imagae on the client $t_{image calc, client}$
+the time to calculate the image on the client $t_{image calc, client}$
 decreases. 
 
 Moving image calculation to the client requires a large initial cost of
@@ -94,7 +94,7 @@ pixel values for a region that may only be represented by a single value.
 # The WebAssembly backend
 
 To allow for efficient data loading into the browser we chose to use Rust
-compiled to WebAssembly. The WebAssembly backing of widgyts allows for binary
+compiled to WebAssembly. The WebAssembly backing of widgyts allows for binary, zero-copy
 storage of loaded data on the client side, and WebAssembly has been designed to
 interface well with JavaScript. Further, the primitive structure of WebAssembly
 reduces the time to calculate the image in the browser. Finally, WebAssembly
@@ -104,7 +104,7 @@ and is memory safe.
 While yt can access data at an arbitrary location within the dataset, widgyts
 is structured to access any data within a 2D slice. Thus, only a slice of the
 data is uploaded client-side, not the entire dataset. For the large, sparse
-datasets that widgyts has been designed for, it would be unfeasible to upload
+datasets that widgyts has been designed for, it would be infeasible to upload
 the entire dataset into the browser. However, a new slice in
 the third dimension will require a new data upload from the server so not all
 exploration of the dataset can be performed exclusively client-side.
