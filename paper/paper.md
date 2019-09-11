@@ -109,9 +109,6 @@ the entire dataset into the browser. However, a new slice in
 the third dimension will require a new data upload from the server so not all
 exploration of the dataset can be performed exclusively client-side.
 
-todo: performance comparison with datasets of varying sparsity and show how
-they scale with wigyts vs. wrapping yt viz functions with standard widgets. 
-
 # Conclusions
 
 In this paper we introduced `widgyts`, a custom widget library to interactively
