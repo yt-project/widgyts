@@ -71,7 +71,7 @@ $$T_{client} = t_{request} + t_{pull,data} + n*[t_{image calc, client} + t_{disp
 Thus, this becomes advantageous as 
 
 $$ T_{client} < T_{server}
-n*t_{imaage calc, client} + t_{pull, data} < n*[t_{image_calc, server} + \ 
+n*t_{image calc, client} + t_{pull, data} < n*[t_{image_calc, server} + \ 
 t_{pull, image}]
 $$
 
