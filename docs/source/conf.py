@@ -45,7 +45,7 @@ release = _release['__version__']
 extensions = [
     "sphinx.ext.autodoc",
     'nbsphinx',
-    'jupyter_sphinx.embed_widgets',
+    'jupyter_sphinx.execute',
     'IPython.sphinxext.ipython_console_highlighting',
 ]
 
