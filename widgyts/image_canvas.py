@@ -165,7 +165,9 @@ class FRBViewer(ipywidgets.DOMWidget):
         # These can be jslinked, so we will do so.
         ipywidgets.jslink((is_log, 'value'), (self.colormaps, 'is_log'))
         ipywidgets.jslink((min_val, 'value'), (self.colormaps, 'min_val'))
+        ipywidgets.link((min_val, 'value'), (self.colormaps, 'min_val'))
         ipywidgets.jslink((max_val, 'value'), (self.colormaps, 'max_val'))
+        ipywidgets.link((max_val, 'value'), (self.colormaps, 'max_val'))
         # This one seemingly cannot be.
         ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
 
