@@ -91,7 +91,7 @@ class TestControls(TestCase):
 
         self.colormap_controls.children[3].value = 5.52e-03
 
-        self.assertAlmostEqual(self.colormap_controls.children[2].value,
+        self.assertAlmostEqual(self.colormap_controls.children[3].value,
                           self.frb_dens.colormaps.max_val)
 
     def test_zoom_view(self):
@@ -124,20 +124,3 @@ class TestColormaps(TestCase):
         for trait in trait_list:
             assert self.frb_dens.colormaps.has_trait(trait)
 
-    def test_incorrect_colormap(self):
-        '''Checks to see that a TraitError is raised if an invalid colormap is
-        passed to modify the colormap name'''
-        bad_names = ['Viridis', 'harrypotter', 'doom99']
-
-        for name in bad_names:
-            print(name)
-            with self.assertRaises(TraitError) as context:
-                self.frb_dens.colormaps.map_name=name
-
-            err_msg = str(context.exception)
-
-            self.assertTrue('value not found' in err_msg)
-
-def set_widgyt_value(widgyt_object, widgyt_val):
-    widgyt_object=widgyt_val
-    return
