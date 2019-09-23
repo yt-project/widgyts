@@ -12,6 +12,12 @@ package `@data-exp-lab/yt-tools`.
 Check out our [SciPy 2018 talk](https://www.youtube.com/watch?v=5dl_m_6T2bU)
 and the [associated slides](https://munkm.github.io/2018-07-13-scipy/) for more info!
 
+Documentation
+-------------
+
+Our documentation is hosted at readthedocs. Take a look
+[here](https://widgyts.readthedocs.io/en/latest/).
+
 Installation
 ------------
 
