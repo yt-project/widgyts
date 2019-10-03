@@ -1,0 +1,30 @@
+# http://travis-ci.org/data-exp-lab/widgyts
+language: python
+dist: xenial
+python:
+    - 3.5
+    - 3.6
+    - 3.7
+addons: 
+  firefox: latest
+cache: 
+  pip: true
+
+# Eventually we will add other groups to build out the js test framework
+env:
+    - GROUP=python
+sudo: true
+before_install:
+    - pip install --upgrade setuptools pip
+install:
+    - pip install pytest pytest-cov 
+    - pip install codecov
+    - pip install -e .
+
+# Command that runs the tests
+script:
+    - pytest --cov=widgyts widgyts
+    - coverage report
+
+after_success:
+    - codecov
