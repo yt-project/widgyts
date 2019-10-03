@@ -24,6 +24,7 @@ install:
 # Command that runs the tests
 script:
     - pytest --cov=widgyts widgyts
+    - coverage report
 
 after_success:
     - codecov
