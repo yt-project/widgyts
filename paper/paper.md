@@ -44,9 +44,31 @@ Data visualization and manipulation are integral to scientific discovery.
 A scientist may slice and pan through various regions of a dataset before
 finding a region they wish to share with colleagues. These events may
 also require shifting colormap settings, like the scale, type, or bounds,
-before the features are highlighted to effectively convey a message. If a
-dataset is located on a remote server, for each interaction a request is sent
-to the server, the server then calculates a new image, serializes it, and the
+before the features are highlighted to effectively convey a message. Each of
+these interactions will require a new image to be calculated and displayed.
+
+A number of packages in the python ecosystem use interactivity to help users
+parameter-tune their visualizations. Matplotlib and ITK 
+have custom widgets build on the ipywidgets framework [@jupyter-matplotlib_2019,
+@itkwidgets_2019] that act as supplements to their plots. 
+This is the principle that widgyts follows as well. 
+Other libraries like 
+Bokeh [@bokeh_2019] distribute interactive javascript-backed widgets. 
+Other frameworks like bqplot [@bqplot_2019] 
+have every plot returned with interactive features. The packages named here are
+by no means
+comprehensive; the python ecosystem is rich with interactive tools for
+visualization. However, it is illustrative of the need and investment in
+interactivity for the visualization community.
+
+A common user case for visualization is to have data stored remotely on a
+server and some interface with which to interact with the data over the web. 
+Because every plot interaction requires a new image calculation, this may
+result in significant data transfer needs. 
+For this case, a request is sent
+to the server, which calculates the images, with every new plot interaction.
+When the request is sent the server calculates a new image, 
+serializes it, and the
 image is sent back to the client. The total time to generate one image can
 generally be expressed as $T_{server}$, where 
 
@@ -87,9 +109,10 @@ transferring a portion of the original data to the client, which may be
 substantially larger than the size of a single image. However, a dataset with
 sparse regions will be more efficient to transfer to the client and subsequently
 calculate and pixelize there. Pixelizing a dataset with large, sparse regions of low
-resolution, such as one caclated on an adaptive mesh, 
+resolution, such as one caclated from an adaptive mesh, 
 with a fixed higher resolution will require recaculating and sending
-pixel values for a region that may only be represented by a single value. 
+pixel values for a region that may only be represented by a single value. Thus,
+for certain data representations this methodology also becomes advantageous.
 
 # The WebAssembly backend
 
@@ -99,7 +122,8 @@ storage of loaded data on the client side, and WebAssembly has been designed to
 interface well with JavaScript. Further, the primitive structure of WebAssembly
 reduces the time to calculate the image in the browser. Finally, WebAssembly
 is executed in a sandboxed environment separate from other processes 
-and is memory safe. 
+and is memory safe. At the time of writing, widgyts is the only
+webassembly-backed visualization widget in the python ecosystem. 
 
 While yt can access data at an arbitrary location within the dataset, widgyts
 is structured to access any data within a 2D slice. Thus, only a slice of the
