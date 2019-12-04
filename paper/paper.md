@@ -123,7 +123,7 @@ interface well with JavaScript. Further, the primitive structure of WebAssembly
 reduces the time to calculate the image in the browser. Finally, WebAssembly
 is executed in a sandboxed environment separate from other processes 
 and is memory safe. At the time of writing, widgyts is the only
-webassembly-backed visualization widget in the python ecosystem. 
+webassembly-native backed visualization widget in the python ecosystem. 
 
 While yt can access data at an arbitrary location within the dataset, widgyts
 is structured to access any data within a 2D slice. Thus, only a slice of the
