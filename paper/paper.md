@@ -87,8 +87,8 @@ transferring a portion of the original data to the client, which may be
 substantially larger than the size of a single image. However, a dataset with
 sparse regions will be more efficient to transfer to the client and subsequently
 calculate and pixelize there. Pixelizing a dataset with large, sparse regions of low
-resolution, such as one caclated on an adaptive mesh, 
-with a fixed higher resolution will require recaculating and sending
+resolution, such as one calculated on an adaptive mesh, 
+with a fixed higher resolution will require recalculating and sending
 pixel values for a region that may only be represented by a single value. 
 
 # The WebAssembly backend
