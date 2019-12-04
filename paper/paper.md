@@ -109,6 +109,33 @@ the entire dataset into the browser. However, a new slice in
 the third dimension will require a new data upload from the server so not all
 exploration of the dataset can be performed exclusively client-side.
 
+# Results
+
+The following image is a simple timing comparison between using `yt` with
+the Jupyter widgets package `ipywidgets`
+and using the `widgyts` package on the same dataset.
+A notebook is
+included in the widgyts repository for one interested in replicating this
+analysis.
+
+-![A timing comparison between using `ipywidgets` with `yt` and `widgyts` on
+the IsolatedGalaxy dataset distributed with `yt`. Each timing point is based
+on a number of panning interactions in x, averaged over 10 measurements. Each
+data point includes a 95% confidence interval.](timing.png)
+
+While `widgyts` outperforms the implementation of `ipywidgets` with `yt` that we
+wrote for this paper, there are a number of factors that may affect these
+timing results beyond loading the data in the browser. In the jupyter widgets
+implementation we are using `yt` functionality to recalculate image and convert
+it into a .png, which is being done in webassembly in `widgyts`. This calculation
+was performed locally, so while the data is being transfered continuously to the
+browser with the jupyter widgets implementation, the timing results may become
+more disparate with a slower data transfer time from a remote server. Other
+packages with custom tools for interactivity may be faster than the naive
+implementation we've included here. However, these results still show that
+loading data into the browser and performing image recalculation in the browser
+is advantageous.
+
 # Conclusions
 
 In this paper we introduced `widgyts`, a custom widget library to interactively
