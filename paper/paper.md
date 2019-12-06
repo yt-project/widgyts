@@ -96,9 +96,13 @@ n*[t_{\text{image calc, client}} + t_{\text{display}}].$$
 
 Thus, this becomes advantageous as 
 
-$$ T_{\text{client}} < T_{\text{server}}
-n*t_{\text{image calc, client}} + t_{\text{pull, data}} < n*[t_{\text{image_calc, server}} + \ 
-t_{\text{pull, image}}] .
+$$ T_{\text{client}} < T_{\text{server}} $$
+
+or
+
+$$
+n*t_{\text{image calc, client}} + t_{\text{pull, data}} <  \
+n*[t_{\text{image calc, server}} + t_{\text{pull, image}}] .
 $$
 
 The time to pull an image or data is dependent on the data size and the
