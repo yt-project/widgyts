@@ -29,7 +29,8 @@ copyright = '2019, Madicken Munk, Matthew Turk'
 author = 'Madicken Munk, Matthew Turk'
 
 # The full version, including alpha/beta/rc tags
-# release = '0.3.2'
+# For this repository, the full version is specified in
+# `widgyts/widgyts/_version.py`
 
 _release = {}
 exec(compile(open('../../widgyts/_version.py').read(), '../../widgyts/_version.py', 'exec'), _release)
