@@ -7,6 +7,8 @@ Status](https://travis-ci.org/data-exp-lab/widgyts.svg?branch=master)](https://t
 Status](https://readthedocs.org/projects/widgyts/badge/?version=latest)](https://widgyts.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/data-exp-lab/widgyts/branch/master/graph/badge.svg)](https://codecov.io/gh/data-exp-lab/widgyts)
 [![status](https://joss.theoj.org/papers/f86e07ce58fe8bb24d928943663d2751/status.svg)](https://joss.theoj.org/papers/f86e07ce58fe8bb24d928943663d2751)
+[![DOI](https://zenodo.org/badge/124116100.svg)](https://zenodo.org/badge/latestdoi/124116100)
+
 
 A fully client-side pan-and-zoom widget, using WebAssembly, for variable mesh
 datasets from yt.  It runs in the browser, so once the data hits your notebook,
