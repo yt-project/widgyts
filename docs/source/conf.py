@@ -29,7 +29,7 @@ copyright = '2019, Madicken Munk, Matthew Turk'
 author = 'Madicken Munk, Matthew Turk'
 
 # The full version, including alpha/beta/rc tags
-# release = '0.3.1'
+# release = '0.3.2'
 
 _release = {}
 exec(compile(open('../../widgyts/_version.py').read(), '../../widgyts/_version.py', 'exec'), _release)
