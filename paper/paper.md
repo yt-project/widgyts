@@ -48,9 +48,10 @@ before the features are highlighted to effectively convey a message. Each of
 these interactions will require a new image to be calculated and displayed.
 
 A number of packages in the python ecosystem use interactivity to help users
-parameter-tune their visualizations. Matplotlib and ITK 
+parameter-tune their visualizations. Matplotlib [@hunter_matplotlib_2007] 
+and ITK [@tk_2019]
 have custom widgets build on the ipywidgets framework [@jupyter-matplotlib_2019,
-@itkwidgets_2019] that act as supplements to their plots. 
+@itkwidgets_2020] that act as supplements to their plots. 
 This is the principle that widgyts follows as well. 
 Other libraries like 
 Bokeh [@bokeh_2019] distribute interactive javascript-backed widgets. 
