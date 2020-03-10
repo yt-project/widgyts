@@ -1,9 +1,9 @@
-var widgets = require('@jupyter-widgets/base');
-var ipydatawidgets = require('jupyter-dataserializers');
-var frb = require('./fixed_res_buffer.js');
-var cmaps = require('./colormaps.js');
-var _ = require('lodash');
-var EXTENSION_VERSION = require('../package.json').version
+import widgets = require('@jupyter-widgets/base');
+import ipydatawidgets = require('jupyter-dataserializers');
+import frb = require('./fixed_res_buffer.js');
+import cmaps = require('./colormaps.js');
+import _ = require('lodash');
+import EXTENSION_VERSION = require('../package.json').version
 
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes, including
@@ -76,12 +76,12 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
 
     image_array_changed: function() {
         
-        arrayModel = this.model.get('image_array');
+        const arrayModel = this.model.get('image_array');
         this.data = arrayModel;
         // https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-        a1 = this.data.shape;
-        a2 = this.imageShape;
-        shapeChanged = !(a1.length==a2.length
+        const a1 = this.data.shape;
+        const a2 = this.imageShape;
+        const shapeChanged = !(a1.length==a2.length
                      && a1.every(function(v,i) {return v === a2[i]}));
         if (shapeChanged) {
           // We need to reallocate our imageData and update our shape
@@ -103,7 +103,7 @@ var ImageCanvasView = widgets.DOMWidgetView.extend({
 });
 
 
-module.exports = {
+export = {
     ImageCanvasModel : ImageCanvasModel,
     ImageCanvasView : ImageCanvasView,
     FRBView: frb.FRBView,

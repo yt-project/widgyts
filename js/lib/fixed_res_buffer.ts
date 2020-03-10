@@ -1,8 +1,8 @@
-var widgets = require('@jupyter-widgets/base');
-var ipydatawidgets = require('jupyter-dataserializers');
+import widgets = require('@jupyter-widgets/base');
+import ipydatawidgets = require('jupyter-dataserializers');
 var _yt_tools = import('@data-exp-lab/yt-tools');
-var _ = require('lodash');
-var EXTENSION_VERSION = require('../package.json').version
+import _ = require('lodash');
+import EXTENSION_VERSION = require('../package.json').version
 
 var FRBModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend({}, widgets.DOMWidgetModel.prototype.defaults, {
@@ -58,7 +58,7 @@ var FRBView = widgets.DOMWidgetView.extend({
         this.model.on('change:view_width', this.buffer_changed, this);
         this.model.on('change:view_center', this.buffer_changed, this);
         this.mouse_events();
-        bounds = this.calculate_view_bounds();
+        const bounds = this.calculate_view_bounds();
 
         this.frb = new yt_tools.FixedResolutionBuffer(
             this.model.get('width'),
@@ -83,8 +83,8 @@ var FRBView = widgets.DOMWidgetView.extend({
     }.bind(this));},
 
     setupBuffers: function() {
-        nx = this.model.get('width');
-        ny = this.model.get('height');
+        const nx = this.model.get('width');
+        const ny = this.model.get('height');
         this._buffer = new ArrayBuffer(nx * ny * 8);
         this._image_buffer = new ArrayBuffer(nx * ny);
         this.buffer = new Float64Array(this._buffer);
@@ -117,11 +117,11 @@ var FRBView = widgets.DOMWidgetView.extend({
         var cbounds = this.canvas.getBoundingClientRect();
         loc.x = (e.clientX - cbounds.left)/cbounds.width;
         loc.y = (cbounds.bottom - e.clientY)/cbounds.height;
-        left_edge = this.view_center[0]-this.view_width[0]/2;
-        bottom_edge = this.view_center[1]-this.view_width[1]/2;
-        center_x = loc.x*this.view_width[0]+left_edge;
-        center_y = loc.y*this.view_width[1]+bottom_edge;
-        updated_center = [center_x, center_y];
+        const left_edge = this.view_center[0]-this.view_width[0]/2;
+        const bottom_edge = this.view_center[1]-this.view_width[1]/2;
+        const center_x = loc.x*this.view_width[0]+left_edge;
+        const center_y = loc.y*this.view_width[1]+bottom_edge;
+        const updated_center = [center_x, center_y];
         this.model.set({'view_center':updated_center});
         this.model.save_changes();
     },
@@ -193,7 +193,7 @@ var FRBView = widgets.DOMWidgetView.extend({
     },
 
     buffer_changed: function() {
-        bounds = this.calculate_view_bounds();
+        const bounds = this.calculate_view_bounds();
         _yt_tools.then(function(yt_tools) {
             this.frb = new yt_tools.FixedResolutionBuffer(
                 this.model.get('width'),
@@ -212,7 +212,7 @@ var FRBView = widgets.DOMWidgetView.extend({
     calculate_view_bounds: function() {
         this.view_width = this.model.get('view_width');
         this.view_center = this.model.get('view_center');
-        hwidths = [this.view_width[0]/2, this.view_width[1]/2];
+        const hwidths = [this.view_width[0]/2, this.view_width[1]/2];
         var bounds = [this.view_center[0]-hwidths[0],
                   this.view_center[0]+hwidths[0], 
                   this.view_center[1]-hwidths[1], 
@@ -232,7 +232,7 @@ var FRBView = widgets.DOMWidgetView.extend({
 
 });
 
-module.exports = {
+export = {
     FRBModel : FRBModel,
     FRBView : FRBView
 };

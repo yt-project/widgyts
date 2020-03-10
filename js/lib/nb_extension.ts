@@ -4,7 +4,7 @@
 
 // Configure requirejs
 
-__webpack_public_path__ = document.querySelector('body').getAttribute('data-base-url') + 'nbextensions/yt-widgets';
+const __webpack_public_path__ = document.querySelector('body').getAttribute('data-base-url') + 'nbextensions/yt-widgets';
 
 
 if (window.require) {
@@ -18,6 +18,6 @@ if (window.require) {
 }
 
 // Export the required load_ipython_extension
-module.exports = {
+export = {
     load_ipython_extension: function() {}
 };

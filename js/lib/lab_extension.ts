@@ -1,7 +1,7 @@
-var yt_widgets = require('./index');
-var base = require('@jupyter-widgets/base');
+import yt_widgets = require('./index');
+import base = require('@jupyter-widgets/base');
 
-module.exports = {
+export = {
   id: '@data-exp-lab/yt-widgets',
   requires: [base.IJupyterWidgetRegistry],
   activate: function(app, widgets) {

@@ -1,8 +1,9 @@
-var widgets = require('@jupyter-widgets/base');
-var ipydatawidgets = require('jupyter-dataserializers');
+
+import widgets = require('@jupyter-widgets/base');
+import ipydatawidgets = require('jupyter-dataserializers');
 var _yt_tools = import('@data-exp-lab/yt-tools');
-var _ = require('lodash');
-var EXTENSION_VERSION = require('../package.json').version
+import var _ = require('lodash');
+import EXTENSION_VERSION = require('../package.json').version
 
 var CMapModel = widgets.WidgetModel.extend({
 
@@ -118,6 +119,6 @@ var CMapModel = widgets.WidgetModel.extend({
     model_module_version: EXTENSION_VERSION,
 });
 
-module.exports = {
+export = {
     CMapModel : CMapModel,
 };
