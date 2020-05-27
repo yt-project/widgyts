@@ -1,4 +1,4 @@
-version_info = (0, 3, 3, 'dev', 0)
+version_info = (0, 4, 0, 'dev', 0)
 
 _specifier_ = {'alpha': 'a', 'beta': 'b', 'candidate': 'rc', 'final': '',
         'dev': 'dev'}
@@ -6,4 +6,4 @@ _specifier_ = {'alpha': 'a', 'beta': 'b', 'candidate': 'rc', 'final': '',
 __version__ = '%s.%s.%s%s'%(version_info[0], version_info[1], version_info[2],
   '' if version_info[3]=='final' else _specifier_[version_info[3]]+str(version_info[4]))
 
-EXTENSION_VERSION='~0.3.2'
+EXTENSION_VERSION='~0.4.0'
