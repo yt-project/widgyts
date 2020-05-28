@@ -1,7 +1,7 @@
 import { DOMWidgetModel, ISerializers } from '@jupyter-widgets/base';
 import { CanvasView } from 'ipycanvas';
 import { VariableMesh, FixedResolutionBuffer} from '@data-exp-lab/yt-tools';
-var EXTENSION_VERSION = '0.4.0';
+import { MODULE_NAME, MODULE_VERSION } from './version';
 
 function serializeArray(array: Float64Array) {
     return new DataView(array.buffer.slice(0));
@@ -25,8 +25,7 @@ export class VariableMeshModel extends DOMWidgetModel
         return {...super.defaults(),
             _model_name: VariableMeshModel.model_name,
             _model_module: VariableMeshModel.model_module,
-            _model_module_version: EXTENSION_VERSION,
-            _view_module_version: EXTENSION_VERSION,
+            _model_module_version: VariableMeshModel.model_module_version,
             px: null,
             pdx: null,
             py: null,
@@ -64,8 +63,8 @@ export class VariableMeshModel extends DOMWidgetModel
     variable_mesh: VariableMesh;
 
     static model_name = "VariableMeshModel"
-    static model_module = "@data-exp-lab/yt-widgets";
-    static model_module_version = EXTENSION_VERSION;
+    static model_module = MODULE_NAME;
+    static model_module_version = MODULE_VERSION;
 }
 
 interface FRBViewBounds {
@@ -82,8 +81,7 @@ export class FRBModel extends DOMWidgetModel {
             ...super.defaults(),
             _model_name: FRBModel.model_name,
             _model_module: FRBModel.model_module,
-            _model_module_version: EXTENSION_VERSION,
-            _view_module_version: EXTENSION_VERSION,
+            _model_module_version: FRBModel.model_module_version,
             image_data: null,
             width: 512,
             height: 512,
@@ -124,7 +122,8 @@ export class FRBModel extends DOMWidgetModel {
         this.width, this.height,
         bounds.x_low, bounds.x_high, bounds.y_low, bounds.y_high);
       this.frb.deposit(this.variable_mesh_model.variable_mesh,
-        this.data_buffer)
+        this.data_buffer);
+        return this.data_buffer;
     }
 
     frb: FixedResolutionBuffer;
@@ -136,8 +135,8 @@ export class FRBModel extends DOMWidgetModel {
     view_width: [number, number];
 
     static model_name = "FRBModel"
-    static model_module = "@data-exp-lab/yt-widgets";
-    static model_module_version = EXTENSION_VERSION;
+    static model_module = MODULE_NAME;
+    static model_module_version = MODULE_VERSION;
 }
 
 export class WidgytsCanvasModel extends DOMWidgetModel {
@@ -145,10 +144,10 @@ export class WidgytsCanvasModel extends DOMWidgetModel {
     return {...super.defaults(),
             _model_name: WidgytsCanvasModel.model_name,
             _model_module: WidgytsCanvasModel.model_module,
-            _model_module_version: EXTENSION_VERSION,
+            _model_module_version: WidgytsCanvasModel.model_module_version,
             _view_name: WidgytsCanvasModel.view_name,
             _view_module: WidgytsCanvasModel.view_module,
-            _view_module_version: EXTENSION_VERSION,
+            _view_module_version: WidgytsCanvasModel.view_module_version,
             min_val: undefined,
             max_val: undefined,
             is_log: true,
@@ -162,18 +161,61 @@ export class WidgytsCanvasModel extends DOMWidgetModel {
   colormap_name: string;
 
     static view_name = "WidgytsCanvasView"
-    static view_module = "@data-exp-lab/yt-widgets";
+    static view_module = MODULE_NAME;
+    static view_module_version = MODULE_VERSION;
     static model_name = "WidgytsCanvasModel"
-    static model_module = "@data-exp-lab/yt-widgets";
-    static model_module_version = EXTENSION_VERSION;
+    static model_module = MODULE_NAME;
+    static model_module_version = MODULE_VERSION;
 }
 
 export class WidgytsCanvas extends CanvasView {
     render () {
         /* This is where we update stuff! */
-        super.render();
+      super.render();
+      this.frb_model.on_some_change(['width', 'height'],
+        this.resizeFromFRB, this);
+      this.frb_model.on_some_change(['view_center', 'view_width'],
+        this.redrawBitmap, this);
+        
     }
     frb_model: FRBModel;
     image_buffer: Uint8ClampedArray;
+    image_data: ImageData;
+    image_bitmap: ImageBitmap;
     variable_mesh_model: VariableMeshModel;
+
+    updateCanvas() {
+      /* 
+       * We don't call super.updateCanvas here, and we just re-do what it does
+       */
+      this.clear()
+      this.ctx.drawImage(this.image_bitmap, 0, 0);
+      this.ctx.drawImage(this.model.canvas, 0, 0);
+    }
+
+    resizeFromFRB() {
+      // this.model.set('width', this.frb_model.get('width'));
+      //this.model.set('width', this.frb_model.get('width'));
+      let width =  this.frb_model.get('width');
+      let height = this.frb_model.get('height');
+      let npix = width * height;
+      this.image_buffer = new Uint8ClampedArray(npix);
+      this.image_data = this.ctx.createImageData(width, height)
+    }
+    
+    regenerateBuffer() {
+      this.frb_model.depositDataBuffer();
+    }
+
+    async redrawBitmap() {
+    /* 
+     * This needs to make sure our deposition is up to date,
+     * normalize it, and then re-set our image data
+    */
+      /* Need to normalize here somehow */
+      let nx = this.frb_model.get('width');
+      let ny = this.frb_model.get('height');
+      this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
+    }
+
 }
