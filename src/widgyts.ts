@@ -1,7 +1,8 @@
-import { DOMWidgetModel, ISerializers } from '@jupyter-widgets/base';
+import { DOMWidgetModel, ISerializers, WidgetModel } from '@jupyter-widgets/base';
 import { CanvasView } from 'ipycanvas';
-import { VariableMesh, FixedResolutionBuffer} from '@data-exp-lab/yt-tools';
+import type { FixedResolutionBuffer, ColormapCollection, VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
+const yt_tools: typeof import('@data-exp-lab/yt-tools') = await import('@data-exp-lab/yt-tools');
 
 function serializeArray(array: Float64Array) {
     return new DataView(array.buffer.slice(0));
@@ -37,7 +38,7 @@ export class VariableMeshModel extends DOMWidgetModel
 
     initialize(attributes: any, options: any) {
         super.initialize(attributes, options);
-        this.variable_mesh = new VariableMesh(
+        this.variable_mesh = new yt_tools.VariableMesh(
             this.get('px'),
             this.get('py'),
             this.get('pdx'),
@@ -62,7 +63,7 @@ export class VariableMeshModel extends DOMWidgetModel
     val: Float64Array;
     variable_mesh: VariableMesh;
 
-    static model_name = "VariableMeshModel"
+    static model_name = "VariableMeshModel";
     static model_module = MODULE_NAME;
     static model_module_version = MODULE_VERSION;
 }
@@ -118,7 +119,7 @@ export class FRBModel extends DOMWidgetModel {
 
     depositDataBuffer() {
       let bounds: FRBViewBounds = this.calculateViewBounds();
-      this.frb = new FixedResolutionBuffer(
+      this.frb = new yt_tools.FixedResolutionBuffer(
         this.width, this.height,
         bounds.x_low, bounds.x_high, bounds.y_low, bounds.y_high);
       this.frb.deposit(this.variable_mesh_model.variable_mesh,
@@ -160,10 +161,10 @@ export class WidgytsCanvasModel extends DOMWidgetModel {
   is_log: boolean;
   colormap_name: string;
 
-    static view_name = "WidgytsCanvasView"
+    static view_name = "WidgytsCanvasView";
     static view_module = MODULE_NAME;
     static view_module_version = MODULE_VERSION;
-    static model_name = "WidgytsCanvasModel"
+    static model_name = "WidgytsCanvasModel";
     static model_module = MODULE_NAME;
     static model_module_version = MODULE_VERSION;
 }
@@ -217,5 +218,44 @@ export class WidgytsCanvas extends CanvasView {
       let ny = this.frb_model.get('height');
       this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
     }
+}
 
+export class ColormapContainerModel extends WidgetModel {
+  defaults() {
+    return {
+      ...super.defaults(),
+      colormap_values: {},
+      colormaps: new yt_tools.ColormapCollection(),
+      _initialized: false,
+      _model_name: ColormapContainerModel.model_name,
+      _model_module: ColormapContainerModel.model_module,
+      _model_module_version: ColormapContainerModel.model_module_version,
+    }
+  }
+
+  normalize(colormap_name: string, data_array: Float64Array,
+    output_array: Uint8ClampedArray, min_val: number, max_val: number,
+    take_log: boolean) {
+      if (!this._initialized) {
+        this.setupColormaps();
+      }
+    let unclamped: Uint8Array = new Uint8Array(output_array.buffer);
+    this.colormaps.normalize(colormap_name, data_array,
+      unclamped, min_val, max_val, take_log);
+  }
+
+  private setupColormaps() {
+    if (this._initialized) return;
+    for (let [name, values] of this.colormap_values) {
+      let arr_values: Uint8Array = Uint8Array.from(values);
+      this.colormaps.add_colormap(name, arr_values);
+    }
+  }
+
+  colormap_values: Map<string, Array<number>>;
+  colormaps: ColormapCollection;
+  _initialized: boolean;
+  static model_name = "ColormapContainerModel";
+  static model_module = MODULE_NAME;
+  static model_module_version = MODULE_VERSION;
 }
