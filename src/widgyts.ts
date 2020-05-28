@@ -2,7 +2,7 @@ import { DOMWidgetModel, ISerializers, WidgetModel } from '@jupyter-widgets/base
 import { CanvasView } from 'ipycanvas';
 import type { FixedResolutionBuffer, ColormapCollection, VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-const yt_tools: typeof import('@data-exp-lab/yt-tools') = await import('@data-exp-lab/yt-tools');
+const _yt_tools = import('@data-exp-lab/yt-tools');
 
 function serializeArray(array: Float64Array) {
     return new DataView(array.buffer.slice(0));
@@ -38,13 +38,14 @@ export class VariableMeshModel extends DOMWidgetModel
 
     initialize(attributes: any, options: any) {
         super.initialize(attributes, options);
-        this.variable_mesh = new yt_tools.VariableMesh(
-            this.get('px'),
-            this.get('py'),
-            this.get('pdx'),
-            this.get('pdy'),
-            this.get('val')
-        );
+        _yt_tools.then( yt_tools => {
+          this.variable_mesh = new yt_tools.VariableMesh(
+              this.get('px'),
+              this.get('py'),
+              this.get('pdx'),
+              this.get('pdy'),
+              this.get('val')
+        );})
     }
 
     static serializers: ISerializers = {
@@ -117,8 +118,9 @@ export class FRBModel extends DOMWidgetModel {
         return bounds;
     }
 
-    depositDataBuffer() {
+    async depositDataBuffer() {
       let bounds: FRBViewBounds = this.calculateViewBounds();
+      let yt_tools = await _yt_tools;
       this.frb = new yt_tools.FixedResolutionBuffer(
         this.width, this.height,
         bounds.x_low, bounds.x_high, bounds.y_low, bounds.y_high);
@@ -225,7 +227,6 @@ export class ColormapContainerModel extends WidgetModel {
     return {
       ...super.defaults(),
       colormap_values: {},
-      colormaps: new yt_tools.ColormapCollection(),
       _initialized: false,
       _model_name: ColormapContainerModel.model_name,
       _model_module: ColormapContainerModel.model_module,
@@ -233,19 +234,21 @@ export class ColormapContainerModel extends WidgetModel {
     }
   }
 
-  normalize(colormap_name: string, data_array: Float64Array,
+  async normalize(colormap_name: string, data_array: Float64Array,
     output_array: Uint8ClampedArray, min_val: number, max_val: number,
     take_log: boolean) {
       if (!this._initialized) {
-        this.setupColormaps();
+        await this.setupColormaps();
       }
     let unclamped: Uint8Array = new Uint8Array(output_array.buffer);
     this.colormaps.normalize(colormap_name, data_array,
       unclamped, min_val, max_val, take_log);
   }
 
-  private setupColormaps() {
+  private async setupColormaps() {
     if (this._initialized) return;
+    let yt_tools = await _yt_tools;
+    this.colormaps = new yt_tools.ColormapCollection();
     for (let [name, values] of this.colormap_values) {
       let arr_values: Uint8Array = Uint8Array.from(values);
       this.colormaps.add_colormap(name, arr_values);
