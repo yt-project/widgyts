@@ -58,7 +58,7 @@ setup_args = dict(
     url="https://github.com/data-exp-lab/widgyts",
     author="Data Exploration Lab",
     author_email="mmunk2@illinois.edu",
-    'description': 'A Custom Jupyter Widget Library for yt',
+    description= 'A Custom Jupyter Widget Library for yt',
     long_description= long_description,
     long_description_content_type="text/markdown",
     cmdclass= cmdclass,
