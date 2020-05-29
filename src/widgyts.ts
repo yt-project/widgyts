@@ -154,7 +154,9 @@ export class WidgytsCanvasModel extends CanvasModel {
             min_val: undefined,
             max_val: undefined,
             is_log: true,
-            colormap_name: "viridis"
+            colormap_name: "viridis",
+            frb_model: null,
+            variable_mesh_model: null
     }
   }
 
@@ -162,6 +164,8 @@ export class WidgytsCanvasModel extends CanvasModel {
   max_val: number;
   is_log: boolean;
   colormap_name: string;
+  frb_model: FRBModel;
+  variable_mesh_model: VariableMeshModel;
 
   static view_name = "WidgytsCanvasView";
   static view_module = MODULE_NAME;
@@ -175,17 +179,15 @@ export class WidgytsCanvasView extends CanvasView {
     render () {
         /* This is where we update stuff! */
       super.render();
-      this.frb_model.on_some_change(['width', 'height'],
+      this.model.frb_model.on_some_change(['width', 'height'],
         this.resizeFromFRB, this);
-      this.frb_model.on_some_change(['view_center', 'view_width'],
+      this.model.frb_model.on_some_change(['view_center', 'view_width'],
         this.redrawBitmap, this);
         
     }
-    frb_model: FRBModel;
     image_buffer: Uint8ClampedArray;
     image_data: ImageData;
     image_bitmap: ImageBitmap;
-    variable_mesh_model: VariableMeshModel;
     model: WidgytsCanvasModel;
 
     updateCanvas() {
@@ -200,15 +202,15 @@ export class WidgytsCanvasView extends CanvasView {
     resizeFromFRB() {
       // this.model.set('width', this.frb_model.get('width'));
       //this.model.set('width', this.frb_model.get('width'));
-      let width =  this.frb_model.get('width');
-      let height = this.frb_model.get('height');
+      let width =  this.model.frb_model.get('width');
+      let height = this.model.frb_model.get('height');
       let npix = width * height;
       this.image_buffer = new Uint8ClampedArray(npix);
       this.image_data = this.ctx.createImageData(width, height)
     }
     
     regenerateBuffer() {
-      this.frb_model.depositDataBuffer();
+      this.model.frb_model.depositDataBuffer();
     }
 
     async redrawBitmap() {
@@ -217,8 +219,8 @@ export class WidgytsCanvasView extends CanvasView {
      * normalize it, and then re-set our image data
     */
       /* Need to normalize here somehow */
-      let nx = this.frb_model.get('width');
-      let ny = this.frb_model.get('height');
+      let nx = this.model.frb_model.get('width');
+      let ny = this.model.frb_model.get('height');
       this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
     }
 }
@@ -228,6 +230,7 @@ export class ColormapContainerModel extends WidgetModel {
     return {
       ...super.defaults(),
       colormap_values: {},
+      colormaps: null,
       _initialized: false,
       _model_name: ColormapContainerModel.model_name,
       _model_module: ColormapContainerModel.model_module,

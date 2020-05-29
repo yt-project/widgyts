@@ -5,7 +5,7 @@ import numpy as np
 from ipywidgets import widget_serialization
 from ipywidgets.widgets.trait_types import bytes_serialization
 
-from .colormaps.colormaps import ColorMaps, ColormapContainer
+from .colormaps.colormaps import ColormapContainer
 
 from yt.data_objects.selection_data_containers import \
         YTSlice
@@ -101,12 +101,14 @@ class FRBModel(ipywidgets.Widget):
 
 @ipywidgets.register
 class WidgytsCanvasViewer(ipycanvas.Canvas):
-    min_val = traitlets.Float().tag(sync=True)
-    max_val = traitlets.Float().tag(sync=True)
+    min_val = traitlets.CFloat().tag(sync=True)
+    max_val = traitlets.CFloat().tag(sync=True)
     is_log = traitlets.Bool().tag(sync=True)
     colormap_name = traitlets.Unicode("viridis").tag(sync=True)
-    frb_model = traitlets.Instance(FRBModel).tag(sync=True)
-    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync=True)
+    frb_model = traitlets.Instance(FRBModel).tag(sync=True,
+            **widget_serialization)
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync=True,
+            **widget_serialization)
 
     _model_name = traitlets.Unicode('WidgytsCanvasModel').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
@@ -119,10 +121,6 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
     def _layout_default(self):
         return ipywidgets.Layout(width = '{}px'.format(self.width),
                                  height ='{}px'.format(self.height))
-
-    @traitlets.default('colormaps')
-    def _colormap_load(self):
-        return ColorMaps()
 
     def setup_controls(self):
         down = ipywidgets.Button(icon="arrow-down",
