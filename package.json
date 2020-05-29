@@ -1,5 +1,5 @@
 {
-  "name": "widgyts",
+  "name": "@data-exp-lab/yt-widgets",
   "version": "0.4.0",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": "Data Exploration Lab",
@@ -87,6 +87,6 @@
         }
       }
     },
-    "extension": true
+    "extension": "lib/plugin"
   }
 }

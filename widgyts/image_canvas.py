@@ -1,11 +1,11 @@
 import ipywidgets as ipywidgets
+import ipycanvas
 import traitlets
-from ipydatawidgets import DataUnion, shape_constraints, \
-        data_union_serialization
 import numpy as np
 from ipywidgets import widget_serialization
+from ipywidgets.widgets.trait_types import bytes_serialization
 
-from .colormaps.colormaps import ColorMaps
+from .colormaps.colormaps import ColorMaps, ColormapContainer
 
 from yt.data_objects.selection_data_containers import \
         YTSlice
@@ -17,26 +17,24 @@ from yt.funcs import \
         ensure_list
 from ._version import EXTENSION_VERSION
 
-rgba_image_shape = shape_constraints(None, None, 4)
-vmesh_shape = shape_constraints(None)
-
 @ipywidgets.register
-class ImageCanvas(ipywidgets.DOMWidget):
-    """An example widget."""
-    _view_name = traitlets.Unicode('ImageCanvasView').tag(sync=True)
-    _model_name = traitlets.Unicode('ImageCanvasModel').tag(sync=True)
-    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+class VariableMeshModel(ipywidgets.Widget):
+    _model_name = traitlets.Unicode('VariableMeshModel').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
-    image_array = DataUnion(dtype=np.uint8,
-            shape_constraint=rgba_image_shape).tag(sync=True,
-                    **data_union_serialization)
-    width = traitlets.Int(256).tag(sync=True)
-    height = traitlets.Int(256).tag(sync=True)
+    px = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    py = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    pdx = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    pdy = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    val = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
 
 @ipywidgets.register
-class FRBViewer(ipywidgets.DOMWidget):
+class FRBModel(ipywidgets.Widget):
     """View of a fixed resolution buffer.
 
     FRBViewer(width, height, px, py, pdx, pdy, val)
@@ -89,33 +87,33 @@ class FRBViewer(ipywidgets.DOMWidget):
     >>> display(frb1)
 
     """
-    _view_name = traitlets.Unicode('FRBView').tag(sync=True)
     _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
-    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     width = traitlets.Int(512).tag(sync=True)
     height = traitlets.Int(512).tag(sync=True)
-    px = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    py = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    pdx = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    pdy = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    val = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync = True,
+            **widget_serialization)
+    colormaps = traitlets.Instance(ColormapContainer).tag(sync = True,
             **widget_serialization)
     view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
     view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
+
+@ipywidgets.register
+class WidgytsCanvasViewer(ipycanvas.Canvas):
+    min_val = traitlets.Float().tag(sync=True)
+    max_val = traitlets.Float().tag(sync=True)
+    is_log = traitlets.Bool().tag(sync=True)
+    colormap_name = traitlets.Unicode("viridis").tag(sync=True)
+    frb_model = traitlets.Instance(FRBModel).tag(sync=True)
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync=True)
+
+    _model_name = traitlets.Unicode('WidgytsCanvasModel').tag(sync=True)
+    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    _view_name = traitlets.Unicode('WidgytsCanvasView').tag(sync=True)
+    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
 
     @traitlets.default('layout')
     def _layout_default(self):

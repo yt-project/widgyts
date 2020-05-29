@@ -1,5 +1,5 @@
 import { DOMWidgetModel, ISerializers, WidgetModel } from '@jupyter-widgets/base';
-import { CanvasView } from 'ipycanvas';
+import { CanvasView, CanvasModel } from 'ipycanvas';
 import type { FixedResolutionBuffer, ColormapCollection, VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 const _yt_tools = import('@data-exp-lab/yt-tools');
@@ -142,7 +142,7 @@ export class FRBModel extends DOMWidgetModel {
     static model_module_version = MODULE_VERSION;
 }
 
-export class WidgytsCanvasModel extends DOMWidgetModel {
+export class WidgytsCanvasModel extends CanvasModel {
   defaults() {
     return {...super.defaults(),
             _model_name: WidgytsCanvasModel.model_name,
@@ -163,15 +163,15 @@ export class WidgytsCanvasModel extends DOMWidgetModel {
   is_log: boolean;
   colormap_name: string;
 
-    static view_name = "WidgytsCanvasView";
-    static view_module = MODULE_NAME;
-    static view_module_version = MODULE_VERSION;
-    static model_name = "WidgytsCanvasModel";
-    static model_module = MODULE_NAME;
-    static model_module_version = MODULE_VERSION;
+  static view_name = "WidgytsCanvasView";
+  static view_module = MODULE_NAME;
+  static view_module_version = MODULE_VERSION;
+  static model_name = "WidgytsCanvasModel";
+  static model_module = MODULE_NAME;
+  static model_module_version = MODULE_VERSION;
 }
 
-export class WidgytsCanvas extends CanvasView {
+export class WidgytsCanvasView extends CanvasView {
     render () {
         /* This is where we update stuff! */
       super.render();
@@ -186,6 +186,7 @@ export class WidgytsCanvas extends CanvasView {
     image_data: ImageData;
     image_bitmap: ImageBitmap;
     variable_mesh_model: VariableMeshModel;
+    model: WidgytsCanvasModel;
 
     updateCanvas() {
       /* 
