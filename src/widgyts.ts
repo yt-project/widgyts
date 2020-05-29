@@ -1,4 +1,4 @@
-import { DOMWidgetModel, ISerializers, WidgetModel } from '@jupyter-widgets/base';
+import { DOMWidgetModel, ISerializers, WidgetModel, unpack_models } from '@jupyter-widgets/base';
 import { CanvasView, CanvasModel } from 'ipycanvas';
 import type { FixedResolutionBuffer, ColormapCollection, VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -54,7 +54,8 @@ export class VariableMeshModel extends DOMWidgetModel
         pdx: { serialize: serializeArray, deserialize: deserializeArray },
         py: { serialize: serializeArray, deserialize: deserializeArray },
         pdy: { serialize: serializeArray, deserialize: deserializeArray },
-        val: { serialize: serializeArray, deserialize: deserializeArray }
+        val: { serialize: serializeArray, deserialize: deserializeArray },
+
     }
 
     px: Float64Array;
@@ -98,6 +99,11 @@ export class FRBModel extends DOMWidgetModel {
       super.initialize(attributes, options);
       this.on_some_change(['width', 'height'], this.sizeChanged, this);
     }
+    static serializers: ISerializers = {
+        ...DOMWidgetModel.serializers,
+        frb: {deserialize: unpack_models},
+    }
+
 
     sizeChanged() {
       this.width = this.get('width');
@@ -160,6 +166,18 @@ export class WidgytsCanvasModel extends CanvasModel {
     }
   }
 
+  initialize(attributes: any, options: any) {
+    super.initialize(attributes, options)
+    this.frb_model = this.get('frb_model');
+    this.variable_mesh_model = this.get('variable_mesh_model');
+  }
+
+    static serializers: ISerializers = {
+        ...DOMWidgetModel.serializers,
+        frb_model: {deserialize: unpack_models},
+        variable_mesh_model: {deserialize: unpack_models}
+    }
+
   min_val: number;
   max_val: number;
   is_log: boolean;
@@ -178,12 +196,19 @@ export class WidgytsCanvasModel extends CanvasModel {
 export class WidgytsCanvasView extends CanvasView {
     render () {
         /* This is where we update stuff! */
+      console.log("In render");
+      console.log(this);
       super.render();
+      this.resizeFromFRB();
+      this.redrawBitmap().then(() => {
+      console.log("Awaited");
+      console.log(this.image_bitmap);
       this.model.frb_model.on_some_change(['width', 'height'],
         this.resizeFromFRB, this);
       this.model.frb_model.on_some_change(['view_center', 'view_width'],
         this.redrawBitmap, this);
-        
+      this.regenerateBuffer();
+      });
     }
     image_buffer: Uint8ClampedArray;
     image_data: ImageData;
@@ -195,13 +220,15 @@ export class WidgytsCanvasView extends CanvasView {
        * We don't call super.updateCanvas here, and we just re-do what it does
        */
       this.clear()
-      this.ctx.drawImage(this.image_bitmap, 0, 0);
-      this.ctx.drawImage(this.model.canvas, 0, 0);
+      //this.ctx.drawImage(this.image_bitmap, 0, 0);
+      //this.ctx.drawImage(this.model.canvas, 0, 0);
     }
 
     resizeFromFRB() {
       // this.model.set('width', this.frb_model.get('width'));
       //this.model.set('width', this.frb_model.get('width'));
+      console.log(this.model);
+      console.log(this.model.frb_model);
       let width =  this.model.frb_model.get('width');
       let height = this.model.frb_model.get('height');
       let npix = width * height;
@@ -210,6 +237,7 @@ export class WidgytsCanvasView extends CanvasView {
     }
     
     regenerateBuffer() {
+      console.log("Regenerating and re-depositing");
       this.model.frb_model.depositDataBuffer();
     }
 
@@ -221,6 +249,7 @@ export class WidgytsCanvasView extends CanvasView {
       /* Need to normalize here somehow */
       let nx = this.model.frb_model.get('width');
       let ny = this.model.frb_model.get('height');
+      console.log("Creating a new image bitmap");
       this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
     }
 }
@@ -230,7 +259,6 @@ export class ColormapContainerModel extends WidgetModel {
     return {
       ...super.defaults(),
       colormap_values: {},
-      colormaps: null,
       _initialized: false,
       _model_name: ColormapContainerModel.model_name,
       _model_module: ColormapContainerModel.model_module,
