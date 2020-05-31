@@ -14,7 +14,6 @@ class ColormapContainer(ipywidgets.Widget):
     def _colormap_values_default(self):
         """ Adds available colormaps from matplotlib."""
         colormaps = {}
-        return {}
         import matplotlib.cm as mplcm
         cmap_list =  mplcm.cmap_d.keys()
         for colormap in cmap_list:
