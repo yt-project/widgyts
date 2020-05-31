@@ -94,8 +94,6 @@ class FRBModel(ipywidgets.Widget):
     height = traitlets.Int(512).tag(sync=True)
     variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync = True,
             **widget_serialization)
-    colormaps = traitlets.Instance(ColormapContainer).tag(sync = True,
-            **widget_serialization)
     view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
     view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
 
@@ -105,6 +103,8 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
     max_val = traitlets.CFloat().tag(sync=True)
     is_log = traitlets.Bool().tag(sync=True)
     colormap_name = traitlets.Unicode("viridis").tag(sync=True)
+    colormaps = traitlets.Instance(ColormapContainer).tag(sync = True,
+            **widget_serialization)
     frb_model = traitlets.Instance(FRBModel).tag(sync=True,
             **widget_serialization)
     variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync=True,

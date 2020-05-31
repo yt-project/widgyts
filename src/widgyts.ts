@@ -133,7 +133,6 @@ export class FRBModel extends DOMWidgetModel {
         bounds.x_low, bounds.x_high, bounds.y_low, bounds.y_high);
       this.frb.deposit(variable_mesh_model.variable_mesh,
         this.data_buffer);
-        console.log(this.data_buffer);
         return this.data_buffer;
     }
 
@@ -163,6 +162,7 @@ export class WidgytsCanvasModel extends CanvasModel {
             max_val: undefined,
             is_log: true,
             colormap_name: "viridis",
+            colormaps: null,
             frb_model: null,
             variable_mesh_model: null,
             image_bitmap: undefined,
@@ -174,12 +174,14 @@ export class WidgytsCanvasModel extends CanvasModel {
     super.initialize(attributes, options)
     this.frb_model = this.get('frb_model');
     this.variable_mesh_model = this.get('variable_mesh_model');
+    this.colormaps = this.get('colormaps');
   }
 
     static serializers: ISerializers = {
         ...DOMWidgetModel.serializers,
         frb_model: {deserialize: unpack_models},
-        variable_mesh_model: {deserialize: unpack_models}
+        variable_mesh_model: {deserialize: unpack_models},
+        colormaps: {deserialize: unpack_models}
     }
 
   min_val: number;
@@ -188,6 +190,7 @@ export class WidgytsCanvasModel extends CanvasModel {
   colormap_name: string;
   frb_model: FRBModel;
   variable_mesh_model: VariableMeshModel;
+  colormaps: ColormapContainerModel;
 
   static view_name = "WidgytsCanvasView";
   static view_module = MODULE_NAME;
@@ -202,13 +205,12 @@ export class WidgytsCanvasView extends CanvasView {
         /* This is where we update stuff! */
       super.render();
       this.resizeFromFRB();
-      this.redrawBitmap().then(() => {
       this.model.frb_model.on_some_change(['width', 'height'],
         this.resizeFromFRB, this);
       this.model.frb_model.on_some_change(['view_center', 'view_width'],
-        this.redrawBitmap, this);
+        this.createBitmap, this);
       this.regenerateBuffer();
-      });
+      this.createBitmap().then(() => this.updateCanvas());
     }
     image_buffer: Uint8ClampedArray;
     image_data: ImageData;
@@ -220,12 +222,11 @@ export class WidgytsCanvasView extends CanvasView {
        * We don't call super.updateCanvas here, and we just re-do what it does
        */
       this.clear()
-      console.log("Stuff"); console.log(this.image_bitmap); console.log(this.model.canvas); console.log(this.ctx);
-      if (this.image_bitmap !== undefined) {
-        this.ctx.drawImage(this.image_bitmap, 0, 0);
-      }
       if (this.model.canvas !== undefined) {
         this.ctx.drawImage(this.model.canvas, 0, 0);
+      }
+      if (this.image_bitmap !== undefined) {
+        this.ctx.drawImage(this.image_bitmap, 0, 0);
       }
     }
 
@@ -236,7 +237,8 @@ export class WidgytsCanvasView extends CanvasView {
         let width = this.model.frb_model.get('width');
         let height = this.model.frb_model.get('height');
         let npix = width * height;
-        this.image_buffer = new Uint8ClampedArray(npix);
+        // Times four so that we have one for *each* channel :)
+        this.image_buffer = new Uint8ClampedArray(npix * 4);
         this.image_data = this.ctx.createImageData(width, height)
       }
     }
@@ -245,15 +247,19 @@ export class WidgytsCanvasView extends CanvasView {
       this.model.frb_model.depositDataBuffer(this.model.variable_mesh_model);
     }
 
-    async redrawBitmap() {
+    async createBitmap() {
     /* 
      * This needs to make sure our deposition is up to date,
      * normalize it, and then re-set our image data
     */
       /* Need to normalize here somehow */
+      await this.model.colormaps.normalize(this.model.get('colormap_name'),
+          this.model.frb_model.data_buffer, this.image_buffer,
+          this.model.get('min_val'), this.model.get('max_val'),
+          this.model.get('is_log'));
+      this.image_data.data.set(this.image_buffer);
       let nx = this.model.frb_model.get('width');
       let ny = this.model.frb_model.get('height');
-      console.log("Creating a new image bitmap");
       this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
     }
 }
@@ -268,6 +274,11 @@ export class ColormapContainerModel extends WidgetModel {
       _model_module: ColormapContainerModel.model_module,
       _model_module_version: ColormapContainerModel.model_module_version,
     }
+  }
+
+  initialize(attributes: any, options: any) {
+    super.initialize(attributes, options);
+    this.colormap_values = this.get('colormap_values');
   }
 
   async normalize(colormap_name: string, data_array: Float64Array,
@@ -285,13 +296,13 @@ export class ColormapContainerModel extends WidgetModel {
     if (this._initialized) return;
     let yt_tools = await _yt_tools;
     this.colormaps = new yt_tools.ColormapCollection();
-    for (let [name, values] of this.colormap_values) {
+    for (let [name, values] of Object.entries(this.colormap_values)) {
       let arr_values: Uint8Array = Uint8Array.from(values);
       this.colormaps.add_colormap(name, arr_values);
     }
   }
 
-  colormap_values: Map<string, Array<number>>;
+  colormap_values: Object;
   colormaps: ColormapCollection;
   _initialized: boolean;
   static model_name = "ColormapContainerModel";
