@@ -98,10 +98,11 @@ export class FRBModel extends DOMWidgetModel {
     initialize(attributes: any, options: any) {
       super.initialize(attributes, options);
       this.on_some_change(['width', 'height'], this.sizeChanged, this);
+      this.sizeChanged();
     }
     static serializers: ISerializers = {
         ...DOMWidgetModel.serializers,
-        frb: {deserialize: unpack_models},
+        variable_mesh_model: {deserialize: unpack_models}
     }
 
 
@@ -124,14 +125,15 @@ export class FRBModel extends DOMWidgetModel {
         return bounds;
     }
 
-    async depositDataBuffer() {
+    async depositDataBuffer(variable_mesh_model: VariableMeshModel) {
       let bounds: FRBViewBounds = this.calculateViewBounds();
       let yt_tools = await _yt_tools;
       this.frb = new yt_tools.FixedResolutionBuffer(
         this.width, this.height,
         bounds.x_low, bounds.x_high, bounds.y_low, bounds.y_high);
-      this.frb.deposit(this.variable_mesh_model.variable_mesh,
+      this.frb.deposit(variable_mesh_model.variable_mesh,
         this.data_buffer);
+        console.log(this.data_buffer);
         return this.data_buffer;
     }
 
@@ -162,7 +164,9 @@ export class WidgytsCanvasModel extends CanvasModel {
             is_log: true,
             colormap_name: "viridis",
             frb_model: null,
-            variable_mesh_model: null
+            variable_mesh_model: null,
+            image_bitmap: undefined,
+            image_data: undefined
     }
   }
 
@@ -196,13 +200,9 @@ export class WidgytsCanvasModel extends CanvasModel {
 export class WidgytsCanvasView extends CanvasView {
     render () {
         /* This is where we update stuff! */
-      console.log("In render");
-      console.log(this);
       super.render();
       this.resizeFromFRB();
       this.redrawBitmap().then(() => {
-      console.log("Awaited");
-      console.log(this.image_bitmap);
       this.model.frb_model.on_some_change(['width', 'height'],
         this.resizeFromFRB, this);
       this.model.frb_model.on_some_change(['view_center', 'view_width'],
@@ -220,25 +220,29 @@ export class WidgytsCanvasView extends CanvasView {
        * We don't call super.updateCanvas here, and we just re-do what it does
        */
       this.clear()
-      //this.ctx.drawImage(this.image_bitmap, 0, 0);
-      //this.ctx.drawImage(this.model.canvas, 0, 0);
+      console.log("Stuff"); console.log(this.image_bitmap); console.log(this.model.canvas); console.log(this.ctx);
+      if (this.image_bitmap !== undefined) {
+        this.ctx.drawImage(this.image_bitmap, 0, 0);
+      }
+      if (this.model.canvas !== undefined) {
+        this.ctx.drawImage(this.model.canvas, 0, 0);
+      }
     }
 
     resizeFromFRB() {
       // this.model.set('width', this.frb_model.get('width'));
       //this.model.set('width', this.frb_model.get('width'));
-      console.log(this.model);
-      console.log(this.model.frb_model);
-      let width =  this.model.frb_model.get('width');
-      let height = this.model.frb_model.get('height');
-      let npix = width * height;
-      this.image_buffer = new Uint8ClampedArray(npix);
-      this.image_data = this.ctx.createImageData(width, height)
+      if (this.model.frb_model !== null && this.ctx !== null) {
+        let width = this.model.frb_model.get('width');
+        let height = this.model.frb_model.get('height');
+        let npix = width * height;
+        this.image_buffer = new Uint8ClampedArray(npix);
+        this.image_data = this.ctx.createImageData(width, height)
+      }
     }
     
     regenerateBuffer() {
-      console.log("Regenerating and re-depositing");
-      this.model.frb_model.depositDataBuffer();
+      this.model.frb_model.depositDataBuffer(this.model.variable_mesh_model);
     }
 
     async redrawBitmap() {
