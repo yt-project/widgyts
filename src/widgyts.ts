@@ -210,6 +210,7 @@ export class WidgytsCanvasView extends CanvasView {
          * Render in the base class will set up the ctx, but also calls
          * updateCanvas, so we need to check before calling anything in there.
          */
+      this.drag = false;
       this.locked = true;
       super.render();
       this.initializeArrays().then( () => {
@@ -223,6 +224,8 @@ export class WidgytsCanvasView extends CanvasView {
     image_bitmap: ImageBitmap;
     model: WidgytsCanvasModel;
     locked: boolean;
+    drag: boolean;
+    dragStart: [number, number];
 
     setupEventListeners() {
       this.model.frb_model.on_some_change(['width', 'height'],
@@ -231,7 +234,25 @@ export class WidgytsCanvasView extends CanvasView {
         this.dirtyFRB, this);
       this.model.on_some_change(['_dirty_frb', '_dirty_bitmap'],
         this.updateBitmap, this);
-      this.model.on_some_change(['min_val', 'max_val', 'colormap_name', 'is_log'], this.dirtyBitmap, this);
+      this.model.on_some_change(['min_val', 'max_val', 'colormap_name',
+        'is_log'], this.dirtyBitmap, this);
+      this.canvas.addEventListener("mousedown", this.startDrag.bind(this));
+      this.canvas.addEventListener("mousemove", this.conductDrag.bind(this));
+      window.addEventListener("mouseup", this.endDrag.bind(this));
+    }
+
+    startDrag(event: MouseEvent) {
+      this.drag = true;
+      this.dragStart = [event.offsetX, event.offsetY];
+    }
+
+    conductDrag(event: MouseEvent) {
+      if (!this.drag) return;
+    }
+
+    endDrag(event: MouseEvent) {
+      if (!this.drag) return;
+      this.drag = false;
     }
 
     dirtyBitmap() {
