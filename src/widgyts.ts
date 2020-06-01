@@ -228,9 +228,18 @@ export class WidgytsCanvasView extends CanvasView {
       this.model.frb_model.on_some_change(['width', 'height'],
         this.resizeFromFRB, this);
       this.model.frb_model.on_some_change(['view_center', 'view_width'],
-        this.regenerateBuffer, this);
+        this.dirtyFRB, this);
       this.model.on_some_change(['_dirty_frb', '_dirty_bitmap'],
         this.updateBitmap, this);
+      this.model.on_some_change(['min_val', 'max_val', 'colormap_name', 'is_log'], this.dirtyBitmap, this);
+    }
+
+    dirtyBitmap() {
+      this.model.set('_dirty_bitmap', true);
+    }
+
+    dirtyFRB() {
+      this.model.set('_dirty_frb', true);
     }
 
     async initializeArrays() {
