@@ -166,7 +166,9 @@ export class WidgytsCanvasModel extends CanvasModel {
             frb_model: null,
             variable_mesh_model: null,
             image_bitmap: undefined,
-            image_data: undefined
+            image_data: undefined,
+            _dirty_frb: false,
+            _dirty_bitmap: false
     }
   }
 
@@ -191,6 +193,8 @@ export class WidgytsCanvasModel extends CanvasModel {
   frb_model: FRBModel;
   variable_mesh_model: VariableMeshModel;
   colormaps: ColormapContainerModel;
+  _dirty_frb: boolean;
+  _dirty_bitmap: boolean;
 
   static view_name = "WidgytsCanvasView";
   static view_module = MODULE_NAME;
@@ -202,38 +206,78 @@ export class WidgytsCanvasModel extends CanvasModel {
 
 export class WidgytsCanvasView extends CanvasView {
     render () {
-        /* This is where we update stuff! */
+        /* This is where we update stuff!
+         * Render in the base class will set up the ctx, but also calls
+         * updateCanvas, so we need to check before calling anything in there.
+         */
+      this.locked = true;
       super.render();
-      this.resizeFromFRB();
-      this.model.frb_model.on_some_change(['width', 'height'],
-        this.resizeFromFRB, this);
-      this.model.frb_model.on_some_change(['view_center', 'view_width'],
-        this.createBitmap, this);
-      this.regenerateBuffer();
-      this.createBitmap().then(() => this.updateCanvas());
+      this.initializeArrays().then( () => {
+        this.setupEventListeners();
+        this.locked = false;
+        this.updateCanvas();
+      });
     }
     image_buffer: Uint8ClampedArray;
     image_data: ImageData;
     image_bitmap: ImageBitmap;
     model: WidgytsCanvasModel;
+    locked: boolean;
+
+    setupEventListeners() {
+      this.model.frb_model.on_some_change(['width', 'height'],
+        this.resizeFromFRB, this);
+      this.model.frb_model.on_some_change(['view_center', 'view_width'],
+        this.regenerateBuffer, this);
+      this.model.on_some_change(['_dirty_frb', '_dirty_bitmap'],
+        this.updateBitmap, this);
+    }
+
+    async initializeArrays() {
+      this.regenerateBuffer();   // This will stick stuff into the FRB's data buffer
+      this.resizeFromFRB();      // This will create image_buffer and image_data
+      await this.createBitmap(); // This creates a bitmap array and normalizes
+    }
 
     updateCanvas() {
       /* 
-       * We don't call super.updateCanvas here, and we just re-do what it does
+       * We don't call super.updateCanvas here, and we just re-do what it does.
+       * This means we'll have to update it when the base class changes, but it
+       * also means greater control.
        */
       this.clear()
       if (this.model.canvas !== undefined) {
+        //console.log("Drawing this.model.canvas");
         this.ctx.drawImage(this.model.canvas, 0, 0);
       }
       if (this.image_bitmap !== undefined) {
+        //console.log("Drawing this.image_bitmap");
         this.ctx.drawImage(this.image_bitmap, 0, 0);
       }
     }
 
+    async updateBitmap() {
+      if(this.locked) return;
+      //console.log("Locking.");
+      this.locked = true;
+      //console.log("Update bitmap");
+      if (this.model.get('_dirty_frb')) {
+        //console.log("frb is dirty; regenerating");
+        this.regenerateBuffer();
+      }
+      if (this.model.get('_dirty_bitmap')) {
+        //console.log("bitmap is dirty; regenerating");
+        await this.createBitmap();
+        this.updateCanvas();
+      }
+      //console.log("Unlocking.");
+      this.locked = false;
+    }
+
     resizeFromFRB() {
-      // this.model.set('width', this.frb_model.get('width'));
-      //this.model.set('width', this.frb_model.get('width'));
+      //console.log("resizeFromFRB");
       if (this.model.frb_model !== null && this.ctx !== null) {
+        //console.log("frb initialized; creating new clamped array and image");
         let width = this.model.frb_model.get('width');
         let height = this.model.frb_model.get('height');
         let npix = width * height;
@@ -244,7 +288,10 @@ export class WidgytsCanvasView extends CanvasView {
     }
     
     regenerateBuffer() {
+      //console.log("regenerateBuffer");
       this.model.frb_model.depositDataBuffer(this.model.variable_mesh_model);
+      this.model.set('_dirty_frb', false);
+      this.model.set('_dirty_bitmap', true);
     }
 
     async createBitmap() {
@@ -253,6 +300,7 @@ export class WidgytsCanvasView extends CanvasView {
      * normalize it, and then re-set our image data
     */
       /* Need to normalize here somehow */
+      //console.log("Creating bitmap.");
       await this.model.colormaps.normalize(this.model.get('colormap_name'),
           this.model.frb_model.data_buffer, this.image_buffer,
           this.model.get('min_val'), this.model.get('max_val'),
@@ -260,7 +308,10 @@ export class WidgytsCanvasView extends CanvasView {
       this.image_data.data.set(this.image_buffer);
       let nx = this.model.frb_model.get('width');
       let ny = this.model.frb_model.get('height');
+      /* This has to be called every time image_data changes */
       this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
+      this.model.set('_dirty_bitmap', false);
+      //console.log("Setting bitmap to undirty.");
     }
 }
 
@@ -300,6 +351,7 @@ export class ColormapContainerModel extends WidgetModel {
       let arr_values: Uint8Array = Uint8Array.from(values);
       this.colormaps.add_colormap(name, arr_values);
     }
+    this._initialized = true;
   }
 
   colormap_values: Object;
