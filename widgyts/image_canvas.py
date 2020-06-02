@@ -35,6 +35,18 @@ class VariableMeshModel(ipywidgets.Widget):
 
 @ipywidgets.register
 class FRBModel(ipywidgets.Widget):
+    _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
+    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    width = traitlets.Int(512).tag(sync=True)
+    height = traitlets.Int(512).tag(sync=True)
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync = True,
+            **widget_serialization)
+    view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
+    view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
+
+@ipywidgets.register
+class WidgytsCanvasViewer(ipycanvas.Canvas):
     """View of a fixed resolution buffer.
 
     FRBViewer(width, height, px, py, pdx, pdy, val)
@@ -87,18 +99,6 @@ class FRBModel(ipywidgets.Widget):
     >>> display(frb1)
 
     """
-    _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
-    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
-    width = traitlets.Int(512).tag(sync=True)
-    height = traitlets.Int(512).tag(sync=True)
-    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync = True,
-            **widget_serialization)
-    view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
-    view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
-
-@ipywidgets.register
-class WidgytsCanvasViewer(ipycanvas.Canvas):
     min_val = traitlets.CFloat().tag(sync=True)
     max_val = traitlets.CFloat().tag(sync=True)
     is_log = traitlets.Bool().tag(sync=True)
@@ -228,6 +228,17 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
         # print("width of frame is: {}".format(width))
         # print("old edges: {} \n new edges:{}".format(ce, new_bounds))
 
+    @classmethod
+    def from_obj(cls, obj, field = "density"):
+        vm = {_: obj[_].tobytes() for _ in ('px', 'py', 'pdx', 'pdy')}
+        vm['val'] = obj[field].tobytes()
+        vmm = VariableMeshModel(**vm)
+        frb = FRBModel(variable_mesh_model = vmm)
+        cmc = ColormapContainer()
+        mi, ma = obj[field].min(), obj[field].max()
+        wc = cls(min_val = mi, max_val = ma, frb_model = frb,
+                 variable_mesh_model = vmm, colormaps = cmc)
+        return wc
 
 def display_yt(data_object, field):
     # Note what we are doing here: we are taking *views* of these,
