@@ -226,6 +226,8 @@ export class WidgytsCanvasView extends CanvasView {
     locked: boolean;
     drag: boolean;
     dragStart: [number, number];
+    dragStartCenter: [number, number];
+    frbWidth: [number, number];
 
     setupEventListeners() {
       this.model.frb_model.on_some_change(['width', 'height'],
@@ -244,10 +246,19 @@ export class WidgytsCanvasView extends CanvasView {
     startDrag(event: MouseEvent) {
       this.drag = true;
       this.dragStart = [event.offsetX, event.offsetY];
+      this.dragStartCenter = this.model.frb_model.get("view_center");
     }
 
     conductDrag(event: MouseEvent) {
       if (!this.drag) return;
+      let shiftValue: [number, number] = [event.offsetX - this.dragStart[0], event.offsetY - this.dragStart[1]];
+      // Now we shift the actual center
+      let view_width: [number, number] = this.model.frb_model.get("view_width");
+      let dx = view_width[0] / this.frbWidth[0]; // note these are FRB dims, which are *pixel* dims, not display dims
+      let dy = view_width[1] / this.frbWidth[1] * -1; // origin is upper left, so flip dy
+      let new_view_center: [number, number] = [this.dragStartCenter[0] - dx * shiftValue[0],
+                                               this.dragStartCenter[1] - dy * shiftValue[1]];
+      this.model.frb_model.set("view_center", new_view_center);
     }
 
     endDrag(event: MouseEvent) {
@@ -310,6 +321,7 @@ export class WidgytsCanvasView extends CanvasView {
         //console.log("frb initialized; creating new clamped array and image");
         let width = this.model.frb_model.get('width');
         let height = this.model.frb_model.get('height');
+        this.frbWidth = [width, height];
         let npix = width * height;
         // Times four so that we have one for *each* channel :)
         this.image_buffer = new Uint8ClampedArray(npix * 4);
