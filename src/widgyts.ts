@@ -238,9 +238,30 @@ export class WidgytsCanvasView extends CanvasView {
         this.updateBitmap, this);
       this.model.on_some_change(['min_val', 'max_val', 'colormap_name',
         'is_log'], this.dirtyBitmap, this);
+      this.canvas.addEventListener("wheel", this.conductZoom.bind(this));
       this.canvas.addEventListener("mousedown", this.startDrag.bind(this));
       this.canvas.addEventListener("mousemove", this.conductDrag.bind(this));
       window.addEventListener("mouseup", this.endDrag.bind(this));
+    }
+
+    conductZoom(event: WheelEvent) {
+      event.preventDefault();
+      let view_width: [number, number] = this.model.frb_model.get("view_width");
+      let n_units: number = 0;
+      if(event.deltaMode == event.DOM_DELTA_PIXEL) {
+        // let's say we have 10 units per image
+        n_units = event.deltaY / (this.frbWidth[1] / 10);
+      } else if (event.deltaMode == event.DOM_DELTA_LINE) {
+        // two lines per unit let's say
+        n_units = event.deltaY / 2;
+      } else if (event.deltaMode == event.DOM_DELTA_PAGE) {
+        // yeah i don't know
+        return;
+      }
+      let zoomFactor: number = 1.1 ** n_units;
+      let new_view_width: [number, number] = [view_width[0] * zoomFactor, view_width[1] * zoomFactor];
+      this.model.frb_model.set("view_width", new_view_width);
+      this.model.frb_model.save_changes();
     }
 
     startDrag(event: MouseEvent) {
@@ -264,6 +285,7 @@ export class WidgytsCanvasView extends CanvasView {
     endDrag(event: MouseEvent) {
       if (!this.drag) return;
       this.drag = false;
+      this.model.frb_model.save_changes();
     }
 
     dirtyBitmap() {
