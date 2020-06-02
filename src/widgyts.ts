@@ -309,13 +309,13 @@ export class WidgytsCanvasView extends CanvasView {
        * also means greater control.
        */
       this.clear()
-      if (this.model.canvas !== undefined) {
-        //console.log("Drawing this.model.canvas");
-        this.ctx.drawImage(this.model.canvas, 0, 0);
-      }
       if (this.image_bitmap !== undefined) {
         //console.log("Drawing this.image_bitmap");
         this.ctx.drawImage(this.image_bitmap, 0, 0);
+      }
+      if (this.model.canvas !== undefined) {
+        //console.log("Drawing this.model.canvas");
+        this.ctx.drawImage(this.model.canvas, 0, 0);
       }
     }
 
