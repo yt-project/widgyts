@@ -65,8 +65,12 @@ setup_args = dict(
     packages=setuptools.find_packages(),
     install_requires=[
         "jupyterlab~=2.0",
-        'ipydatawidgets>=3.2.0',
-        'yt'
+        "ipycanvas>=0.4.7",
+        "ipywidgets>=7.5.1",
+        "matplotlib>=3.2.1",
+        "numpy>=1.14",
+        "traitlets>=4.3.3",
+        "yt>=3.5.1"
     ],
     zip_safe=False,
     include_package_data=True,
