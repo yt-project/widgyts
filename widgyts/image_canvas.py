@@ -5,7 +5,7 @@ import numpy as np
 from ipywidgets import widget_serialization
 from ipywidgets.widgets.trait_types import bytes_serialization
 
-from .colormaps.colormaps import ColormapContainer
+from .colormaps import ColormapContainer
 
 from yt.data_objects.selection_data_containers import \
         YTSlice
