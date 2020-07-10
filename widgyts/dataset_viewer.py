@@ -2,6 +2,8 @@ import numpy as np
 import pythreejs
 import traitlets
 import ipywidgets
+import matplotlib.cm as mcm
+import matplotlib.colors as mcolors
 from yt.data_objects.api import Dataset
 
 
@@ -16,7 +18,21 @@ class DatasetViewer(traitlets.HasTraits):
 
 
 class DomainViewer(DatasetViewerComponent):
-    pass
+    domain_axes = traitlets.Instance(pythreejs.AxesHelper)
+
+    @traitlets.default("domain_axes")
+    def _domain_axes_default(self):
+        offset_vector = (self.ds.domain_left_edge - self.ds.domain_center) * 0.1
+        position = tuple(
+            (self.ds.domain_left_edge + offset_vector).in_units("code_length").d
+        )
+        # We probably don't want to use the AxesHelper as it doesn't expose the
+        # material, which can result in it not being easy to see.  But for now...
+        ah = pythreejs.AxesHelper(
+            position=position,
+            scale=tuple(self.ds.domain_width.in_units("code_length").d),
+        )
+        return ah
 
 
 _CORNER_INDICES = np.array(
@@ -33,7 +49,11 @@ class AMRDomainViewer(DomainViewer):
     def _grid_views_default(self):
         # This needs to generate the geometries and access the materials
         grid_views = []
+        cmap = mcm.get_cmap("inferno")
         for level in range(self.ds.max_level + 1):
+            # We truncate at half of the colormap so that we just get a slight
+            # linear progression
+            color = mcolors.to_hex(cmap(0.5 * level / self.ds.max_level))
             # Corners is shaped like 8, 3, NGrids
             this_level = self.ds.index.grid_levels[:, 0] == level
             corners = np.rollaxis(
@@ -51,7 +71,9 @@ class AMRDomainViewer(DomainViewer):
                     index=pythreejs.BufferAttribute(array=indices, normalized=False),
                 )
             )
-            material = pythreejs.LineBasicMaterial(color="red", linewidth=1)
+            material = pythreejs.LineBasicMaterial(
+                color=color, linewidth=1, linecap="round", linejoin="round"
+            )
             segments = pythreejs.LineSegments(geometry=geometry, material=material)
             grid_views.append(segments)
         return grid_views
@@ -82,6 +104,7 @@ class AMRDomainViewer(DomainViewer):
             height=500,
             background="black",
             background_opacity=1,
+            antialias=True,
         )
         camera.lookAt(center)
         orbit_control.target = center
@@ -89,15 +112,31 @@ class AMRDomainViewer(DomainViewer):
 
     def widget(self):
         # Alright let's set this all up.
-        vbox_contents = []
-        for view in self.grid_views:
-            color_picker = ipywidgets.ColorPicker(value=view.material.color)
+        grid_contents = []
+        for i, view in enumerate(self.grid_views):
+            visible = ipywidgets.Checkbox(
+                value=view.visible, description="Level {}".format(i)
+            )
+            ipywidgets.jslink((visible, "value"), (view, "visible"))
+            color_picker = ipywidgets.ColorPicker(
+                value=view.material.color, concise=True
+            )
             ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
             line_slider = ipywidgets.FloatSlider(
-                value=view.material.linewidth, min=0.0, max=2.5
+                value=view.material.linewidth, min=0.0, max=10.0
             )
             ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
-            visible = ipywidgets.Checkbox(value=view.visible)
-            ipywidgets.jslink((visible, "value"), (view, "visible"))
-            vbox_contents.append(ipywidgets.HBox([visible, color_picker, line_slider]))
-        return ipywidgets.HBox([self.renderer, ipywidgets.VBox(vbox_contents)])
+            grid_contents.extend([visible, color_picker, line_slider])
+        return ipywidgets.HBox(
+            [
+                self.renderer,
+                ipywidgets.GridBox(
+                    grid_contents,
+                    layout=ipywidgets.Layout(
+                        width=r"50%",
+                        grid_template_columns=r"30% 10% auto",
+                        align_items="stretch",
+                    ),
+                ),
+            ]
+        )
