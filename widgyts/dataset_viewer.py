@@ -1,7 +1,9 @@
 import numpy as np
+import json
 import pythreejs
 import traitlets
 import ipywidgets
+from IPython.display import display, JSON
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 from yt.data_objects.api import Dataset
@@ -16,9 +18,36 @@ class DatasetViewer(traitlets.HasTraits):
     ds = traitlets.Instance(Dataset)
     components = traitlets.List(trait=traitlets.Instance(DatasetViewerComponent))
 
+    @traitlets.default("components")
+    def _components_default(self):
+        adv = AMRDomainViewer(ds=self.ds, viewer=self)
+        fdv = FieldDefinitionViewer(ds=self.ds, viewer=self)
+        pv = ParametersViewer(ds=self.ds, viewer=self)
+        return [adv, fdv, pv]
+
+    def widget(self):
+        tab = ipywidgets.Tab(
+            children=[_.widget() for _ in self.components],
+            layout=ipywidgets.Layout(height="500px"),
+        )
+        for i, c in enumerate(self.components):
+            tab.set_title(i, c.name)
+        return tab
+
+
+class FieldDefinitionViewer(DatasetViewerComponent):
+    name = "Fields"
+
+    def widget(self):
+        out = ipywidgets.Output()
+        with out:
+            display(self.ds.fields)
+        return out
+
 
 class DomainViewer(DatasetViewerComponent):
     domain_axes = traitlets.Instance(pythreejs.AxesHelper)
+    name = "Domain Viewer"
 
     @traitlets.default("domain_axes")
     def _domain_axes_default(self):
@@ -100,8 +129,8 @@ class AMRDomainViewer(DomainViewer):
             scene=scene,
             camera=camera,
             controls=[orbit_control],
-            width=500,
-            height=500,
+            width=400,
+            height=400,
             background="black",
             background_opacity=1,
             antialias=True,
@@ -140,3 +169,30 @@ class AMRDomainViewer(DomainViewer):
                 ),
             ]
         )
+
+
+# https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+
+class ParametersViewer(DatasetViewerComponent):
+    name = "Parameters"
+
+    def widget(self):
+        # We round-trip through a JSON encoder
+        dumped = json.dumps(self.ds.parameters, cls=NumpyEncoder, sort_keys=True)
+        loaded = json.loads(dumped)
+        out = ipywidgets.Output()
+        with out:
+            display(JSON(loaded, root="Parameters", expanded=False))
+        return out
