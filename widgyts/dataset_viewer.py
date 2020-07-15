@@ -7,6 +7,7 @@ from IPython.display import display, JSON
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 from yt.data_objects.api import Dataset
+from yt.units.yt_array import display_ytarray
 
 
 class DatasetViewerComponent(traitlets.HasTraits):
@@ -73,6 +74,8 @@ _CORNER_INDICES = np.array(
 class AMRDomainViewer(DomainViewer):
     grid_views = traitlets.List(trait=traitlets.Instance(pythreejs.LineSegments))
     renderer = traitlets.Instance(pythreejs.Renderer)
+    r2_falloff = traitlets.Instance(pythreejs.Texture)
+    colormap_texture = traitlets.Instance(pythreejs.Texture)
 
     @traitlets.default("grid_views")
     def _grid_views_default(self):
@@ -107,6 +110,27 @@ class AMRDomainViewer(DomainViewer):
             grid_views.append(segments)
         return grid_views
 
+    @traitlets.default("r2_falloff")
+    def _r2_falloff_default(self):
+        x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
+        r = (x**2 + y**2)**-0.5
+        r = np.clip(r, 0.0, 5.0)
+        r = (r - r.min())/(r.max() - r.min())
+        image_data = np.empty((32,32,4), dtype="f4")
+        image_data[:,:,:3] = r[:,:,None]
+        image_data[:,:,3] = 1.0
+        image_data = (image_data*255).astype("u1")
+        image_texture = pythreejs.BaseDataTexture(data=image_data)
+
+    @traitlets.default("colormap_texture")
+    def _colormap_texture_default(self):
+         import matplotlib.cm as mcm
+         viridis = mcm.get_cmap("viridis")
+         values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
+         values = np.stack([values[:,:],] * 256, axis=1).copy(order="C")
+         colormap_texture = pythreejs.BaseDataTexture(data = values)
+         return colormap_texture
+
     @traitlets.default("renderer")
     def _renderer_default(self):
         center = tuple(self.ds.domain_center.in_units("code_length").d)
@@ -137,6 +161,7 @@ class AMRDomainViewer(DomainViewer):
         )
         camera.lookAt(center)
         orbit_control.target = center
+        renderer.layout.border = "1px solid darkgrey"
         return renderer
 
     def widget(self):
@@ -189,10 +214,39 @@ class ParametersViewer(DatasetViewerComponent):
     name = "Parameters"
 
     def widget(self):
-        # We round-trip through a JSON encoder
+        # This is ugly right now; need to get the labels all the same size
+        stats = ipywidgets.VBox(
+            [
+                ipywidgets.HBox(
+                    [
+                        ipywidgets.Label(
+                            "Domain Left Edge", layout=ipywidgets.Layout(width="20%")
+                        ),
+                        display_ytarray(self.ds.domain_left_edge),
+                    ]
+                ),
+                ipywidgets.HBox(
+                    [
+                        ipywidgets.Label(
+                            "Domain Right Edge", layout=ipywidgets.Layout(width="20%")
+                        ),
+                        display_ytarray(self.ds.domain_right_edge),
+                    ]
+                ),
+                ipywidgets.HBox(
+                    [
+                        ipywidgets.Label(
+                            "Domain Width", layout=ipywidgets.Layout(width="20%")
+                        ),
+                        display_ytarray(self.ds.domain_width),
+                    ]
+                ),
+            ]
+        )
+        # We round-trip through a JSON encoder to recursively convert stuff to lists
         dumped = json.dumps(self.ds.parameters, cls=NumpyEncoder, sort_keys=True)
         loaded = json.loads(dumped)
         out = ipywidgets.Output()
         with out:
             display(JSON(loaded, root="Parameters", expanded=False))
-        return out
+        return ipywidgets.VBox([stats, out])
