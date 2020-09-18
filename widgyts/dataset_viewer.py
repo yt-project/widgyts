@@ -76,6 +76,7 @@ class AMRDomainViewer(DomainViewer):
     renderer = traitlets.Instance(pythreejs.Renderer)
     r2_falloff = traitlets.Instance(pythreejs.Texture)
     colormap_texture = traitlets.Instance(pythreejs.Texture)
+    cmap_truncate = traitlets.CFloat(0.5)
 
     @traitlets.default("grid_views")
     def _grid_views_default(self):
@@ -85,7 +86,7 @@ class AMRDomainViewer(DomainViewer):
         for level in range(self.ds.max_level + 1):
             # We truncate at half of the colormap so that we just get a slight
             # linear progression
-            color = mcolors.to_hex(cmap(0.5 * level / self.ds.max_level))
+            color = mcolors.to_hex(cmap(self.cmap_truncate * level / self.ds.max_level))
             # Corners is shaped like 8, 3, NGrids
             this_level = self.ds.index.grid_levels[:, 0] == level
             corners = np.rollaxis(
@@ -124,7 +125,6 @@ class AMRDomainViewer(DomainViewer):
 
     @traitlets.default("colormap_texture")
     def _colormap_texture_default(self):
-         import matplotlib.cm as mcm
          viridis = mcm.get_cmap("viridis")
          values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
          values = np.stack([values[:,:],] * 256, axis=1).copy(order="C")

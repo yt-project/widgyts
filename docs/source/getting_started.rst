@@ -25,10 +25,11 @@ The ``DatasetViewer`` has a list of ``components`` that are all displayed; this
 automatically includes a viewer for the ``ds.parameters`` object and a viewer
 for the fields and some other metadata about the dataset.  You can append any
 ``ipywidgets`` component to have it viewed inline, but we also anticipate this
-being the place that additional widgets and functionality will be added to
+being a place that additional widgets and functionality will be added to
 widgyts.
 
-Unlike the variable mesh viewer, the ``DatasetViewer`` needs to be both instantiated explicitly and the ``widget()`` method called on it:
+Unlike the variable mesh viewer, the ``DatasetViewer`` needs to be both
+instantiated explicitly and the ``widget()`` method called on it:
 
 .. code:: python
 
