@@ -10,6 +10,12 @@ from yt.data_objects.api import Dataset
 from yt.units.yt_array import display_ytarray
 
 
+_CORNER_INDICES = np.array(
+    [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7],
+    dtype="uint32",
+)
+
+
 class DatasetViewerComponent(traitlets.HasTraits):
     ds = traitlets.Instance(Dataset)
     viewer = traitlets.ForwardDeclaredInstance("DatasetViewer")
@@ -63,12 +69,6 @@ class DomainViewer(DatasetViewerComponent):
             scale=tuple(self.ds.domain_width.in_units("code_length").d),
         )
         return ah
-
-
-_CORNER_INDICES = np.array(
-    [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7],
-    dtype="uint32",
-)
 
 
 class AMRDomainViewer(DomainViewer):
