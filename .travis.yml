@@ -2,9 +2,9 @@
 language: python
 dist: xenial
 python:
-    - 3.5
     - 3.6
     - 3.7
+    - 3.8
 addons: 
   firefox: latest
 cache: 
@@ -19,6 +19,7 @@ before_install:
 install:
     - pip install pytest pytest-cov 
     - pip install codecov
+    - pip install -r tests/test_requirements.txt
     - pip install -e .
 
 # Command that runs the tests
