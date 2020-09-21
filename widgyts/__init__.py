@@ -1,6 +1,12 @@
 from ._version import version_info, __version__
 
 from .image_canvas import *
+from .dataset_viewer import (
+    DatasetViewer,
+    AMRDomainViewer,
+    FieldDefinitionViewer,
+    ParametersViewer
+)
 
 def _jupyter_nbextension_paths():
     return [{

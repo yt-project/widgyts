@@ -7,8 +7,13 @@ from ipywidgets import widget_serialization
 
 from .colormaps.colormaps import ColorMaps
 
-from yt.data_objects.selection_data_containers import \
+try:
+    from yt.data_objects.selection_objects import \
         YTSlice
+except ImportError:
+    from yt.data_objects.selection_data_containers import \
+        YTSlice
+
 from yt.data_objects.construction_data_containers import \
         YTQuadTreeProj
 from yt.visualization.fixed_resolution import \

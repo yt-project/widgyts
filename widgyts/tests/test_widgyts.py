@@ -5,7 +5,7 @@ from unittest import TestCase
 from yt.testing import fake_amr_ds
 from numpy import array_equal
 
-from widgyts import FRBViewer
+from widgyts import FRBViewer, DatasetViewer, AMRDomainViewer
 
 from traitlets import HasTraits, TraitError
 
@@ -124,3 +124,28 @@ class TestColormaps(TestCase):
         for trait in trait_list:
             assert self.frb_dens.colormaps.has_trait(trait)
 
+
+class TestDatasetViewer(TestCase):
+
+    def setUp(self):
+        ds = fake_amr_ds()
+        self.viewer = DatasetViewer(ds = ds)
+
+    def test_component_traits(self):
+        trait_list = ['ds', 'components']
+        for trait in trait_list:
+            assert self.viewer.has_trait(trait)
+
+        # This should also have an AMR domain viewer
+
+        assert len(self.viewer.components) == 3
+
+    def test_amr_data_viewer(self):
+
+        assert isinstance(self.viewer.components[0], AMRDomainViewer)
+        adv = self.viewer.components[0]
+
+        trait_list = ['domain_axes', 'grid_views', 'renderer',
+                      'cmap_truncate']
+        for trait in trait_list:
+            assert adv.has_trait(trait)

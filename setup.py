@@ -150,7 +150,8 @@ setup_args = {
     'install_requires': [
         'ipywidgets>=7.0.0',
         'ipydatawidgets>=3.2.0',
-        'yt'
+        'yt',
+        'pythreejs>=2.2.0'
     ],
     'packages': find_packages(),
     'zip_safe': False,
