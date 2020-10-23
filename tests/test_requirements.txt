@@ -1,0 +1,4 @@
+ipywidgets>=7.0.0
+ipydatawidgets>=3.2.0
+yt
+matplotlib<=3.1.3

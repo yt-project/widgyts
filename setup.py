@@ -67,10 +67,10 @@ setup_args = dict(
         "jupyterlab~=2.0",
         "ipycanvas>=0.4.7",
         "ipywidgets>=7.5.1",
-        "matplotlib>=3.2.1",
         "numpy>=1.14",
         "traitlets>=4.3.3",
-        "yt>=3.5.1"
+        "yt>=3.5.1",
+        "pythreejs>=2.2.0"
     ],
     zip_safe=False,
     include_package_data=True,
@@ -86,7 +86,6 @@ setup_args = dict(
         "Topic :: Multimedia :: Graphics",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

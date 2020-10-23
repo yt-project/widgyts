@@ -12,3 +12,4 @@ workflow.
   conjunction with yt's data manipulation features. It illustrates some
   traitlet manipulation in the Colormaps module as well as traitlet linking
   between views of different fields. 
+- ``datasetviewer_tutorial.ipynb`` shows how to use the dataset viewer.
