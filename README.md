@@ -1,8 +1,6 @@
 widgyts
 ===============================
 
-[![Build
-Status](https://travis-ci.org/data-exp-lab/widgyts.svg?branch=master)](https://travis-ci.org/data-exp-lab/widgyts)
 [![Documentation
 Status](https://readthedocs.org/projects/widgyts/badge/?version=latest)](https://widgyts.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/data-exp-lab/widgyts/branch/master/graph/badge.svg)](https://codecov.io/gh/data-exp-lab/widgyts)
