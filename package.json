@@ -1,0 +1,92 @@
+{
+  "name": "@data-exp-lab/yt-widgets",
+  "version": "0.4.0",
+  "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
+  "author": "Data Exploration Lab",
+  "contributors": [
+    {
+      "name": "Nathanael Claussen",
+      "email": "nclauss2@illinois.edu"
+    },
+    {
+      "name": "Madicken Munk",
+      "email": "madicken.munk@gmail.com"
+    },
+    {
+      "name": "Matthew Turk",
+      "email": "matthewturk@gmail.com"
+    }
+  ],
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/data-exp-lab/widgyts",
+  "bugs": {
+    "url": "https://github.com/data-exp-lab/widgyts/issues"
+  },
+  "license": "BSD-3-Clause",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf,wasm}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/data-exp-lab/widgyts.git"
+  },
+  "scripts": {
+    "build": "jlpm run build:lib",
+    "build:labextension": "cd widgyts && rimraf labextension && mkdirp labextension && cd labextension && npm pack ../..",
+    "build:lib": "tsc",
+    "build:all": "jlpm run build:labextension",
+    "clean": "jlpm run clean:lib",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:labextension": "rimraf widgyts/labextension",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
+    "prepare": "jlpm run clean && jlpm run build",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@data-exp-lab/yt-tools": "^0.3.0",
+    "@jupyterlab/application": "^2.0.0",
+    "@jupyterlab/coreutils": "^4.0.0",
+    "@jupyterlab/mainmenu": "^2.1.1",
+    "@jupyterlab/services": "^5.0.0",
+    "@lumino/widgets": "^1.13.0",
+    "@types/node": "^14.0.5",
+    "ipycanvas": "^0.4.7"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "mkdirp": "^1.0.3",
+    "prettier": "1.16.4",
+    "rimraf": "^2.6.1",
+    "typescript": "^3.9.3"
+  },
+  "sideEffects": [
+    "style/*.css"
+  ],
+  "jupyterlab": {
+    "discovery": {
+      "server": {
+        "managers": [
+          "pip"
+        ],
+        "base": {
+          "name": "widgyts"
+        }
+      }
+    },
+    "extension": "lib/plugin"
+  }
+}

@@ -1,3 +1,15 @@
+*.bundle.*
+lib/
+node_modules/
+*.egg-info/
+.ipynb_checkpoints
+*.tsbuildinfo
+
+*/labextension/*.tgz
+# Created by https://www.gitignore.io/api/python
+# Edit at https://www.gitignore.io/?templates=python
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -8,18 +20,20 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
+lib/
+lib64/
 parts/
 sdist/
 var/
 wheels/
-*.egg-info/
+pip-wheel-metadata/
+share/python-wheels/
 .installed.cfg
 *.egg
 node_modules/
@@ -102,3 +116,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+.vscode/settings.json

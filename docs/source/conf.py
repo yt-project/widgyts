@@ -48,7 +48,12 @@ extensions = [
     'nbsphinx',
     'jupyter_sphinx.execute',
     'IPython.sphinxext.ipython_console_highlighting',
+    'sphinx.ext.intersphinx'
 ]
+
+intersphinx_mapping = {
+    'ipycanvas': ('https://ipycanvas.readthedocs.io/en/latest/', None),
+}
 
 nbsphinx_allow_errors = True   # exception ipstruct.py ipython_genutils
 

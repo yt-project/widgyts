@@ -1,11 +1,11 @@
 import ipywidgets as ipywidgets
+import ipycanvas
 import traitlets
-from ipydatawidgets import DataUnion, shape_constraints, \
-        data_union_serialization
 import numpy as np
 from ipywidgets import widget_serialization
+from ipywidgets.widgets.trait_types import bytes_serialization
 
-from .colormaps.colormaps import ColorMaps
+from .colormaps import ColormapContainer
 
 try:
     from yt.data_objects.selection_objects import \
@@ -22,26 +22,56 @@ from yt.funcs import \
         ensure_list
 from ._version import EXTENSION_VERSION
 
-rgba_image_shape = shape_constraints(None, None, 4)
-vmesh_shape = shape_constraints(None)
-
 @ipywidgets.register
-class ImageCanvas(ipywidgets.DOMWidget):
-    """An example widget."""
-    _view_name = traitlets.Unicode('ImageCanvasView').tag(sync=True)
-    _model_name = traitlets.Unicode('ImageCanvasModel').tag(sync=True)
-    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+class VariableMeshModel(ipywidgets.Widget):
+    _model_name = traitlets.Unicode('VariableMeshModel').tag(sync=True)
     _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
-    image_array = DataUnion(dtype=np.uint8,
-            shape_constraint=rgba_image_shape).tag(sync=True,
-                    **data_union_serialization)
-    width = traitlets.Int(256).tag(sync=True)
-    height = traitlets.Int(256).tag(sync=True)
+    px = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    py = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    pdx = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    pdy = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+    val = traitlets.Bytes(allow_none = False).tag(
+            sync = True, **bytes_serialization)
+
+    @property
+    def _px(self):
+        return np.frombuffer(self.px, dtype='f8')
+
+    @property
+    def _py(self):
+        return np.frombuffer(self.py, dtype='f8')
+
+    @property
+    def _pdx(self):
+        return np.frombuffer(self.pdx, dtype='f8')
+
+    @property
+    def _pdy(self):
+        return np.frombuffer(self.pdy, dtype='f8')
+
+    @property
+    def _val(self):
+        return np.frombuffer(self.val, dtype='f8')
 
 @ipywidgets.register
-class FRBViewer(ipywidgets.DOMWidget):
+class FRBModel(ipywidgets.Widget):
+    _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
+    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    width = traitlets.Int(512).tag(sync=True)
+    height = traitlets.Int(512).tag(sync=True)
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync = True,
+            **widget_serialization)
+    view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
+    view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
+
+@ipywidgets.register
+class WidgytsCanvasViewer(ipycanvas.Canvas):
     """View of a fixed resolution buffer.
 
     FRBViewer(width, height, px, py, pdx, pdy, val)
@@ -94,42 +124,28 @@ class FRBViewer(ipywidgets.DOMWidget):
     >>> display(frb1)
 
     """
-    _view_name = traitlets.Unicode('FRBView').tag(sync=True)
-    _model_name = traitlets.Unicode('FRBModel').tag(sync=True)
-    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
-    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
-    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
-    width = traitlets.Int(512).tag(sync=True)
-    height = traitlets.Int(512).tag(sync=True)
-    px = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    py = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    pdx = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    pdy = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    val = DataUnion(dtype=np.float64,
-            shape_constraint=vmesh_shape).tag(sync = True,
-                    **data_union_serialization)
-    colormaps = traitlets.Instance(ColorMaps).tag(sync = True,
+    min_val = traitlets.CFloat().tag(sync=True)
+    max_val = traitlets.CFloat().tag(sync=True)
+    is_log = traitlets.Bool().tag(sync=True)
+    colormap_name = traitlets.Unicode("viridis").tag(sync=True)
+    colormaps = traitlets.Instance(ColormapContainer).tag(sync = True,
             **widget_serialization)
-    view_center = traitlets.Tuple((0.5, 0.5)).tag(sync=True, config=True)
-    view_width = traitlets.Tuple((0.2, 0.2)).tag(sync=True, config=True)
+    frb_model = traitlets.Instance(FRBModel).tag(sync=True,
+            **widget_serialization)
+    variable_mesh_model = traitlets.Instance(VariableMeshModel).tag(sync=True,
+            **widget_serialization)
+
+    _model_name = traitlets.Unicode('WidgytsCanvasModel').tag(sync=True)
+    _model_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    _view_name = traitlets.Unicode('WidgytsCanvasView').tag(sync=True)
+    _view_module = traitlets.Unicode('@data-exp-lab/yt-widgets').tag(sync=True)
+    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
 
     @traitlets.default('layout')
     def _layout_default(self):
         return ipywidgets.Layout(width = '{}px'.format(self.width),
                                  height ='{}px'.format(self.height))
-
-    @traitlets.default('colormaps')
-    def _colormap_load(self):
-        return ColorMaps()
 
     def setup_controls(self):
         down = ipywidgets.Button(icon="arrow-down",
@@ -140,26 +156,30 @@ class FRBViewer(ipywidgets.DOMWidget):
                 layout=ipywidgets.Layout(width='auto', grid_area="right"))
         left = ipywidgets.Button(icon="arrow-left",
                 layout=ipywidgets.Layout(width='auto', grid_area="left"))
-        zoom_start = 1./(self.view_width[0])
+        zoom_start = 1./(self.frb_model.view_width[0])
         # By setting the dynamic range to be the ratio between coarsest and
         # finest, we ensure that at the fullest zoom, our smallest point will
         # be the size of our biggest point at the outermost zoom.
-        dynamic_range = (max(self.pdx.max(), self.pdy.max()) /
-                         min(self.pdx.min(), self.pdy.min()))
+        dynamic_range = (max(self.variable_mesh_model._pdx.max(),
+                             self.variable_mesh_model._pdy.max()) /
+                         min(self.variable_mesh_model._pdx.min(),
+                             self.variable_mesh_model._pdy.min()))
 
         zoom = ipywidgets.FloatSlider(min=0.5, max=dynamic_range, step=0.1,
                 value=zoom_start, description="Zoom",
                 layout=ipywidgets.Layout(width="auto", grid_area="zoom"))
         is_log = ipywidgets.Checkbox(value=False, description="Log colorscale")
         colormaps = ipywidgets.Dropdown(
-                options=list(self.colormaps.cmaps.keys()),
+                options=list(self.colormaps.colormap_values.keys()),
                 description="colormap",
                 value = "viridis")
+        mi = self.variable_mesh_model._val.min()
+        ma = self.variable_mesh_model._val.max()
         min_val = ipywidgets.BoundedFloatText(description="lower colorbar bound:",
-                value=self.val.min(), min=self.val.min(), max=self.val.max())
+                value=mi, min=mi, max=ma)
         max_val = ipywidgets.BoundedFloatText(description="upper colorbar bound:",
-                value=self.val.max(), min=self.val.min(), max=self.val.max())
-        minmax = ipywidgets.FloatRangeSlider(min=self.val.min(), max=self.val.max())
+                value=ma, min=mi, max=ma)
+        minmax = ipywidgets.FloatRangeSlider(min=mi, max=ma)
 
 
         down.on_click(self.on_ydownclick)
@@ -168,13 +188,13 @@ class FRBViewer(ipywidgets.DOMWidget):
         left.on_click(self.on_xleftclick)
         zoom.observe(self.on_zoom, names='value')
         # These can be jslinked, so we will do so.
-        ipywidgets.jslink((is_log, 'value'), (self.colormaps, 'is_log'))
-        ipywidgets.jslink((min_val, 'value'), (self.colormaps, 'min_val'))
-        ipywidgets.link((min_val, 'value'), (self.colormaps, 'min_val'))
-        ipywidgets.jslink((max_val, 'value'), (self.colormaps, 'max_val'))
-        ipywidgets.link((max_val, 'value'), (self.colormaps, 'max_val'))
+        ipywidgets.jslink((is_log, 'value'), (self, 'is_log'))
+        ipywidgets.jslink((min_val, 'value'), (self, 'min_val'))
+        ipywidgets.link((min_val, 'value'), (self, 'min_val'))
+        ipywidgets.jslink((max_val, 'value'), (self, 'max_val'))
+        ipywidgets.link((max_val, 'value'), (self, 'max_val'))
         # This one seemingly cannot be.
-        ipywidgets.link((colormaps, 'value'), (self.colormaps, 'map_name'))
+        ipywidgets.link((colormaps, 'value'), (self, 'colormap_name'))
 
         nav_buttons = ipywidgets.GridBox(children = [up, left, right, down],
                          layout=ipywidgets.Layout(width='100%',
@@ -211,32 +231,43 @@ class FRBViewer(ipywidgets.DOMWidget):
         return accordion
 
     def on_xrightclick(self, b):
-        vc = self.view_center
-        self.view_center = ((vc[0]+0.01),vc[1])
+        vc = self.frb_model.view_center
+        self.frb_model.view_center = ((vc[0]+0.01),vc[1])
 
     def on_xleftclick(self, b):
-        vc = self.view_center
-        self.view_center = ((vc[0]-0.01),vc[1])
+        vc = self.frb_model.view_center
+        self.frb_model.view_center = ((vc[0]-0.01),vc[1])
 
     def on_yupclick(self, b):
-        vc = self.view_center
-        self.view_center = (vc[0],(vc[1]+0.01))
+        vc = self.frb_model.view_center
+        self.frb_model.view_center = (vc[0],(vc[1]+0.01))
 
     def on_ydownclick(self, b):
-        vc = self.view_center
-        self.view_center = (vc[0],(vc[1]-0.01))
+        vc = self.frb_model.view_center
+        self.frb_model.view_center = (vc[0],(vc[1]-0.01))
 
     def on_zoom(self, change):
-        vw = self.view_width
+        vw = self.frb_model.view_width
         width_x = 1.0/change["new"]
         ratio = width_x/vw[0]
         width_y = vw[1]*ratio
-        self.view_width = (width_x, width_y)
+        self.frb_model.view_width = (width_x, width_y)
         # print("canvas center is at: {}".format(center))
         # print("zoom value is: {}".format(change["new"]))
         # print("width of frame is: {}".format(width))
         # print("old edges: {} \n new edges:{}".format(ce, new_bounds))
 
+    @classmethod
+    def from_obj(cls, obj, field = "density"):
+        vm = {_: obj[_].tobytes() for _ in ('px', 'py', 'pdx', 'pdy')}
+        vm['val'] = obj[field].tobytes()
+        vmm = VariableMeshModel(**vm)
+        frb = FRBModel(variable_mesh_model = vmm)
+        cmc = ColormapContainer()
+        mi, ma = obj[field].min(), obj[field].max()
+        wc = cls(min_val = mi, max_val = ma, frb_model = frb,
+                 variable_mesh_model = vmm, colormaps = cmc)
+        return wc
 
 def display_yt(data_object, field):
     # Note what we are doing here: we are taking *views* of these,
