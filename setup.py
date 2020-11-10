@@ -3,16 +3,20 @@ Setup Module to setup Python Handlers for the widgyts extension.
 """
 import os
 
-from jupyter_packaging import (
-    create_cmdclass, install_npm, ensure_targets,
-    combine_commands, ensure_python, get_version,
-)
 import setuptools
+from jupyter_packaging import (
+    combine_commands,
+    create_cmdclass,
+    ensure_python,
+    ensure_targets,
+    get_version,
+    install_npm,
+)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # The name of the project
-name="widgyts"
+name = "widgyts"
 
 # Ensure a valid python version
 ensure_python(">=3.5")
@@ -27,26 +31,19 @@ jstargets = [
     os.path.join(HERE, "lib", "widgyts.js"),
 ]
 
-package_data_spec = {
-    name: [
-        "*"
-    ]
-}
+package_data_spec = {name: ["*"]}
 
 data_files_spec = [
     ("share/jupyter/lab/extensions", lab_path, "*.tgz"),
-    ("etc/jupyter/jupyter_notebook_config.d",
-     "jupyter-config", "widgyts.json"),
+    ("etc/jupyter/jupyter_notebook_config.d", "jupyter-config", "widgyts.json"),
 ]
 
-cmdclass = create_cmdclass("jsdeps", 
-    package_data_spec=package_data_spec,
-    data_files_spec=data_files_spec
+cmdclass = create_cmdclass(
+    "jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec
 )
 
 cmdclass["jsdeps"] = combine_commands(
-    install_npm(HERE, build_cmd="build:all", npm=["jlpm"]),
-    ensure_targets(jstargets),
+    install_npm(HERE, build_cmd="build:all", npm=["jlpm"]), ensure_targets(jstargets),
 )
 
 with open("README.md", "r") as fh:
@@ -58,10 +55,10 @@ setup_args = dict(
     url="https://github.com/data-exp-lab/widgyts",
     author="Data Exploration Lab",
     author_email="mmunk2@illinois.edu",
-    description= 'A Custom Jupyter Widget Library for yt',
-    long_description= long_description,
+    description="A Custom Jupyter Widget Library for yt",
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    cmdclass= cmdclass,
+    cmdclass=cmdclass,
     packages=setuptools.find_packages(),
     install_requires=[
         "jupyterlab~=2.0",
@@ -70,7 +67,7 @@ setup_args = dict(
         "numpy>=1.14",
         "traitlets>=4.3.3",
         "yt>=3.5.1",
-        "pythreejs>=2.2.0"
+        "pythreejs>=2.2.0",
     ],
     zip_safe=False,
     include_package_data=True,
