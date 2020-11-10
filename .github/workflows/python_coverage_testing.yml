@@ -20,9 +20,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade setuptools
-        pip install flake8 pytest pytest-cov codecov
-        if [ -f tests/test_requirements.txt ]; then pip install -r tests/test_requirements.txt; fi
-        pip install -e .
+        python -m pip install flake8 pytest pytest-cov codecov
+        if [ -f tests/test_requirements.txt ]; then python -m pip install -r tests/test_requirements.txt; fi
+        python -m pip install -e .
     - name: Test with pytest and codecov
       run: |
         pytest --cov=widgyts --cov-report=xml widgyts
