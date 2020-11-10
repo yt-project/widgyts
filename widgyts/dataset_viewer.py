@@ -1,14 +1,15 @@
-import numpy as np
 import json
-import pythreejs
-import traitlets
+
 import ipywidgets
-from IPython.display import display, JSON
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
+import numpy as np
+import pythreejs
+import traitlets
+from IPython.display import JSON, display
+
 from yt.data_objects.api import Dataset
 from yt.units.yt_array import display_ytarray
-
 
 _CORNER_INDICES = np.array(
     [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7],
@@ -114,22 +115,23 @@ class AMRDomainViewer(DomainViewer):
     @traitlets.default("r2_falloff")
     def _r2_falloff_default(self):
         x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
-        r = (x**2 + y**2)**-0.5
+        r = (x ** 2 + y ** 2) ** -0.5
         r = np.clip(r, 0.0, 5.0)
-        r = (r - r.min())/(r.max() - r.min())
-        image_data = np.empty((32,32,4), dtype="f4")
-        image_data[:,:,:3] = r[:,:,None]
-        image_data[:,:,3] = 1.0
-        image_data = (image_data*255).astype("u1")
+        r = (r - r.min()) / (r.max() - r.min())
+        image_data = np.empty((32, 32, 4), dtype="f4")
+        image_data[:, :, :3] = r[:, :, None]
+        image_data[:, :, 3] = 1.0
+        image_data = (image_data * 255).astype("u1")
         image_texture = pythreejs.BaseDataTexture(data=image_data)
+        return image_texture
 
     @traitlets.default("colormap_texture")
     def _colormap_texture_default(self):
-         viridis = mcm.get_cmap("viridis")
-         values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
-         values = np.stack([values[:,:],] * 256, axis=1).copy(order="C")
-         colormap_texture = pythreejs.BaseDataTexture(data = values)
-         return colormap_texture
+        viridis = mcm.get_cmap("viridis")
+        values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
+        values = np.stack([values[:, :],] * 256, axis=1).copy(order="C")
+        colormap_texture = pythreejs.BaseDataTexture(data=values)
+        return colormap_texture
 
     @traitlets.default("renderer")
     def _renderer_default(self):
@@ -168,9 +170,7 @@ class AMRDomainViewer(DomainViewer):
         # Alright let's set this all up.
         grid_contents = []
         for i, view in enumerate(self.grid_views):
-            visible = ipywidgets.Checkbox(
-                value=view.visible, description="Level {}".format(i)
-            )
+            visible = ipywidgets.Checkbox(value=view.visible, description=f"Level {i}")
             ipywidgets.jslink((visible, "value"), (view, "visible"))
             color_picker = ipywidgets.ColorPicker(
                 value=view.material.color, concise=True
