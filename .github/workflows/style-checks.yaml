@@ -13,7 +13,7 @@ jobs:
         python-version: 3.8
     - name: install
       id: install
-      run : pip install -r tests/test_requirements.txt
+      run : pip install -r tests/lint_requirements.txt
 
     - name: check
       id: flake8
@@ -32,7 +32,7 @@ jobs:
         python-version: 3.8
     - name: install
       id: install
-      run : pip install -r tests/test_requirements.txt
+      run : pip install -r tests/lint_requirements.txt
 
     - name: check
       id: black
@@ -51,7 +51,7 @@ jobs:
         python-version: 3.8
     - name: install
       id: install
-      run : pip install -r tests/test_requirements.txt
+      run : pip install -r tests/lint_requirements.txt
 
     - name: check
       id: isort
@@ -70,7 +70,7 @@ jobs:
         python-version: 3.8
     - name: install
       id: install
-      run : pip install -r tests/test_requirements.txt
+      run : pip install -r tests/lint_requirements.txt
 
     - name: check
       id: flynt
