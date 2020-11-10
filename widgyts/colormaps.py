@@ -1,6 +1,7 @@
 import ipywidgets as ipywidgets
 import numpy as np
 import traitlets
+
 from ._version import EXTENSION_VERSION
 
 
