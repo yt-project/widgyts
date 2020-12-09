@@ -9,7 +9,7 @@ import traitlets
 from IPython.display import JSON, display
 
 from yt.data_objects.api import Dataset
-from yt.units.yt_array import display_ytarray
+from yt.units import display_ytarray
 
 _CORNER_INDICES = np.array(
     [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7],
