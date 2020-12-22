@@ -16,7 +16,7 @@ from yt.data_objects.construction_data_containers import YTQuadTreeProj
 from yt.funcs import iter_fields
 from yt.visualization.fixed_resolution import FixedResolutionBuffer as frb
 
-from ._version import EXTENSION_VERSION
+from . import EXTENSION_VERSION
 
 
 @ipywidgets.register
