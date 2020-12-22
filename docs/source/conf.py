@@ -12,31 +12,26 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+
+sys.path.insert(0, os.path.abspath("../.."))
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 if not on_rtd:
     import sphinx_rtd_theme
+
     html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 
 # -- Project information -----------------------------------------------------
 
-master_doc = 'index'
-project = 'widgyts'
-copyright = '2019, Madicken Munk, Matthew Turk'
-author = 'Madicken Munk, Matthew Turk'
+master_doc = "index"
+project = "widgyts"
+copyright = "2019, Madicken Munk, Matthew Turk"
+author = "Madicken Munk, Matthew Turk"
 
-# The full version, including alpha/beta/rc tags
-# For this repository, the full version is specified in
-# `widgyts/widgyts/_version.py`
-
-_release = {}
-exec(compile(open('../../widgyts/_version.py').read(), '../../widgyts/_version.py', 'exec'), _release)
-# version = '.'.join(map(str, _release['version_info'][:2]))
-version = '.'.join(map(str, _release['version_info']))
-release = _release['__version__']
+version = "0.4.0dev0"
+release = version
 
 # -- General configuration ---------------------------------------------------
 
@@ -45,20 +40,20 @@ release = _release['__version__']
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    'nbsphinx',
-    'jupyter_sphinx.execute',
-    'IPython.sphinxext.ipython_console_highlighting',
-    'sphinx.ext.intersphinx'
+    "nbsphinx",
+    "jupyter_sphinx.execute",
+    "IPython.sphinxext.ipython_console_highlighting",
+    "sphinx.ext.intersphinx",
 ]
 
 intersphinx_mapping = {
-    'ipycanvas': ('https://ipycanvas.readthedocs.io/en/latest/', None),
+    "ipycanvas": ("https://ipycanvas.readthedocs.io/en/latest/", None),
 }
 
-nbsphinx_allow_errors = True   # exception ipstruct.py ipython_genutils
+nbsphinx_allow_errors = True  # exception ipstruct.py ipython_genutils
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -71,9 +66,9 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
