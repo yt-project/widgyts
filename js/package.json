@@ -20,7 +20,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/data-exp-lab/widgyts.git"
+    "url": "https://github.com/yt-project/widgyts.git"
   },
   "keywords": [
     "jupyter",

@@ -34,7 +34,7 @@ If you have
 suggestions on new features, improvements to the project itself, you've
 detected some unruly behavior or a bug, or a suggestion of how we can
 make the project more accessible, feel free to file an `issue on
-github <https://github.com/data-exp-lab/widgyts/issues)>`_. 
+github <https://github.com/yt-project/widgyts/issues)>`_. 
 
 Communication Channels
 ----------------------
@@ -56,7 +56,7 @@ Contributing Code
 
 We would be delighted for you to join and work on the widgyts project! If
 you're interested in getting started, browse some of our `open issues
-<https://github.com/data-exp-lab/widgyts/issues>`_ and see if there's anything
+<https://github.com/yt-project/widgyts/issues>`_ and see if there's anything
 that you may find interesting. If there's a new feature you'd like to add that
 isn't in open issues, please reach out in the `widgyts slack channel in the yt
 slack <https://yt-project.org/slack.html>`_ or on the `yt development mailing 

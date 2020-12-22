@@ -22,9 +22,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/data-exp-lab/widgyts",
+  "homepage": "https://github.com/yt-project/widgyts",
   "bugs": {
-    "url": "https://github.com/data-exp-lab/widgyts/issues"
+    "url": "https://github.com/yt-project/widgyts/issues"
   },
   "license": "BSD-3-Clause",
   "files": [
@@ -36,7 +36,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/data-exp-lab/widgyts.git"
+    "url": "https://github.com/yt-project/widgyts.git"
   },
   "scripts": {
     "build": "jlpm run build:lib",

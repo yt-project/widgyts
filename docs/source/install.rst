@@ -33,9 +33,9 @@ Installation from Source
 ------------------------
 
 To install ``widgyts`` from source, you'll need to clone the repository from
-`Github <https://github.com/data-exp-lab/widgyts>`_::
+`Github <https://github.com/yt-project/widgyts>`_::
 
-  $ git clone https://github.com/data-exp-lab/widgyts.git
+  $ git clone https://github.com/yt-project/widgyts.git
 
 Then navigate into the newly created directory and install using pip::
 
@@ -50,7 +50,7 @@ Development Installation
 For a development installation your machine will need npm to manage the
 associated javascript code and dependencies. :: 
 
-  $ git clone https://github.com/data-exp-lab/widgyts.git
+  $ git clone https://github.com/yt-project/widgyts.git
   $ cd widgyts/js
   $ npm install 
   $ cd ../

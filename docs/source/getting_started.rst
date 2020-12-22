@@ -73,6 +73,6 @@ API Documentation
 Links:
 
 - link to `galaxy display notebook
-  <https://github.com/data-exp-lab/widgyts/blob/master/examples/galaxy_display.ipynb>`_
+  <https://github.com/yt-project/widgyts/blob/master/examples/galaxy_display.ipynb>`_
 - link to `FRBViewer tutorial notebook
-  <https://github.com/data-exp-lab/widgyts/blob/master/examples/FRBViewer_tutorial.ipynb>`_
+  <https://github.com/yt-project/widgyts/blob/master/examples/FRBViewer_tutorial.ipynb>`_

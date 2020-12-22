@@ -52,7 +52,7 @@ with open("README.md", "r") as fh:
 setup_args = dict(
     name=name,
     version=version,
-    url="https://github.com/data-exp-lab/widgyts",
+    url="https://github.com/yt-project/widgyts",
     author="Data Exploration Lab",
     author_email="mmunk2@illinois.edu",
     description="A Custom Jupyter Widget Library for yt",
