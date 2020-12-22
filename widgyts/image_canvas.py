@@ -13,7 +13,7 @@ except ImportError:
     from yt.data_objects.selection_data_containers import YTSlice
 
 from yt.data_objects.construction_data_containers import YTQuadTreeProj
-from yt.funcs import ensure_list
+from yt.funcs import iter_fields
 from yt.visualization.fixed_resolution import FixedResolutionBuffer as frb
 
 from ._version import EXTENSION_VERSION
@@ -302,7 +302,7 @@ def _2d_display(self, fields=None):
     skip += list(set(frb._exclude_fields).difference(set(self._key_fields)))
     self.fields = [k for k in self.field_data if k not in skip]
     if fields is not None:
-        self.fields = ensure_list(fields) + self.fields
+        self.fields = list(iter_fields(fields)) + self.fields
     if len(self.fields) == 0:
         raise ValueError("No fields found to plot in display()")
     return display_yt(self, self.fields[0])
