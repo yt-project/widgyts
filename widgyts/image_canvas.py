@@ -13,16 +13,16 @@ except ImportError:
     from yt.data_objects.selection_data_containers import YTSlice
 
 from yt.data_objects.construction_data_containers import YTQuadTreeProj
-from yt.funcs import ensure_list
+from yt.funcs import iter_fields
 from yt.visualization.fixed_resolution import FixedResolutionBuffer as frb
 
-from ._version import EXTENSION_VERSION
+from . import EXTENSION_VERSION
 
 
 @ipywidgets.register
 class VariableMeshModel(ipywidgets.Widget):
     _model_name = traitlets.Unicode("VariableMeshModel").tag(sync=True)
-    _model_module = traitlets.Unicode("@data-exp-lab/yt-widgets").tag(sync=True)
+    _model_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     px = traitlets.Bytes(allow_none=False).tag(sync=True, **bytes_serialization)
     py = traitlets.Bytes(allow_none=False).tag(sync=True, **bytes_serialization)
@@ -54,7 +54,7 @@ class VariableMeshModel(ipywidgets.Widget):
 @ipywidgets.register
 class FRBModel(ipywidgets.Widget):
     _model_name = traitlets.Unicode("FRBModel").tag(sync=True)
-    _model_module = traitlets.Unicode("@data-exp-lab/yt-widgets").tag(sync=True)
+    _model_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     width = traitlets.Int(512).tag(sync=True)
     height = traitlets.Int(512).tag(sync=True)
@@ -133,10 +133,10 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
     )
 
     _model_name = traitlets.Unicode("WidgytsCanvasModel").tag(sync=True)
-    _model_module = traitlets.Unicode("@data-exp-lab/yt-widgets").tag(sync=True)
+    _model_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     _view_name = traitlets.Unicode("WidgytsCanvasView").tag(sync=True)
-    _view_module = traitlets.Unicode("@data-exp-lab/yt-widgets").tag(sync=True)
+    _view_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
     _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
 
     @traitlets.default("layout")
@@ -302,7 +302,7 @@ def _2d_display(self, fields=None):
     skip += list(set(frb._exclude_fields).difference(set(self._key_fields)))
     self.fields = [k for k in self.field_data if k not in skip]
     if fields is not None:
-        self.fields = ensure_list(fields) + self.fields
+        self.fields = list(iter_fields(fields)) + self.fields
     if len(self.fields) == 0:
         raise ValueError("No fields found to plot in display()")
     return display_yt(self, self.fields[0])

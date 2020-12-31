@@ -2,13 +2,13 @@ import ipywidgets as ipywidgets
 import numpy as np
 import traitlets
 
-from ._version import EXTENSION_VERSION
+from . import EXTENSION_VERSION
 
 
 @ipywidgets.register
 class ColormapContainer(ipywidgets.Widget):
     _model_name = traitlets.Unicode("ColormapContainerModel").tag(sync=True)
-    _model_module = traitlets.Unicode("@data-exp-lab/yt-widgets").tag(sync=True)
+    _model_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
     colormap_values = traitlets.Dict({}).tag(sync=True, config=True)
 

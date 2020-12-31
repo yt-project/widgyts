@@ -1,4 +1,6 @@
-from ._version import __version__, version_info
+__version__ = "0.4.0dev0"
+EXTENSION_VERSION = "~" + __version__
+
 from .dataset_viewer import (
     AMRDomainViewer,
     DatasetViewer,

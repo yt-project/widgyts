@@ -9,7 +9,6 @@ from jupyter_packaging import (
     create_cmdclass,
     ensure_python,
     ensure_targets,
-    get_version,
     install_npm,
 )
 
@@ -22,7 +21,7 @@ name = "widgyts"
 ensure_python(">=3.5")
 
 # Get our version
-version = get_version(os.path.join(name, "_version.py"))
+version = "0.4.0dev0"
 
 lab_path = os.path.join(HERE, name, "labextension")
 
