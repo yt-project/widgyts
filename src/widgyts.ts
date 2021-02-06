@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {
   DOMWidgetModel,
   ISerializers,
@@ -137,7 +138,7 @@ export class FRBModel extends DOMWidgetModel {
 
   async depositDataBuffer(
     variable_mesh_model: VariableMeshModel
-  ): Float64Array {
+  ): Promise<Float64Array> {
     const bounds: IFRBViewBounds = this.calculateViewBounds();
     const yt_tools = await _yt_tools;
     this.frb = new yt_tools.FixedResolutionBuffer(
