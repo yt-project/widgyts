@@ -129,7 +129,7 @@ class AMRDomainViewer(DomainViewer):
     def _colormap_texture_default(self):
         viridis = mcm.get_cmap("viridis")
         values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
-        values = np.stack([values[:, :],] * 256, axis=1).copy(order="C")
+        values = np.stack([values[:, :],] * 256, axis=1,).copy(order="C")
         colormap_texture = pythreejs.BaseDataTexture(data=values)
         return colormap_texture
 
