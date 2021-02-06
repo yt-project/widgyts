@@ -34,4 +34,4 @@ def _load_jupyter_server_extension(server_app):
     import mimetypes
 
     mimetypes.add_type("application/wasm", ".wasm")
-    lab_app.log.info("Registered application/wasm MIME type")
+    server_app.log.info("Registered application/wasm MIME type")

@@ -4,21 +4,21 @@ widgyts setup
 import json
 from pathlib import Path
 
-from jupyter_packaging import (
-    create_cmdclass,
-    install_npm,
-    ensure_targets,
-    combine_commands,
-    skip_if_exists
-)
 import setuptools
+from jupyter_packaging import (
+    combine_commands,
+    create_cmdclass,
+    ensure_targets,
+    install_npm,
+    skip_if_exists,
+)
 
 HERE = Path(__file__).parent.resolve()
 
 # The name of the project
 name = "widgyts"
 
-lab_path = (HERE / name / "labextension")
+lab_path = HERE / name / "labextension"
 
 # Representative files that should exist after a successful build
 jstargets = [
@@ -32,20 +32,17 @@ package_data_spec = {
 labext_name = "@yt-project/yt-widgets"
 
 data_files_spec = [
-    ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
-    ("share/jupyter/labextensions/%s" % labext_name, str(HERE), "install.json"),("etc/jupyter/jupyter_server_config.d",
-     "jupyter-config", "widgyts.json"),
-    
+    (f"share/jupyter/labextensions/{labext_name}", str(lab_path), "**"),
+    (f"share/jupyter/labextensions/{labext_name}", str(HERE), "install.json"),
+    ("etc/jupyter/jupyter_server_config.d", "jupyter-config", "widgyts.json"),
 ]
 
-cmdclass = create_cmdclass("jsdeps",
-    package_data_spec=package_data_spec,
-    data_files_spec=data_files_spec
+cmdclass = create_cmdclass(
+    "jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec
 )
 
 js_command = combine_commands(
-    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
-    ensure_targets(jstargets),
+    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]), ensure_targets(jstargets),
 )
 
 is_repo = (HERE / ".git").exists()
@@ -72,6 +69,12 @@ setup_args = dict(
     packages=setuptools.find_packages(),
     install_requires=[
         "jupyterlab~=3.0",
+        "ipycanvas>=0.4.7",
+        "ipywidgets>=7.5.1",
+        "numpy>=1.14",
+        "traitlets>=4.3.3",
+        "yt>=3.5.1",
+        "pythreejs>=2.2.0",
     ],
     zip_safe=False,
     include_package_data=True,
