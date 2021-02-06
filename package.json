@@ -97,7 +97,8 @@
       }
     },
     "extension": "lib/plugin",
-    "outputDir": "widgyts/labextension"
+    "outputDir": "widgyts/labextension",
+    "webpackConfig": "./webpack.config.js"
   },
   "styleModule": "style/index.js"
 }
