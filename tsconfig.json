@@ -18,8 +18,7 @@
     "strict": true,
     "strictNullChecks": false,
     "target": "es2017",
-    "types": ["node"],
-    "skipLibCheck": true
+    "types": []
   },
   "include": ["src/*"]
 }

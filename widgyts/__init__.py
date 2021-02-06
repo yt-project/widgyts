@@ -1,36 +1,39 @@
-__version__ = "0.4.0dev0"
-EXTENSION_VERSION = "~" + __version__
 
-from .dataset_viewer import (
-    AMRDomainViewer,
-    DatasetViewer,
-    FieldDefinitionViewer,
-    ParametersViewer,
-)
-from .image_canvas import *
+import json
+from pathlib import Path
 
+from ._version import __version__
 
-def _jupyter_nbextension_paths():
-    # Not sure we need this anymore
-    return [
-        {
-            "section": "notebook",
-            "src": "static",
-            "dest": "yt-widgets",
-            "require": "yt-widgets/extension",
-        }
-    ]
+HERE = Path(__file__).parent.resolve()
+
+with (HERE / "labextension" / "package.json").open() as fid:
+    data = json.load(fid)
+
+def _jupyter_labextension_paths():
+    return [{
+        "src": "labextension",
+        "dest": data["name"]
+    }]
 
 
-def _jupyter_server_extension_paths():
-    return [{"module": "widgyts"}]
+
+from .handlers import setup_handlers
 
 
-def load_jupyter_server_extension(lab_app):
+def _jupyter_server_extension_points():
+    return [{
+        "module": "widgyts"
+    }]
+
+
+def _load_jupyter_server_extension(server_app):
+    """Registers the API handler to receive HTTP requests from the frontend extension.
+
+    Parameters
+    ----------
+    server_app: jupyterlab.labapp.LabApp
+        JupyterLab application instance
     """
-    Just add to mimetypes.
-    """
-    import mimetypes
+    setup_handlers(server_app.web_app)
+    server_app.log.info("Registered HelloWorld extension at URL path /widgyts")
 
-    mimetypes.add_type("application/wasm", ".wasm")
-    lab_app.log.info("Registered application/wasm MIME type")
