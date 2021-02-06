@@ -76,7 +76,6 @@ setup_args = dict(
         "yt>=4.0.dev0",
         "pythreejs>=2.2.0",
     ],
-    dependency_links=["https://github.com/yt-project/yt/tarball/main#egg=yt-4.0.dev0",],
     zip_safe=False,
     include_package_data=True,
     python_requires=">=3.6",
