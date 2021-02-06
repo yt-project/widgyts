@@ -1,4 +1,4 @@
-const data = require('../package.json');
+const data = import('../package.json');
 
 /* As seen in the ipycanvas repository */
 

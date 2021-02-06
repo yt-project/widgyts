@@ -13,11 +13,11 @@ import type {
 import { MODULE_NAME, MODULE_VERSION } from './version';
 const _yt_tools = import('@data-exp-lab/yt-tools');
 
-function serializeArray(array: Float64Array) {
+function serializeArray(array: Float64Array): DataView {
   return new DataView(array.buffer.slice(0));
 }
 
-function deserializeArray(dataview: DataView | null) {
+function deserializeArray(dataview: DataView | null): Float64Array | null {
   if (dataview === null) {
     return null;
   }
@@ -30,7 +30,7 @@ function deserializeArray(dataview: DataView | null) {
  *
  */
 export class VariableMeshModel extends DOMWidgetModel {
-  defaults() {
+  defaults(): any {
     return {
       ...super.defaults(),
       _model_name: VariableMeshModel.model_name,
@@ -45,7 +45,7 @@ export class VariableMeshModel extends DOMWidgetModel {
     };
   }
 
-  initialize(attributes: any, options: any) {
+  initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     _yt_tools.then(yt_tools => {
       this.variable_mesh = new yt_tools.VariableMesh(
@@ -79,7 +79,7 @@ export class VariableMeshModel extends DOMWidgetModel {
   static model_module_version = MODULE_VERSION;
 }
 
-interface FRBViewBounds {
+interface IFRBViewBounds {
   x_low: number;
   x_high: number;
   y_low: number;
@@ -87,7 +87,7 @@ interface FRBViewBounds {
 }
 
 export class FRBModel extends DOMWidgetModel {
-  defaults() {
+  defaults(): any {
     return {
       ...super.defaults(),
       _model_name: FRBModel.model_name,
@@ -103,7 +103,7 @@ export class FRBModel extends DOMWidgetModel {
     };
   }
 
-  initialize(attributes: any, options: any) {
+  initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.on_some_change(['width', 'height'], this.sizeChanged, this);
     this.sizeChanged();
@@ -113,20 +113,20 @@ export class FRBModel extends DOMWidgetModel {
     variable_mesh_model: { deserialize: unpack_models }
   };
 
-  sizeChanged() {
+  sizeChanged(): void {
     this.width = this.get('width');
     this.height = this.get('height');
     this.data_buffer = new Float64Array(this.width * this.height);
   }
 
-  calculateViewBounds(): FRBViewBounds {
+  calculateViewBounds(): IFRBViewBounds {
     this.view_width = this.get('view_width');
     this.view_center = this.get('view_center');
     const hwidths: [number, number] = [
       this.view_width[0] / 2,
       this.view_width[1] / 2
     ];
-    const bounds = <FRBViewBounds>{
+    const bounds = <IFRBViewBounds>{
       x_low: this.view_center[0] - hwidths[0],
       x_high: this.view_center[0] + hwidths[0],
       y_low: this.view_center[1] - hwidths[1],
@@ -135,8 +135,10 @@ export class FRBModel extends DOMWidgetModel {
     return bounds;
   }
 
-  async depositDataBuffer(variable_mesh_model: VariableMeshModel) {
-    const bounds: FRBViewBounds = this.calculateViewBounds();
+  async depositDataBuffer(
+    variable_mesh_model: VariableMeshModel
+  ): Float64Array {
+    const bounds: IFRBViewBounds = this.calculateViewBounds();
     const yt_tools = await _yt_tools;
     this.frb = new yt_tools.FixedResolutionBuffer(
       this.width,
@@ -164,7 +166,7 @@ export class FRBModel extends DOMWidgetModel {
 }
 
 export class WidgytsCanvasModel extends CanvasModel {
-  defaults() {
+  defaults(): any {
     return {
       ...super.defaults(),
       _model_name: WidgytsCanvasModel.model_name,
@@ -187,7 +189,7 @@ export class WidgytsCanvasModel extends CanvasModel {
     };
   }
 
-  initialize(attributes: any, options: any) {
+  initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.frb_model = this.get('frb_model');
     this.variable_mesh_model = this.get('variable_mesh_model');
@@ -220,7 +222,7 @@ export class WidgytsCanvasModel extends CanvasModel {
 }
 
 export class WidgytsCanvasView extends CanvasView {
-  render() {
+  render(): void {
     /* This is where we update stuff!
      * Render in the base class will set up the ctx, but also calls
      * updateCanvas, so we need to check before calling anything in there.
@@ -244,7 +246,7 @@ export class WidgytsCanvasView extends CanvasView {
   dragStartCenter: [number, number];
   frbWidth: [number, number];
 
-  setupEventListeners() {
+  setupEventListeners(): void {
     this.model.frb_model.on_some_change(
       ['width', 'height'],
       this.resizeFromFRB,
@@ -271,17 +273,17 @@ export class WidgytsCanvasView extends CanvasView {
     window.addEventListener('mouseup', this.endDrag.bind(this));
   }
 
-  conductZoom(event: WheelEvent) {
+  conductZoom(event: WheelEvent): void {
     event.preventDefault();
     const view_width: [number, number] = this.model.frb_model.get('view_width');
     let n_units = 0;
-    if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+    if (event.deltaMode === event.DOM_DELTA_PIXEL) {
       // let's say we have 10 units per image
       n_units = event.deltaY / (this.frbWidth[1] / 10);
-    } else if (event.deltaMode == event.DOM_DELTA_LINE) {
+    } else if (event.deltaMode === event.DOM_DELTA_LINE) {
       // two lines per unit let's say
       n_units = event.deltaY / 2;
-    } else if (event.deltaMode == event.DOM_DELTA_PAGE) {
+    } else if (event.deltaMode === event.DOM_DELTA_PAGE) {
       // yeah i don't know
       return;
     }
@@ -294,13 +296,13 @@ export class WidgytsCanvasView extends CanvasView {
     this.model.frb_model.save_changes();
   }
 
-  startDrag(event: MouseEvent) {
+  startDrag(event: MouseEvent): void {
     this.drag = true;
     this.dragStart = [event.offsetX, event.offsetY];
     this.dragStartCenter = this.model.frb_model.get('view_center');
   }
 
-  conductDrag(event: MouseEvent) {
+  conductDrag(event: MouseEvent): void {
     if (!this.drag) {
       return;
     }
@@ -319,7 +321,7 @@ export class WidgytsCanvasView extends CanvasView {
     this.model.frb_model.set('view_center', new_view_center);
   }
 
-  endDrag(event: MouseEvent) {
+  endDrag(event: MouseEvent): void {
     if (!this.drag) {
       return;
     }
@@ -327,21 +329,21 @@ export class WidgytsCanvasView extends CanvasView {
     this.model.frb_model.save_changes();
   }
 
-  dirtyBitmap() {
+  dirtyBitmap(): void {
     this.model.set('_dirty_bitmap', true);
   }
 
-  dirtyFRB() {
+  dirtyFRB(): void {
     this.model.set('_dirty_frb', true);
   }
 
-  async initializeArrays() {
+  async initializeArrays(): Promise<void> {
     this.regenerateBuffer(); // This will stick stuff into the FRB's data buffer
     this.resizeFromFRB(); // This will create image_buffer and image_data
     await this.createBitmap(); // This creates a bitmap array and normalizes
   }
 
-  updateCanvas() {
+  updateCanvas(): void {
     /*
      * We don't call super.updateCanvas here, and we just re-do what it does.
      * This means we'll have to update it when the base class changes, but it
@@ -358,7 +360,7 @@ export class WidgytsCanvasView extends CanvasView {
     }
   }
 
-  async updateBitmap() {
+  async updateBitmap(): Promise<void> {
     if (this.locked) {
       return;
     }
@@ -378,7 +380,7 @@ export class WidgytsCanvasView extends CanvasView {
     this.locked = false;
   }
 
-  resizeFromFRB() {
+  resizeFromFRB(): void {
     //console.log("resizeFromFRB");
     if (this.model.frb_model !== null && this.ctx !== null) {
       //console.log("frb initialized; creating new clamped array and image");
@@ -392,14 +394,14 @@ export class WidgytsCanvasView extends CanvasView {
     }
   }
 
-  regenerateBuffer() {
+  regenerateBuffer(): void {
     //console.log("regenerateBuffer");
     this.model.frb_model.depositDataBuffer(this.model.variable_mesh_model);
     this.model.set('_dirty_frb', false);
     this.model.set('_dirty_bitmap', true);
   }
 
-  async createBitmap() {
+  async createBitmap(): Promise<void> {
     /*
      * This needs to make sure our deposition is up to date,
      * normalize it, and then re-set our image data
@@ -425,7 +427,7 @@ export class WidgytsCanvasView extends CanvasView {
 }
 
 export class ColormapContainerModel extends WidgetModel {
-  defaults() {
+  defaults(): any {
     return {
       ...super.defaults(),
       colormap_values: {},
@@ -436,7 +438,7 @@ export class ColormapContainerModel extends WidgetModel {
     };
   }
 
-  initialize(attributes: any, options: any) {
+  initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.colormap_values = this.get('colormap_values');
   }
@@ -448,7 +450,7 @@ export class ColormapContainerModel extends WidgetModel {
     min_val: number,
     max_val: number,
     take_log: boolean
-  ) {
+  ): Promise<void> {
     if (!this._initialized) {
       await this.setupColormaps();
     }
@@ -463,7 +465,7 @@ export class ColormapContainerModel extends WidgetModel {
     );
   }
 
-  private async setupColormaps() {
+  private async setupColormaps(): Promise<void> {
     if (this._initialized) {
       return;
     }
@@ -476,7 +478,7 @@ export class ColormapContainerModel extends WidgetModel {
     this._initialized = true;
   }
 
-  colormap_values: Object;
+  colormap_values: unknown;
   colormaps: ColormapCollection;
   _initialized: boolean;
   static model_name = 'ColormapContainerModel';
