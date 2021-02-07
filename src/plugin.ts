@@ -1,4 +1,7 @@
-import { JupyterFrontEndPlugin, JupyterFrontEnd } from '@jupyterlab/application';
+import {
+  JupyterFrontEndPlugin,
+  JupyterFrontEnd
+} from '@jupyterlab/application';
 
 import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 
