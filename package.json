@@ -65,8 +65,6 @@
     "@jupyterlab/mainmenu": "^3.0.3",
     "@jupyterlab/services": "^6.0.3",
     "@lumino/widgets": "^1.16.1",
-    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3",
-    "@jupyter-widgets/widgets": "^1.1.10 || ^2 || ^3",
     "@types/node": "^10.11.6",
     "ipycanvas": "^0.4.7"
   },
