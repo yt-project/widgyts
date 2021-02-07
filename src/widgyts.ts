@@ -198,7 +198,7 @@ export class WidgytsCanvasModel extends CanvasModel {
   }
 
   static serializers: ISerializers = {
-    ...DOMWidgetModel.serializers,
+    ...CanvasModel.serializers,
     frb_model: { deserialize: unpack_models },
     variable_mesh_model: { deserialize: unpack_models },
     colormaps: { deserialize: unpack_models }
@@ -268,9 +268,9 @@ export class WidgytsCanvasView extends CanvasView {
       this.dirtyBitmap,
       this
     );
-    this.canvas.addEventListener('wheel', this.conductZoom.bind(this));
-    this.canvas.addEventListener('mousedown', this.startDrag.bind(this));
-    this.canvas.addEventListener('mousemove', this.conductDrag.bind(this));
+    this.el.addEventListener('wheel', this.conductZoom.bind(this));
+    this.el.addEventListener('mousedown', this.startDrag.bind(this));
+    this.el.addEventListener('mousemove', this.conductDrag.bind(this));
     window.addEventListener('mouseup', this.endDrag.bind(this));
   }
 

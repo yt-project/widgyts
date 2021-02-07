@@ -1,6 +1,6 @@
 {
   "name": "@yt-project/yt-widgets",
-  "version": "0.4.0dev0",
+  "version": "0.4.0",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": "Data Exploration Lab",
   "contributors": [
@@ -64,9 +64,9 @@
     "@jupyterlab/coreutils": "^5.0.2",
     "@jupyterlab/mainmenu": "^3.0.3",
     "@jupyterlab/services": "^6.0.3",
-    "@lumino/widgets": "^1.16.1",
+    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3 || ^4",
     "@types/node": "^10.11.6",
-    "ipycanvas": "^0.4.7"
+    "ipycanvas": "^0.8.2"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
@@ -122,7 +122,13 @@
     },
     "extension": "lib/plugin",
     "outputDir": "widgyts/labextension",
-    "webpackConfig": "./webpack.config.js"
+    "webpackConfig": "./webpack.config.js",
+    "sharedPackages": {
+      "@jupyter-widgets/base": {
+        "bundled": false,
+        "singleton": true
+      }
+    }
   },
   "styleModule": "style/index.js"
 }
