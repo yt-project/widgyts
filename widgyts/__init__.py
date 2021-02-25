@@ -1,4 +1,8 @@
-__version__ = "0.4.0dev0"
+import json
+from pathlib import Path
+
+from ._version import __version__
+
 EXTENSION_VERSION = "~" + __version__
 
 from .dataset_viewer import (
@@ -9,28 +13,25 @@ from .dataset_viewer import (
 )
 from .image_canvas import *
 
+HERE = Path(__file__).parent.resolve()
 
-def _jupyter_nbextension_paths():
-    # Not sure we need this anymore
-    return [
-        {
-            "section": "notebook",
-            "src": "static",
-            "dest": "yt-widgets",
-            "require": "yt-widgets/extension",
-        }
-    ]
+with (HERE / "labextension" / "package.json").open() as fid:
+    data = json.load(fid)
 
 
-def _jupyter_server_extension_paths():
+def _jupyter_labextension_paths():
+    return [{"src": "labextension", "dest": data["name"]}]
+
+
+def _jupyter_server_extension_points():
     return [{"module": "widgyts"}]
 
 
-def load_jupyter_server_extension(lab_app):
+def _load_jupyter_server_extension(server_app):
     """
     Just add to mimetypes.
     """
     import mimetypes
 
     mimetypes.add_type("application/wasm", ".wasm")
-    lab_app.log.info("Registered application/wasm MIME type")
+    server_app.log.info("Registered application/wasm MIME type")
