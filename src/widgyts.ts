@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 export const _yt_tools = import('@data-exp-lab/yt-tools');
+export * from './ColormapContainerModel';
+export * from './FRBModel';
+export * from './VariableMeshModel';
+export * from './WidgytsCanvasModel';
+export * from './WidgytsCanvasView';
 
 export function serializeArray<T extends ArrayBufferView>(array: T): DataView {
   return new DataView(array.buffer.slice(0));
@@ -23,21 +28,19 @@ export interface IArraySerializers {
   deserialize: (buffer: DataView | null) => ArrayBufferView;
 }
 
-export const ArraySerializers = {
-  float32: {
-    serialize: serializeArray,
-    deserialize: arrayDeserializerFactory<Float32Array>(Float32Array)
-  },
-  float64: {
-    serialize: serializeArray,
-    deserialize: arrayDeserializerFactory<Float64Array>(Float64Array)
-  },
-  uint8: {
-    serialize: serializeArray,
-    deserialize: arrayDeserializerFactory<Uint8Array>(Uint8Array)
-  },
-  uint64: {
-    serialize: serializeArray,
-    deserialize: arrayDeserializerFactory<BigUint64Array>(BigUint64Array)
-  }
+export const f32Serializer: IArraySerializers = {
+  serialize: serializeArray,
+  deserialize: arrayDeserializerFactory<Float32Array>(Float32Array)
+};
+export const f64Serializer: IArraySerializers = {
+  serialize: serializeArray,
+  deserialize: arrayDeserializerFactory<Float64Array>(Float64Array)
+};
+export const u8Serializer: IArraySerializers = {
+  serialize: serializeArray,
+  deserialize: arrayDeserializerFactory<Uint8Array>(Uint8Array)
+};
+export const u64Serializer: IArraySerializers = {
+  serialize: serializeArray,
+  deserialize: arrayDeserializerFactory<BigUint64Array>(BigUint64Array)
 };

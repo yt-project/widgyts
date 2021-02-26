@@ -32,11 +32,13 @@ export class FRBModel extends DOMWidgetModel {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.on_some_change(['width', 'height'], this.sizeChanged, this);
     this.sizeChanged();
   }
+
   static serializers: ISerializers = {
     ...DOMWidgetModel.serializers,
     variable_mesh_model: { deserialize: unpack_models }
