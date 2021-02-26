@@ -1,7 +1,8 @@
 import { DOMWidgetModel, ISerializers } from '@jupyter-widgets/base';
 import { VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import { _yt_tools, f64Serializer } from './widgyts';
+import { _yt_tools } from './widgyts';
+import { f64Serializer } from './utils';
 
 /*
  * We have this as we can potentially have more than one FRB for a variable mesh
