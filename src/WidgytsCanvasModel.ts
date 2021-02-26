@@ -29,6 +29,7 @@ export class WidgytsCanvasModel extends CanvasModel {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.frb_model = this.get('frb_model');
