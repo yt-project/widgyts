@@ -1,7 +1,7 @@
 import { WidgetModel } from '@jupyter-widgets/base';
 import { ColormapCollection } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import { _yt_tools } from './widgyts';
+const yt_tools = await import('@data-exp-lab/yt-tools');
 
 export class ColormapContainerModel extends WidgetModel {
   defaults(): any {
@@ -47,7 +47,6 @@ export class ColormapContainerModel extends WidgetModel {
     if (this._initialized) {
       return;
     }
-    const yt_tools = await _yt_tools;
     this.colormaps = new yt_tools.ColormapCollection();
     for (const [name, values] of Object.entries(this.colormap_values)) {
       const arr_values: Uint8Array = Uint8Array.from(values);

@@ -6,7 +6,7 @@ import {
 import { FixedResolutionBuffer } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 import { VariableMeshModel } from './VariableMeshModel';
-import { _yt_tools } from './widgyts';
+const yt_tools = await import('@data-exp-lab/yt-tools');
 
 export interface IFRBViewBounds {
   x_low: number;
@@ -70,7 +70,6 @@ export class FRBModel extends DOMWidgetModel {
     variable_mesh_model: VariableMeshModel
   ): Promise<Float64Array> {
     const bounds: IFRBViewBounds = this.calculateViewBounds();
-    const yt_tools = await _yt_tools;
     this.frb = new yt_tools.FixedResolutionBuffer(
       this.width,
       this.height,

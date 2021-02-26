@@ -1,8 +1,9 @@
 import { DOMWidgetModel, ISerializers } from '@jupyter-widgets/base';
 import { VariableMesh } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import { _yt_tools } from './widgyts';
 import { f64Serializer } from './utils';
+
+const yt_tools = await import('@data-exp-lab/yt-tools');
 
 /*
  * We have this as we can potentially have more than one FRB for a variable mesh
@@ -28,15 +29,13 @@ export class VariableMeshModel extends DOMWidgetModel {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
-    _yt_tools.then(yt_tools => {
-      this.variable_mesh = new yt_tools.VariableMesh(
-        this.get('px'),
-        this.get('py'),
-        this.get('pdx'),
-        this.get('pdy'),
-        this.get('val')
-      );
-    });
+    this.variable_mesh = new yt_tools.VariableMesh(
+      this.get('px'),
+      this.get('py'),
+      this.get('pdx'),
+      this.get('pdy'),
+      this.get('val')
+    );
   }
 
   static serializers: ISerializers = {
