@@ -1,7 +1,7 @@
 import { ISerializers, unpack_models } from '@jupyter-widgets/base';
 import { CanvasModel, CanvasView } from 'ipycanvas';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import { VariableMeshModel } from './VariableMeshModel';
+import { VariableMeshModel } from './variable_mesh';
 import { FRBModel } from './fixed_res_buffer';
 import { ColormapContainerModel } from './colormap_container';
 

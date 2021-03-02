@@ -5,7 +5,7 @@ import {
 } from '@jupyter-widgets/base';
 import { FixedResolutionBuffer } from '@data-exp-lab/yt-tools';
 import { MODULE_NAME, MODULE_VERSION } from './version';
-import { VariableMeshModel } from './VariableMeshModel';
+import { VariableMeshModel } from './variable_mesh';
 const yt_tools = await import('@data-exp-lab/yt-tools');
 
 export interface IFRBViewBounds {
