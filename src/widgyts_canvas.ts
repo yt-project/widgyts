@@ -117,18 +117,18 @@ export class WidgytsCanvasView extends CanvasView {
   conductZoom(event: WheelEvent): void {
     event.preventDefault();
     const view_width: [number, number] = this.model.frb_model.get('view_width');
-    let n_units = -1;
+    let n_units = 0;
     if (event.deltaMode === event.DOM_DELTA_PIXEL) {
       // let's say we have 9 units per image
-      n_units = event.deltaY / (this.frbWidth[0] / 10);
+      n_units = event.deltaY / (this.frbWidth[1] / 10);
     } else if (event.deltaMode === event.DOM_DELTA_LINE) {
       // two lines per unit let's say
-      n_units = event.deltaY / 1;
+      n_units = event.deltaY / 2;
     } else if (event.deltaMode === event.DOM_DELTA_PAGE) {
       // yeah i don't know
       return;
     }
-    const zoomFactor: number = 0.1 ** n_units;
+    const zoomFactor: number = 1.1 ** n_units;
     const new_view_width: [number, number] = [
       view_width[0] * zoomFactor,
       view_width[1] * zoomFactor
