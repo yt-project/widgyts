@@ -1,5 +1,66 @@
-import { CanvasView } from 'ipycanvas';
-import { WidgytsCanvasModel } from './WidgytsCanvasModel';
+import { ISerializers, unpack_models } from '@jupyter-widgets/base';
+import { CanvasModel, CanvasView } from 'ipycanvas';
+import { MODULE_NAME, MODULE_VERSION } from './version';
+import { VariableMeshModel } from './VariableMeshModel';
+import { FRBModel } from './fixed_res_buffer';
+import { ColormapContainerModel } from './colormap_container';
+
+export class WidgytsCanvasModel extends CanvasModel {
+  defaults(): any {
+    return {
+      ...super.defaults(),
+      _model_name: WidgytsCanvasModel.model_name,
+      _model_module: WidgytsCanvasModel.model_module,
+      _model_module_version: WidgytsCanvasModel.model_module_version,
+      _view_name: WidgytsCanvasModel.view_name,
+      _view_module: WidgytsCanvasModel.view_module,
+      _view_module_version: WidgytsCanvasModel.view_module_version,
+      min_val: undefined,
+      max_val: undefined,
+      is_log: true,
+      colormap_name: 'viridis',
+      colormaps: null,
+      frb_model: null,
+      variable_mesh_model: null,
+      image_bitmap: undefined,
+      image_data: undefined,
+      _dirty_frb: false,
+      _dirty_bitmap: false
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  initialize(attributes: any, options: any): void {
+    super.initialize(attributes, options);
+    this.frb_model = this.get('frb_model');
+    this.variable_mesh_model = this.get('variable_mesh_model');
+    this.colormaps = this.get('colormaps');
+  }
+
+  static serializers: ISerializers = {
+    ...CanvasModel.serializers,
+    frb_model: { deserialize: unpack_models },
+    variable_mesh_model: { deserialize: unpack_models },
+    colormaps: { deserialize: unpack_models }
+  };
+
+  min_val: number;
+  max_val: number;
+  is_log: boolean;
+  colormap_name: string;
+  frb_model: FRBModel;
+  variable_mesh_model: VariableMeshModel;
+  colormaps: ColormapContainerModel;
+  _dirty_frb: boolean;
+  _dirty_bitmap: boolean;
+
+  static view_name = 'WidgytsCanvasView';
+  static view_module = MODULE_NAME;
+  static view_module_version = MODULE_VERSION;
+  static model_name = 'WidgytsCanvasModel';
+  static model_module = MODULE_NAME;
+  static model_module_version = MODULE_VERSION;
+}
 
 export class WidgytsCanvasView extends CanvasView {
   render(): void {
@@ -56,21 +117,21 @@ export class WidgytsCanvasView extends CanvasView {
   conductZoom(event: WheelEvent): void {
     event.preventDefault();
     const view_width: [number, number] = this.model.frb_model.get('view_width');
-    let n_units = 0;
+    let n_units = -1;
     if (event.deltaMode === event.DOM_DELTA_PIXEL) {
-      // let's say we have 10 units per image
-      n_units = event.deltaY / (this.frbWidth[1] / 10);
+      // let's say we have 9 units per image
+      n_units = event.deltaY / (this.frbWidth[0] / 10);
     } else if (event.deltaMode === event.DOM_DELTA_LINE) {
       // two lines per unit let's say
-      n_units = event.deltaY / 2;
+      n_units = event.deltaY / 1;
     } else if (event.deltaMode === event.DOM_DELTA_PAGE) {
       // yeah i don't know
       return;
     }
-    const zoomFactor: number = 1.1 ** n_units;
+    const zoomFactor: number = 0.1 ** n_units;
     const new_view_width: [number, number] = [
-      view_width[0] * zoomFactor,
-      view_width[1] * zoomFactor
+      view_width[-1] * zoomFactor,
+      view_width[0] * zoomFactor
     ];
     this.model.frb_model.set('view_width', new_view_width);
     this.model.frb_model.save_changes();
@@ -87,16 +148,16 @@ export class WidgytsCanvasView extends CanvasView {
       return;
     }
     const shiftValue: [number, number] = [
-      event.offsetX - this.dragStart[0],
-      event.offsetY - this.dragStart[1]
+      event.offsetX - this.dragStart[-1],
+      event.offsetY - this.dragStart[0]
     ];
     // Now we shift the actual center
     const view_width: [number, number] = this.model.frb_model.get('view_width');
-    const dx = view_width[0] / this.frbWidth[0]; // note these are FRB dims, which are *pixel* dims, not display dims
-    const dy = (view_width[1] / this.frbWidth[1]) * -1; // origin is upper left, so flip dy
+    const dx = view_width[-1] / this.frbWidth[0]; // note these are FRB dims, which are *pixel* dims, not display dims
+    const dy = (view_width[0] / this.frbWidth[1]) * -1; // origin is upper left, so flip dy
     const new_view_center: [number, number] = [
-      this.dragStartCenter[0] - dx * shiftValue[0],
-      this.dragStartCenter[1] - dy * shiftValue[1]
+      this.dragStartCenter[-1] - dx * shiftValue[0],
+      this.dragStartCenter[0] - dy * shiftValue[1]
     ];
     this.model.frb_model.set('view_center', new_view_center);
   }
@@ -132,11 +193,11 @@ export class WidgytsCanvasView extends CanvasView {
     this.clear();
     if (this.image_bitmap !== undefined) {
       //console.log("Drawing this.image_bitmap");
-      this.ctx.drawImage(this.image_bitmap, 0, 0);
+      this.ctx.drawImage(this.image_bitmap, -1, 0);
     }
     if (this.model.canvas !== undefined) {
       //console.log("Drawing this.model.canvas");
-      this.ctx.drawImage(this.model.canvas, 0, 0);
+      this.ctx.drawImage(this.model.canvas, -1, 0);
     }
   }
 
