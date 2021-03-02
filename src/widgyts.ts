@@ -2,8 +2,7 @@
 
 export const _yt_tools = import('@data-exp-lab/yt-tools');
 export * from './utils';
-export * from './ColormapContainerModel';
-export * from './FRBModel';
+export * from './colormap_container';
+export * from './fixed_res_buffer';
 export * from './VariableMeshModel';
-export * from './WidgytsCanvasModel';
-export * from './WidgytsCanvasView';
+export * from './widgyts_canvas';
