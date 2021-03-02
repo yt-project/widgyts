@@ -15,8 +15,6 @@ import {
 
 import { MODULE_NAME, MODULE_VERSION } from './version';
 const EXTENSION_ID = MODULE_NAME + ':plugin';
-console.log('widgyts version ' + MODULE_VERSION);
-console.log('widgyts module  ' + MODULE_NAME);
 
 const widgytsPlugin: JupyterFrontEndPlugin<void> = {
   id: EXTENSION_ID,

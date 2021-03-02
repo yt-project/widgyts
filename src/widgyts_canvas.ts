@@ -192,11 +192,9 @@ export class WidgytsCanvasView extends CanvasView {
      */
     this.clear();
     if (this.image_bitmap !== undefined) {
-      //console.log("Drawing this.image_bitmap");
       this.ctx.drawImage(this.image_bitmap, -1, 0);
     }
     if (this.model.canvas !== undefined) {
-      //console.log("Drawing this.model.canvas");
       this.ctx.drawImage(this.model.canvas, -1, 0);
     }
   }
@@ -205,26 +203,19 @@ export class WidgytsCanvasView extends CanvasView {
     if (this.locked) {
       return;
     }
-    //console.log("Locking.");
     this.locked = true;
-    //console.log("Update bitmap");
     if (this.model.get('_dirty_frb')) {
-      //console.log("frb is dirty; regenerating");
       this.regenerateBuffer();
     }
     if (this.model.get('_dirty_bitmap')) {
-      //console.log("bitmap is dirty; regenerating");
       await this.createBitmap();
       this.updateCanvas();
     }
-    //console.log("Unlocking.");
     this.locked = false;
   }
 
   resizeFromFRB(): void {
-    //console.log("resizeFromFRB");
     if (this.model.frb_model !== null && this.ctx !== null) {
-      //console.log("frb initialized; creating new clamped array and image");
       const width = this.model.frb_model.get('width');
       const height = this.model.frb_model.get('height');
       this.frbWidth = [width, height];
@@ -236,7 +227,6 @@ export class WidgytsCanvasView extends CanvasView {
   }
 
   regenerateBuffer(): void {
-    //console.log("regenerateBuffer");
     this.model.frb_model.depositDataBuffer(this.model.variable_mesh_model);
     this.model.set('_dirty_frb', false);
     this.model.set('_dirty_bitmap', true);
@@ -248,7 +238,6 @@ export class WidgytsCanvasView extends CanvasView {
      * normalize it, and then re-set our image data
      */
     /* Need to normalize here somehow */
-    //console.log("Creating bitmap.");
     await this.model.colormaps.normalize(
       this.model.get('colormap_name'),
       this.model.frb_model.data_buffer,
@@ -263,6 +252,5 @@ export class WidgytsCanvasView extends CanvasView {
     /* This has to be called every time image_data changes */
     this.image_bitmap = await createImageBitmap(this.image_data, 0, 0, nx, ny);
     this.model.set('_dirty_bitmap', false);
-    //console.log("Setting bitmap to undirty.");
   }
 }
