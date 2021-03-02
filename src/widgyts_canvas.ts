@@ -130,8 +130,8 @@ export class WidgytsCanvasView extends CanvasView {
     }
     const zoomFactor: number = 0.1 ** n_units;
     const new_view_width: [number, number] = [
-      view_width[-1] * zoomFactor,
-      view_width[0] * zoomFactor
+      view_width[0] * zoomFactor,
+      view_width[1] * zoomFactor
     ];
     this.model.frb_model.set('view_width', new_view_width);
     this.model.frb_model.save_changes();
@@ -148,16 +148,16 @@ export class WidgytsCanvasView extends CanvasView {
       return;
     }
     const shiftValue: [number, number] = [
-      event.offsetX - this.dragStart[-1],
-      event.offsetY - this.dragStart[0]
+      event.offsetX - this.dragStart[0],
+      event.offsetY - this.dragStart[1]
     ];
     // Now we shift the actual center
     const view_width: [number, number] = this.model.frb_model.get('view_width');
-    const dx = view_width[-1] / this.frbWidth[0]; // note these are FRB dims, which are *pixel* dims, not display dims
-    const dy = (view_width[0] / this.frbWidth[1]) * -1; // origin is upper left, so flip dy
+    const dx = view_width[0] / this.frbWidth[0]; // note these are FRB dims, which are *pixel* dims, not display dims
+    const dy = (view_width[1] / this.frbWidth[1]) * -1; // origin is upper left, so flip dy
     const new_view_center: [number, number] = [
-      this.dragStartCenter[-1] - dx * shiftValue[0],
-      this.dragStartCenter[0] - dy * shiftValue[1]
+      this.dragStartCenter[0] - dx * shiftValue[0],
+      this.dragStartCenter[1] - dy * shiftValue[1]
     ];
     this.model.frb_model.set('view_center', new_view_center);
   }
@@ -192,10 +192,10 @@ export class WidgytsCanvasView extends CanvasView {
      */
     this.clear();
     if (this.image_bitmap !== undefined) {
-      this.ctx.drawImage(this.image_bitmap, -1, 0);
+      this.ctx.drawImage(this.image_bitmap, 0, 0);
     }
     if (this.model.canvas !== undefined) {
-      this.ctx.drawImage(this.model.canvas, -1, 0);
+      this.ctx.drawImage(this.model.canvas, 0, 0);
     }
   }
 
