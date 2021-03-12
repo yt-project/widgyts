@@ -20,6 +20,8 @@ import {
   YTDatasets
 } from './widgyts';
 
+import { ytIcon } from './icon';
+
 import { MODULE_NAME, MODULE_VERSION } from './version';
 const EXTENSION_ID = MODULE_NAME + ':plugin';
 
@@ -51,7 +53,7 @@ const widgytsPlugin: JupyterFrontEndPlugin<void> = {
     const ytDatasets = new YTDatasets(ytDatasetsManager, translator);
     ytDatasets.id = 'yt-open-datasets';
     ytDatasets.title.caption = trans.__('Open Datasets');
-    ytDatasets.title.icon = null;
+    ytDatasets.title.icon = ytIcon;
     if (restorer) {
       restorer.add(ytDatasets, 'open-yt-datasets');
     }

@@ -68,6 +68,7 @@
     "@lumino/coreutils": "^1.5.3",
     "@types/node": "^10.11.6",
     "ipycanvas": "^0.8.2",
+    "raw-loader": "^4.0.2",
     "react": "^17.0.1"
   },
   "devDependencies": {

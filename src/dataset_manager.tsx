@@ -114,7 +114,7 @@ function YTDatasetComponent(props: {
   const trans = translator.load('jupyterlab');
   return (
     <>
-      <div className={'yt-OpenDatasetsClass'}>
+      <div className={'jp-RunningSessions-header'}>
         <ToolbarButtonComponent
           tooltip={trans.__('Refresh List')}
           icon={refreshIcon}
@@ -140,6 +140,7 @@ export class YTDatasets extends ReactWidget {
     this.translator = translator || nullTranslator;
 
     // we should add a class, probably?
+    this.addClass('jp-RunningSessions');
   }
   protected render() {
     return (
