@@ -18,8 +18,8 @@ import { refreshIcon } from '@jupyterlab/ui-components';
 // We create a token for all the different types of datasets we want to make
 // available, and then we allow each one to provide that token.
 
-export const IWidgytsDatasetManager = new Token<IWidgytsDatasetManager>(
-  '@yt-project/yt-tools:WidgytsDataset'
+export const IYTDatasetsManager = new Token<IYTDatasetsManager>(
+  '@yt-project/yt-tools:YTDatasetsManager'
 );
 
 // This is the "manager" object. What it does is collect each individual
@@ -28,21 +28,21 @@ export const IWidgytsDatasetManager = new Token<IWidgytsDatasetManager>(
 // eventually want each dataset to be an individual yt Dataset, and then have
 // multiple objects living underneath it.
 
-export interface IWidgytsDatasetManager {
-  add(manager: IWidgytsDatasetManager.IManager): IDisposable;
-  items(): ReadonlyArray<IWidgytsDatasetManager.IManager>;
+export interface IYTDatasetsManager {
+  add(manager: IYTDatasetsManager.IManager): IDisposable;
+  items(): ReadonlyArray<IYTDatasetsManager.IManager>;
 }
 
 // This next part is code from @jupyterlab/extensions , and I think it does
 // precisely what we need it to do.
-export class WidgytsDatasetManager implements IWidgytsDatasetManager {
+export class YTDatasetsManager implements IYTDatasetsManager {
   /**
    * Add a running item manager.
    *
    * @param manager - The running item manager.
    *
    */
-  add(manager: IWidgytsDatasetManager.IManager): IDisposable {
+  add(manager: IYTDatasetsManager.IManager): IDisposable {
     this._managers.push(manager);
     return new DisposableDelegate(() => {
       const i = this._managers.indexOf(manager);
@@ -56,21 +56,21 @@ export class WidgytsDatasetManager implements IWidgytsDatasetManager {
   /**
    * Return an iterator of launcher items.
    */
-  items(): ReadonlyArray<IWidgytsDatasetManager.IManager> {
+  items(): ReadonlyArray<IYTDatasetsManager.IManager> {
     return this._managers;
   }
 
-  private _managers: IWidgytsDatasetManager.IManager[] = [];
+  private _managers: IYTDatasetsManager.IManager[] = [];
 }
 
-export namespace IWidgytsDatasetManager {
+export namespace IYTDatasetsManager {
   export interface IManager {
     name: string;
-    available(): IWidgytsDataset[];
+    available(): IYTDataset[];
     refreshAvailable(): void;
   }
 
-  export interface IWidgytsDataset {
+  export interface IYTDataset {
     // called when the item is clicked
     open: () => void;
     // when the dataset has been closed (no shutdown)
@@ -85,8 +85,8 @@ export namespace IWidgytsDatasetManager {
   }
 }
 
-function WidgytsDatasetComponent(props: {
-  managers: IWidgytsDatasetManager;
+function YTDatasetComponent(props: {
+  managers: IYTDatasetsManager;
   translator?: ITranslator;
 }) {
   const translator = props.translator || nullTranslator;
@@ -104,16 +104,16 @@ function WidgytsDatasetComponent(props: {
           }
         />
       </div>
-      // this is where we'll have to do a bunch more...
       {props.managers.items().map(manager => (
+        // this is where we'll have to do a bunch more...
         <li>{manager.name}</li>
       ))}
     </>
   );
 }
 
-export class WidgytsDatasets extends ReactWidget {
-  constructor(managers: IWidgytsDatasetManager, translator?: ITranslator) {
+export class YTDatasets extends ReactWidget {
+  constructor(managers: IYTDatasetsManager, translator?: ITranslator) {
     super();
     this.managers = managers;
     this.translator = translator || nullTranslator;
@@ -122,13 +122,13 @@ export class WidgytsDatasets extends ReactWidget {
   }
   protected render() {
     return (
-      <WidgytsDatasetComponent
+      <YTDatasetComponent
         managers={this.managers}
         translator={this.translator}
       />
     );
   }
 
-  private managers: IWidgytsDatasetManager;
+  private managers: IYTDatasetsManager;
   protected translator: ITranslator;
 }
