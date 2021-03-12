@@ -27,6 +27,11 @@ export const IYTDatasetsManager = new Token<IYTDatasetsManager>(
 // is too many levels of hierarchy, but it is entirely reasonable that we may
 // eventually want each dataset to be an individual yt Dataset, and then have
 // multiple objects living underneath it.
+//
+// It's worth noting that this will show up with one for each running kernel.
+// That helps us get around the fact that we'll need to load them from there!
+// We also probably want one for the pure Jupyterlab session, or maybe for the
+// server instance itself.
 
 export interface IYTDatasetsManager {
   add(manager: IYTDatasetsManager.IManager): IDisposable;
@@ -51,6 +56,22 @@ export class YTDatasetsManager implements IYTDatasetsManager {
         this._managers.splice(i, 1);
       }
     });
+  }
+
+  obtainNewManager(name: string): IYTDatasetsManager.IManager {
+    return {
+      name: name,
+      refreshAvailable: () => null,
+      available(): IYTDatasetsManager.IYTDataset[] {
+        return [
+          {
+            open: () => null,
+            close: () => null,
+            label: () => null
+          }
+        ];
+      }
+    };
   }
 
   /**
