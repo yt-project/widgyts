@@ -18,7 +18,7 @@ class ColormapContainer(ipywidgets.Widget):
         colormaps = {}
         import matplotlib.cm as mplcm
 
-        cmap_list = mplcm.cmap_d.keys()
+        cmap_list = mplcm._cmap_registry.keys()
         for colormap in cmap_list:
             cmap = mplcm.get_cmap(colormap)
             vals = (cmap(np.mgrid[0.0:1.0:256j]) * 255).astype("uint8")
