@@ -68,12 +68,13 @@ class VariableMeshModel(ipywidgets.Widget):
             or self.data_source is None
         ):
             return
-        new_field = FieldArrayModel(
-            name=field_name, array=self.data_source[field_name].tobytes()
-        )
+        v = self.data_source[field_name]
+        new_field = FieldArrayModel(field_name=field_name, array=v.tobytes())
         new_field_values = self.field_values + [new_field]
         # Do an update of the trait!
         self.field_values = new_field_values
+        mi, ma = v.min(), v.max()
+        return mi, ma
 
 
 @ipywidgets.register
@@ -169,7 +170,9 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
     def _current_field_changed(self, change):
         if change["new"] in self.variable_mesh_model.field_values:
             return
-        self.variable_mesh_model.add_field(change["new"])
+        rv = self.variable_mesh_model.add_field(change["new"])
+        if rv is not None:
+            self.min_val, self.max_val = rv
 
     @traitlets.default("layout")
     def _layout_default(self):

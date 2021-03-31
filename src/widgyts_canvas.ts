@@ -111,10 +111,18 @@ export class WidgytsCanvasView extends CanvasView {
       this.dirtyBitmap,
       this
     );
+    this.model.on('change:current_field', this.updateCurrentField, this);
     this.el.addEventListener('wheel', this.conductZoom.bind(this));
     this.el.addEventListener('mousedown', this.startDrag.bind(this));
     this.el.addEventListener('mousemove', this.conductDrag.bind(this));
     window.addEventListener('mouseup', this.endDrag.bind(this));
+  }
+
+  async updateCurrentField(): Promise<void> {
+    this.model.current_field = this.model.get('current_field');
+    this.dirtyBitmap();
+    this.dirtyFRB();
+    return this.updateBitmap();
   }
 
   conductZoom(event: WheelEvent): void {
