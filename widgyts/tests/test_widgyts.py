@@ -13,7 +13,7 @@ from yt.testing import fake_amr_ds
 
 class TestWidgytsCanvasViewer(TestCase):
     def setUp(self):
-        ds = fake_amr_ds(fields=["density"])
+        ds = fake_amr_ds(fields=["density"], units=["g/cm**3"])
         s = ds.r[:, :, 0.5]
         self.data = s
         self.viewer = WidgytsCanvasViewer.from_obj(self.data, "density")
@@ -63,7 +63,7 @@ class TestWidgytsCanvasViewer(TestCase):
 
 class TestControls(TestCase):
     def setUp(self):
-        ds = fake_amr_ds(fields=["density"])
+        ds = fake_amr_ds(fields=["density"], units=["g/cm**3"])
         s = ds.r[:, :, 0.5]
         self.wcv_dens = WidgytsCanvasViewer.from_obj(s, "density")
         controls = self.wcv_dens.setup_controls()
@@ -134,7 +134,7 @@ class TestControls(TestCase):
 
 class TestDatasetViewer(TestCase):
     def setUp(self):
-        ds = fake_amr_ds(fields=["density"])
+        ds = fake_amr_ds(fields=["density"], units=["g/cm**3"])
         self.viewer = DatasetViewer(ds=ds)
 
     def test_component_traits(self):
