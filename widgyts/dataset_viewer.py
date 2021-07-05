@@ -83,10 +83,11 @@ class AMRDomainViewer(DomainViewer):
     def _grid_views_default(self):
         # This needs to generate the geometries and access the materials
         grid_views = []
-        cmap = mcm.get_cmap("inferno")
+        cmapdic = {0:'viridis', 1:'plasma', 2:'inferno', 3:'magma', 4:'cividis', 5:'viridis', 6:'plasma', 7:'inferno', 8:'magma'}
         for level in range(self.ds.max_level + 1):
             # We truncate at half of the colormap so that we just get a slight
             # linear progression
+            cmap = mcm.get_cmap(cmapdic[level])
             color = mcolors.to_hex(cmap(self.cmap_truncate * level / self.ds.max_level))
             # Corners is shaped like 8, 3, NGrids
             this_level = self.ds.index.grid_levels[:, 0] == level
