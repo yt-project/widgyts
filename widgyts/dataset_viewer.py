@@ -80,9 +80,9 @@ class AMRDomainViewer(DomainViewer):
     cmap_truncate = traitlets.CFloat(0.5)
     grid_colormap = traitlets.Unicode()
 
-    @traitlets.observe('grid_colormap')
+    @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
-        cmap = mcm.get_cmap(change['new'])
+        cmap = mcm.get_cmap(change["new"])
         for level, segments in enumerate(self.grid_views):
             color = mcolors.to_hex(cmap(self.cmap_truncate * level / self.ds.max_level))
             segments.material.color = color
@@ -191,31 +191,30 @@ class AMRDomainViewer(DomainViewer):
             grid_contents.extend([visible, color_picker, line_slider])
 
         dropdown = ipywidgets.Dropdown(
-            options = ['inferno', 'viridis', 'plasma', 'magma', 'cividis'],
-            value = 'inferno',
-            description = 'Colormap:', 
-            disable = False,
-
+            options=["inferno", "viridis", "plasma", "magma", "cividis"],
+            value="inferno",
+            description="Colormap:",
+            disable=False,
         )
 
-        traitlets.link((dropdown, 'value'),(self, 'grid_colormap'))
+        traitlets.link((dropdown, "value"), (self, "grid_colormap"))
 
         return ipywidgets.HBox(
             [
                 self.renderer,
-                ipywidgets.VBox([
-                    dropdown, 
-                    ipywidgets.GridBox(
-                        grid_contents,
-                        layout=ipywidgets.Layout(
-                            width=r"60%",
-                            grid_template_columns=r"30% 10% auto",
-                            align_items="stretch",
-                    ),
+                ipywidgets.VBox(
+                    [
+                        dropdown,
+                        ipywidgets.GridBox(
+                            grid_contents,
+                            layout=ipywidgets.Layout(
+                                width=r"60%",
+                                grid_template_columns=r"30% 10% auto",
+                                align_items="stretch",
+                            ),
+                        ),
+                    ]
                 ),
-            
-            ]
-        )
             ]
         )
 
