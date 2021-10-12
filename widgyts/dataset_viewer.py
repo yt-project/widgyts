@@ -79,10 +79,8 @@ class AMRDomainViewer(DomainViewer):
     cmap_truncate = traitlets.CFloat(0.5)
     grid_colormap = traitlets.Unicode()
     position_list = traitlets.List([])
-        
+
     @traitlets.observe("position_list")
-
-
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
         cmap = mcm.get_cmap(change["new"])
@@ -201,24 +199,26 @@ class AMRDomainViewer(DomainViewer):
         )
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
-        
-        button = ipywidgets.Button(description='Positions') 
-        
+
+        button = ipywidgets.Button(description="Positions")
+
         positions_list = []
-        
-        def on_button_clicked(b):           
-            positions_list = positions_list + traitlets.List(list(self.renderer.camera.position))
+
+        def on_button_clicked(b):
+            positions_list = positions_list + traitlets.List(
+                list(self.renderer.camera.position)
+            )
             print(positions_list)
-            
+
         button.on_click(on_button_clicked)
 
         select = ipywidgets.Select(
-            options = positions_list,
-            value= [2.0, 2.0, 2.0],
-            description='Positions:',
-            disabled=False
-        ) 
-        
+            options=positions_list,
+            value=[2.0, 2.0, 2.0],
+            description="Positions:",
+            disabled=False,
+        )
+
         return ipywidgets.HBox(
             [
                 self.renderer,
@@ -295,4 +295,3 @@ class ParametersViewer(DatasetViewerComponent):
         with out:
             display(JSON(loaded, root="Parameters", expanded=False))
         return ipywidgets.VBox([stats, out])
-
