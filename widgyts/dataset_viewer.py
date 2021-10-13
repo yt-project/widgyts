@@ -1,4 +1,5 @@
 import json
+
 import ipywidgets
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
@@ -80,7 +81,6 @@ class AMRDomainViewer(DomainViewer):
     grid_colormap = traitlets.Unicode()
     position_list = traitlets.List([])
 
-    @traitlets.observe("position_list")
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
         cmap = mcm.get_cmap(change["new"])
@@ -200,23 +200,15 @@ class AMRDomainViewer(DomainViewer):
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
 
-        button = ipywidgets.Button(description="Positions")
-
-        positions_list = []
+        button = ipywidgets.Button(description="Add Keyframe")
 
         def on_button_clicked(b):
-            positions_list = positions_list + traitlets.List(
-                list(self.renderer.camera.position)
-            )
-            print(positions_list)
+            self.position_list = self.position_list + self.renderer.camera.position
 
         button.on_click(on_button_clicked)
 
         select = ipywidgets.Select(
-            options=positions_list,
-            value=[2.0, 2.0, 2.0],
-            description="Positions:",
-            disabled=False,
+            options=self.position_list, description="Positions:", disabled=False
         )
 
         return ipywidgets.HBox(
