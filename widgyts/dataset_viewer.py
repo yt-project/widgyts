@@ -203,7 +203,7 @@ class AMRDomainViewer(DomainViewer):
         button = ipywidgets.Button(description="Add Keyframe")
 
         def on_button_clicked(b):
-            self.position_list = self.position_list + self.renderer.camera.position
+            self.position_list = self.position_list + [self.renderer.camera.position]
 
         button.on_click(on_button_clicked)
 
