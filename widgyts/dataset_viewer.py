@@ -205,8 +205,7 @@ class AMRDomainViewer(DomainViewer):
         def on_button_clicked(b):
             self.position_list = self.position_list + [self.renderer.camera.position]
             select.options += (
-                f"Position {len(self.position_list)}",
-                [self.renderer.camera.position],
+                (f"Position {len(self.position_list)}", self.renderer.camera.position),
             )
 
         button.on_click(on_button_clicked)
