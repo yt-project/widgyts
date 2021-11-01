@@ -213,9 +213,9 @@ class AMRDomainViewer(DomainViewer):
         select = ipywidgets.Select(options=[], description="Positions:", disabled=False)
 
         def on_selection_changed(change):
-            print(change["new"])
+            self.renderer.camera.position = self.position_list[change["new"]]
 
-        select.observe(on_selection_changed, ["value"])
+        select.observe(on_selection_changed, ["index"])
 
         return ipywidgets.HBox(
             [
