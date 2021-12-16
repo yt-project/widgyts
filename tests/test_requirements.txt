@@ -1,4 +1,4 @@
-ipywidgets>=7.0.0
+ipywidgets>=7.0.0 and ipywidgets<8.0.0
 ipydatawidgets>=3.2.0
 git+git://github.com/yt-project/yt.git#egg=yt
 matplotlib>=3.1.3

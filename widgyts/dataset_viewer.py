@@ -79,6 +79,7 @@ class AMRDomainViewer(DomainViewer):
     colormap_texture = traitlets.Instance(pythreejs.Texture)
     cmap_truncate = traitlets.CFloat(0.5)
     grid_colormap = traitlets.Unicode()
+    position_list = traitlets.List([])
 
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
@@ -199,9 +200,28 @@ class AMRDomainViewer(DomainViewer):
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
 
+        button = ipywidgets.Button(description="Add Keyframe")
+
+        def on_button_clicked(b):
+            self.position_list = self.position_list + [self.renderer.camera.position]
+            select.options += (
+                (f"Position {len(self.position_list)}", self.renderer.camera.position),
+            )
+
+        button.on_click(on_button_clicked)
+
+        select = ipywidgets.Select(options=[], description="Positions:", disabled=False)
+
+        def on_selection_changed(change):
+            self.renderer.camera.position = tuple(change["new"])
+
+        select.observe(on_selection_changed, ["value"])
+
         return ipywidgets.HBox(
             [
                 self.renderer,
+                button,
+                select,
                 ipywidgets.VBox(
                     [
                         dropdown,
