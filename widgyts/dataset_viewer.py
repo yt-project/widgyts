@@ -124,7 +124,7 @@ class AMRDomainViewer(DomainViewer):
     @traitlets.default("r2_falloff")
     def _r2_falloff_default(self):
         x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
-        r = (x ** 2 + y ** 2) ** -0.5
+        r = (x**2 + y**2) ** -0.5
         r = np.clip(r, 0.0, 5.0)
         r = (r - r.min()) / (r.max() - r.min())
         image_data = np.empty((32, 32, 4), dtype="f4")
@@ -138,7 +138,13 @@ class AMRDomainViewer(DomainViewer):
     def _colormap_texture_default(self):
         viridis = mcm.get_cmap("viridis")
         values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
-        values = np.stack([values[:, :],] * 256, axis=1,).copy(order="C")
+        values = np.stack(
+            [
+                values[:, :],
+            ]
+            * 256,
+            axis=1,
+        ).copy(order="C")
         colormap_texture = pythreejs.BaseDataTexture(data=values)
         return colormap_texture
 
@@ -200,28 +206,48 @@ class AMRDomainViewer(DomainViewer):
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
 
-        button = ipywidgets.Button(description="Add Keyframe")
+        button_add = ipywidgets.Button(description="Add Keyframe")
+        button_rem = ipywidgets.Button(description="Delete Keyframe")
 
-        def on_button_clicked(b):
-            self.position_list = self.position_list + [self.renderer.camera.position]
-            select.options += (
-                (f"Position {len(self.position_list)}", self.renderer.camera.position),
-            )
+        def _mirror_positions():
+            select.options = [
+                (f"Position {i}", p) for i, p in enumerate(self.position_list)
+            ]
 
-        button.on_click(on_button_clicked)
+        def on_button_add_clicked(b):
+            state = self.renderer.camera.get_state()
 
-        select = ipywidgets.Select(options=[], description="Positions:", disabled=False)
+            self.position_list = self.position_list + [
+                {attr: state[attr] for attr in ("position", "quaternion", "scale")}
+            ]
+            _mirror_positions()
+
+        button_add.on_click(on_button_add_clicked)
+
+        def on_button_rem_clicked(b):
+            del self.position_list[select.index]
+            _mirror_positions()
+
+        button_rem.on_click(on_button_rem_clicked)
+
+        select = ipywidgets.Select(options=[], disabled=False)
 
         def on_selection_changed(change):
-            self.renderer.camera.position = tuple(change["new"])
+            self.renderer.camera.set_state(change["new"])
 
         select.observe(on_selection_changed, ["value"])
 
         return ipywidgets.HBox(
             [
                 self.renderer,
-                button,
-                select,
+                ipywidgets.VBox(
+                    [
+                        button_add,
+                        button_rem,
+                        ipywidgets.Label("Keyframes"),
+                        select,
+                    ]
+                ),
                 ipywidgets.VBox(
                     [
                         dropdown,
@@ -241,7 +267,7 @@ class AMRDomainViewer(DomainViewer):
 
 # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
 class NumpyEncoder(json.JSONEncoder):
-    """ Special json encoder for numpy types """
+    """Special json encoder for numpy types"""
 
     def default(self, obj):
         if isinstance(obj, np.integer):
