@@ -209,9 +209,41 @@ class AMRDomainViewer(DomainViewer):
         button_add = ipywidgets.Button(description="Add Keyframe")
         button_rem = ipywidgets.Button(description="Delete Keyframe")
 
+        camera_action_box = ipywidgets.Box([])
+
         def _mirror_positions():
             select.options = [
                 (f"Position {i}", p) for i, p in enumerate(self.position_list)
+            ]
+            # Update our animation mixer tracks as well
+            times = np.mgrid[0.0 : 10.0 : len(self.position_list) * 1j]
+            if len(camera_action_box.children) > 0:
+                camera_action_box.children[0].stop()
+            camera_clip = pythreejs.AnimationClip(
+                tracks=[
+                    pythreejs.QuaternionKeyframeTrack(
+                        ".quaternion",
+                        values=[_["quaternion"] for _ in self.position_list],
+                        times=times,
+                    ),
+                    pythreejs.VectorKeyframeTrack(
+                        ".position",
+                        values=[_["position"] for _ in self.position_list],
+                        times=times,
+                    ),
+                    pythreejs.NumberKeyframeTrack(
+                        ".scale",
+                        values=[_["scale"] for _ in self.position_list],
+                        times=times,
+                    ),
+                ]
+            )
+            camera_action_box.children = [
+                pythreejs.AnimationAction(
+                    pythreejs.AnimationMixer(self.renderer.camera),
+                    camera_clip,
+                    self.renderer.camera,
+                )
             ]
 
         def on_button_add_clicked(b):
@@ -246,6 +278,7 @@ class AMRDomainViewer(DomainViewer):
                         button_rem,
                         ipywidgets.Label("Keyframes"),
                         select,
+                        camera_action_box,
                     ]
                 ),
                 ipywidgets.VBox(
