@@ -4,7 +4,7 @@ Getting Started
 ===============
 
 The widgyts package is designed to work with yt, but it can also work without
-a yt import. 
+a yt import.
 
 Components of widgyts
 ---------------------
@@ -35,8 +35,9 @@ instantiated explicitly and the ``widget()`` method called on it:
 
    import yt
    import widgyts
+
    ds = yt.load_sample("IsolatedGalaxy")
-   dsv = widgyts.DatasetViewer(ds = ds)
+   dsv = widgyts.DatasetViewer(ds=ds)
    dsv.widget()
 
 The data displayed here should persist with a notebook save, and should even be
@@ -50,7 +51,7 @@ with: ``ImageCanvas``, ``FRBViewer``, and ``ColorMaps``.  Each widget has a
 number of traitlets that sync back to the javascript (and potentially
 webassembly) that can be updated through the widget API. These traitlets can be
 linked (see our :ref:`examples` for some demonstrations of this in practice) so
-that widget instances can update together. 
+that widget instances can update together.
 
 API Documentation
 -----------------

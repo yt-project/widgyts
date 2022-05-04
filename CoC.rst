@@ -9,7 +9,7 @@ Code of Conduct
    project code of conduct. The yt project code of conduct was adapted from the
    `Astropy Community Code of Conduct
    <http://www.astropy.org/code_of_conduct.html>`_, which was partially adapted
-   by the PSF code of conduct. 
+   by the PSF code of conduct.
 
 The community of participants in open source
 Scientific projects is made up of members from around the

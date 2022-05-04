@@ -14,7 +14,7 @@ Building the Docs
 -----------------
 
 To build the documentation locally, refer to the instructions in the
-:ref:`building_the_documentation` section. 
+:ref:`building_the_documentation` section.
 
 Testing
 -------
