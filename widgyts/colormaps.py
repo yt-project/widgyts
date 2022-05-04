@@ -14,7 +14,7 @@ class ColormapContainer(ipywidgets.Widget):
 
     @traitlets.default("colormap_values")
     def _colormap_values_default(self):
-        """ Adds available colormaps from matplotlib."""
+        """Adds available colormaps from matplotlib."""
         colormaps = {}
         import matplotlib.cm as mplcm
 
