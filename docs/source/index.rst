@@ -1,7 +1,7 @@
 .. widgyts documentation master file, created by
    sphinx-quickstart on Thu Jun  6 11:14:51 2019.
    You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+   contain the root ``toctree`` directive.
 
 Welcome to widgyts's documentation!
 ===================================
@@ -22,7 +22,7 @@ out how best to illustrate the interesting aspects of your data.
 
 If you'd like to dig into the Rust and WebAssembly portion of the code, you can
 find it at `Github <https://github.com/data-exp-lab/rust-yt-tools/>`_ and in the npm
-package `@data-exp-lab/yt-tools`.
+package ``@data-exp-lab/yt-tools``.
 
 Check out our `SciPy 2018 talk <https://www.youtube.com/watch?v=5dl_m_6T2bU>`_
 and the `associated slides <https://munkm.github.io/2018-07-13-scipy/>`_ for more info!
