@@ -56,7 +56,6 @@ else:
 
 setup_args = dict(
     cmdclass=cmdclass,
-    ],
 )
 
 
