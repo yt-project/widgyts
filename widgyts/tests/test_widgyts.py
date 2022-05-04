@@ -19,7 +19,7 @@ class TestWidgytsCanvasViewer(TestCase):
         self.viewer = WidgytsCanvasViewer.from_obj(self.data, "density")
 
     def test_viewer_traits(self):
-        """Checks that the WidgytsCanvasViewer widget has the expected traits """
+        """Checks that the WidgytsCanvasViewer widget has the expected traits"""
         trait_list = [
             "min_val",
             "max_val",
