@@ -160,7 +160,11 @@ class AMRDomainViewer(DomainViewer):
             .d
         )
         camera = pythreejs.PerspectiveCamera(
-            position=right, fov=20, children=[pythreejs.AmbientLight()]
+            position=right,
+            fov=20,
+            children=[pythreejs.AmbientLight()],
+            near=1e-2,
+            far=2e3,
         )
         scene = pythreejs.Scene(
             children=[camera, pythreejs.AmbientLight(color="#dddddd")] + self.grid_views
@@ -199,7 +203,7 @@ class AMRDomainViewer(DomainViewer):
 
         dropdown = ipywidgets.Dropdown(
             options=["inferno", "viridis", "plasma", "magma", "cividis"],
-            value="inferno",
+            value="viridis",
             description="Colormap:",
             disable=False,
         )
@@ -216,7 +220,7 @@ class AMRDomainViewer(DomainViewer):
                 (f"Position {i}", p) for i, p in enumerate(self.position_list)
             ]
             # Update our animation mixer tracks as well
-            times = np.mgrid[0.0 : 10.0 : len(self.position_list) * 1j]
+            times = np.mgrid[0.0 : 10.0 : len(self.position_list) * 1j].astype("f4")
             if len(camera_action_box.children) > 0:
                 camera_action_box.children[0].stop()
             camera_clip = pythreejs.AnimationClip(
@@ -269,16 +273,51 @@ class AMRDomainViewer(DomainViewer):
 
         select.observe(on_selection_changed, ["value"])
 
+        center = self.ds.domain_center.in_units("code_length").d
+
+        def _create_clicked(axi, ax):
+            def view_button_clicked(button):
+                vec = [0, 0, 0]
+                vec[axi] = 2.0
+                self.renderer.camera.position = tuple(
+                    center + (self.ds.domain_width.in_units("code_length").d * vec)
+                )
+                self.renderer.camera.lookAt(center)
+
+            return view_button_clicked
+
+        view_buttons = []
+        for axi, ax in enumerate("XYZ"):
+            view_buttons.append(ipywidgets.Button(description=ax))
+
+            view_buttons[-1].on_click(_create_clicked(axi, ax))
+
+        # This could probably be stuck into the _create_clicked function, but my first attempt didn't work, so I'm writing it out here.
+        def view_isometric(button):
+            self.renderer.camera.position = tuple(
+                center + (self.ds.domain_width.in_units("code_length").d * 2)
+            )
+            self.renderer.camera.lookAt(center)
+
+        view_buttons.append(ipywidgets.Button(description="◆"))
+        view_buttons[-1].on_click(view_isometric)
+
         return ipywidgets.HBox(
             [
                 self.renderer,
                 ipywidgets.VBox(
                     [
-                        button_add,
-                        button_rem,
+                        ipywidgets.TwoByTwoLayout(
+                            top_left=view_buttons[0],
+                            top_right=view_buttons[2],
+                            bottom_left=view_buttons[1],
+                            bottom_right=view_buttons[3],
+                        ),
+                        ipywidgets.HBox([button_add, button_rem]),
                         ipywidgets.Label("Keyframes"),
                         select,
                         camera_action_box,
+                        _camera_widget(self.renderer.camera, self.renderer),
                     ]
                 ),
                 ipywidgets.VBox(
@@ -296,6 +335,25 @@ class AMRDomainViewer(DomainViewer):
                 ),
             ]
         )
+
+
+def _camera_widget(camera, renderer):
+    x = ipywidgets.FloatText(value=camera.position[0], step=0.01)
+    y = ipywidgets.FloatText(value=camera.position[1], step=0.01)
+    z = ipywidgets.FloatText(value=camera.position[2], step=0.01)
+
+    def update_positions(event):
+        x.value, y.value, z.value = event["new"]
+
+    def update_position_values(button):
+        camera.position = x.value, y.value, z.value
+
+    camera.observe(update_positions, ["position"])
+    go_button = ipywidgets.Button(description="Go")
+    go_button.on_click(update_position_values)
+
+    hb = ipywidgets.VBox([ipywidgets.Label("Camera Position"), x, y, z, go_button])
+    return hb
 
 
 # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
