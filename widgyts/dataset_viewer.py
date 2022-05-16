@@ -292,7 +292,8 @@ class AMRDomainViewer(DomainViewer):
 
             view_buttons[-1].on_click(_create_clicked(axi, ax))
 
-        # This could probably be stuck into the _create_clicked function, but my first attempt didn't work, so I'm writing it out here.
+        # This could probably be stuck into the _create_clicked function, but my
+        # first attempt didn't work, so I'm writing it out here.
         def view_isometric(button):
             self.renderer.camera.position = tuple(
                 center + (self.ds.domain_width.in_units("code_length").d * 2)
