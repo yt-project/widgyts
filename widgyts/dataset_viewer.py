@@ -160,7 +160,11 @@ class AMRDomainViewer(DomainViewer):
             .d
         )
         camera = pythreejs.PerspectiveCamera(
-            position=right, fov=20, children=[pythreejs.AmbientLight()]
+            position=right,
+            fov=20,
+            children=[pythreejs.AmbientLight()],
+            near=1e-2,
+            far=2e3,
         )
         scene = pythreejs.Scene(
             children=[camera, pythreejs.AmbientLight(color="#dddddd")] + self.grid_views
@@ -199,35 +203,124 @@ class AMRDomainViewer(DomainViewer):
 
         dropdown = ipywidgets.Dropdown(
             options=["inferno", "viridis", "plasma", "magma", "cividis"],
-            value="inferno",
+            value="viridis",
             description="Colormap:",
             disable=False,
         )
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
 
-        button = ipywidgets.Button(description="Add Keyframe")
+        button_add = ipywidgets.Button(description="Add Keyframe")
+        button_rem = ipywidgets.Button(description="Delete Keyframe")
 
-        def on_button_clicked(b):
-            self.position_list = self.position_list + [self.renderer.camera.position]
-            select.options += (
-                (f"Position {len(self.position_list)}", self.renderer.camera.position),
+        camera_action_box = ipywidgets.Box([])
+
+        def _mirror_positions():
+            select.options = [
+                (f"Position {i}", p) for i, p in enumerate(self.position_list)
+            ]
+            # Update our animation mixer tracks as well
+            times = np.mgrid[0.0 : 10.0 : len(self.position_list) * 1j].astype("f4")
+            if len(camera_action_box.children) > 0:
+                camera_action_box.children[0].stop()
+            camera_clip = pythreejs.AnimationClip(
+                tracks=[
+                    pythreejs.QuaternionKeyframeTrack(
+                        ".quaternion",
+                        values=[_["quaternion"] for _ in self.position_list],
+                        times=times,
+                    ),
+                    pythreejs.VectorKeyframeTrack(
+                        ".position",
+                        values=[_["position"] for _ in self.position_list],
+                        times=times,
+                    ),
+                    pythreejs.NumberKeyframeTrack(
+                        ".scale",
+                        values=[_["scale"] for _ in self.position_list],
+                        times=times,
+                    ),
+                ]
             )
+            camera_action_box.children = [
+                pythreejs.AnimationAction(
+                    pythreejs.AnimationMixer(self.renderer.camera),
+                    camera_clip,
+                    self.renderer.camera,
+                )
+            ]
 
-        button.on_click(on_button_clicked)
+        def on_button_add_clicked(b):
+            state = self.renderer.camera.get_state()
 
-        select = ipywidgets.Select(options=[], description="Positions:", disabled=False)
+            self.position_list = self.position_list + [
+                {attr: state[attr] for attr in ("position", "quaternion", "scale")}
+            ]
+            _mirror_positions()
+
+        button_add.on_click(on_button_add_clicked)
+
+        def on_button_rem_clicked(b):
+            del self.position_list[select.index]
+            _mirror_positions()
+
+        button_rem.on_click(on_button_rem_clicked)
+
+        select = ipywidgets.Select(options=[], disabled=False)
 
         def on_selection_changed(change):
-            self.renderer.camera.position = tuple(change["new"])
+            self.renderer.camera.set_state(change["new"])
 
         select.observe(on_selection_changed, ["value"])
+
+        center = self.ds.domain_center.in_units("code_length").d
+
+        def _create_clicked(axi, ax):
+            def view_button_clicked(button):
+                vec = [0, 0, 0]
+                vec[axi] = 2.0
+                self.renderer.camera.position = tuple(
+                    center + (self.ds.domain_width.in_units("code_length").d * vec)
+                )
+                self.renderer.camera.lookAt(center)
+
+            return view_button_clicked
+
+        view_buttons = []
+        for axi, ax in enumerate("XYZ"):
+            view_buttons.append(ipywidgets.Button(description=ax))
+
+            view_buttons[-1].on_click(_create_clicked(axi, ax))
+
+        # This could probably be stuck into the _create_clicked function, but my
+        # first attempt didn't work, so I'm writing it out here.
+        def view_isometric(button):
+            self.renderer.camera.position = tuple(
+                center + (self.ds.domain_width.in_units("code_length").d * 2)
+            )
+            self.renderer.camera.lookAt(center)
+
+        view_buttons.append(ipywidgets.Button(description="◆"))
+        view_buttons[-1].on_click(view_isometric)
 
         return ipywidgets.HBox(
             [
                 self.renderer,
-                button,
-                select,
+                ipywidgets.VBox(
+                    [
+                        ipywidgets.TwoByTwoLayout(
+                            top_left=view_buttons[0],
+                            top_right=view_buttons[2],
+                            bottom_left=view_buttons[1],
+                            bottom_right=view_buttons[3],
+                        ),
+                        ipywidgets.HBox([button_add, button_rem]),
+                        ipywidgets.Label("Keyframes"),
+                        select,
+                        camera_action_box,
+                        _camera_widget(self.renderer.camera, self.renderer),
+                    ]
+                ),
                 ipywidgets.VBox(
                     [
                         dropdown,
@@ -243,6 +336,25 @@ class AMRDomainViewer(DomainViewer):
                 ),
             ]
         )
+
+
+def _camera_widget(camera, renderer):
+    x = ipywidgets.FloatText(value=camera.position[0], step=0.01)
+    y = ipywidgets.FloatText(value=camera.position[1], step=0.01)
+    z = ipywidgets.FloatText(value=camera.position[2], step=0.01)
+
+    def update_positions(event):
+        x.value, y.value, z.value = event["new"]
+
+    def update_position_values(button):
+        camera.position = x.value, y.value, z.value
+
+    camera.observe(update_positions, ["position"])
+    go_button = ipywidgets.Button(description="Go")
+    go_button.on_click(update_position_values)
+
+    hb = ipywidgets.VBox([ipywidgets.Label("Camera Position"), x, y, z, go_button])
+    return hb
 
 
 # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
