@@ -7,9 +7,10 @@ EXTENSION_VERSION = "~" + __version__
 
 from .dataset_viewer import (
     AMRGridComponent,
+    ParticleComponent,
     DatasetViewer,
     FieldDefinitionViewer,
-    ParametersViewer,
+    ParametersViewer
 )
 from .image_canvas import *
 

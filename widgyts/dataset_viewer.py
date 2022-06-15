@@ -69,8 +69,7 @@ class DomainViewer(DatasetViewerComponent):
     def _domain_view_components_default(self):
         return [CameraPathView(parent=self), AxesView(parent=self)]
 
-    traitlets.observe("domain_view_components")
-
+    @traitlets.observe("domain_view_components")
     def _update_domain_view_components(self, change):
         # The renderer needs to be updated here, but we should not need to update
         # individual widgets.
@@ -298,18 +297,56 @@ class AxesView(DomainViewComponent):
 class ParticleComponent(DomainViewComponent):
     r2_falloff = traitlets.Instance(pythreejs.Texture)
     display_name = "Particles"
+    positions = traitlets.Instance(np.ndarray, allow_none=False)
+    radii = traitlets.Instance(np.ndarray)
+    particle_view = traitlets.Instance(pythreejs.Points)
+
+    @traitlets.default("radii")
+    def _radii_default(self):
+        return np.ones(self.positions.shape[0], dtype="f4")
+
+    @property
+    def view(self):
+        return [self.particle_view]
+
+    @traitlets.default("particle_view")
+    def _particle_view_default(self):
+        pg = pythreejs.BufferGeometry(
+            attributes=dict(
+                position=pythreejs.BufferAttribute(
+                    array=self.positions.astype("f4"), normalized=False
+                ),
+                # value=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+                # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+            )
+        )
+        pp = pythreejs.Points(
+            geometry=pg,
+            material=pythreejs.PointsMaterial(
+                color="#000000", size=1.0, map=self.r2_falloff
+            ),
+        )
+        return pp
+
+    def widget(self):
+        checkbox = ipywidgets.Checkbox(value=True, description="Visible")
+        ipywidgets.jslink((checkbox, "value"), (self.particle_view, "visible"))
+        slider = ipywidgets.FloatSlider(value=0.1, min=0.0, max=2.0, step=0.01)
+        ipywidgets.jslink((slider, "value"), (self.particle_view.material, "size"))
+        return ipywidgets.VBox([checkbox, slider])
 
     @traitlets.default("r2_falloff")
     def _r2_falloff_default(self):
         x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
         r = (x**2 + y**2) ** -0.5
-        r = np.clip(r, 0.0, 5.0)
+        r = np.clip(r, 0.0, 10.0)
         r = (r - r.min()) / (r.max() - r.min())
         image_data = np.empty((32, 32, 4), dtype="f4")
-        image_data[:, :, :3] = r[:, :, None]
-        image_data[:, :, 3] = 1.0
+        image_data[:, :, :] = r[:, :, None]
         image_data = (image_data * 255).astype("u1")
-        image_texture = pythreejs.BaseDataTexture(data=image_data)
+        image_texture = pythreejs.BaseDataTexture(
+            data=image_data, magFilter="LinearFilter"
+        )
         return image_texture
 
 
