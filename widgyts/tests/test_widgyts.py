@@ -5,7 +5,7 @@ from unittest import TestCase
 # import pytest
 from numpy import array_equal
 
-from widgyts import AMRDomainViewer, DatasetViewer, WidgytsCanvasViewer
+from widgyts import AMRGridComponent, DatasetViewer, WidgytsCanvasViewer
 from yt.testing import fake_amr_ds
 
 # from traitlets import HasTraits, TraitError
@@ -148,7 +148,7 @@ class TestDatasetViewer(TestCase):
 
     def test_amr_data_viewer(self):
 
-        assert isinstance(self.viewer.components[0], AMRDomainViewer)
+        assert isinstance(self.viewer.components[0], AMRGridComponent)
         adv = self.viewer.components[0]
 
         trait_list = ["domain_axes", "grid_views", "renderer", "cmap_truncate"]

@@ -28,7 +28,7 @@ class DatasetViewer(traitlets.HasTraits):
 
     @traitlets.default("components")
     def _components_default(self):
-        adv = AMRDomainViewer(ds=self.ds, viewer=self)
+        adv = DomainViewer(ds=self.ds, viewer=self)
         fdv = FieldDefinitionViewer(ds=self.ds, viewer=self)
         pv = ParametersViewer(ds=self.ds, viewer=self)
         return [adv, fdv, pv]
@@ -56,6 +56,11 @@ class FieldDefinitionViewer(DatasetViewerComponent):
 class DomainViewer(DatasetViewerComponent):
     domain_axes = traitlets.Instance(pythreejs.AxesHelper)
     name = "Domain Viewer"
+    renderer = traitlets.Instance(pythreejs.Renderer)
+    position_list = traitlets.List([])
+    domain_view_components = traitlets.List(
+        trait=traitlets.ForwardDeclaredInstance("DomainViewComponent")
+    )
 
     @traitlets.default("domain_axes")
     def _domain_axes_default(self):
@@ -71,82 +76,17 @@ class DomainViewer(DatasetViewerComponent):
         )
         return ah
 
-
-class AMRDomainViewer(DomainViewer):
-    grid_views = traitlets.List(trait=traitlets.Instance(pythreejs.LineSegments))
-    renderer = traitlets.Instance(pythreejs.Renderer)
-    r2_falloff = traitlets.Instance(pythreejs.Texture)
-    colormap_texture = traitlets.Instance(pythreejs.Texture)
-    cmap_truncate = traitlets.CFloat(0.5)
-    grid_colormap = traitlets.Unicode()
-    position_list = traitlets.List([])
-
-    @traitlets.observe("grid_colormap")
-    def _update_grid_colormap(self, change):
-        cmap = mcm.get_cmap(change["new"])
-        for level, segments in enumerate(self.grid_views):
-            color = mcolors.to_hex(cmap(self.cmap_truncate * level / self.ds.max_level))
-            segments.material.color = color
-
-    @traitlets.default("grid_views")
-    def _grid_views_default(self):
-        # This needs to generate the geometries and access the materials
-        grid_views = []
-        cmap = mcm.get_cmap("inferno")
-        for level in range(self.ds.max_level + 1):
-            # We truncate at half of the colormap so that we just get a slight
-            # linear progression
-            color = mcolors.to_hex(cmap(self.cmap_truncate * level / self.ds.max_level))
-            # Corners is shaped like 8, 3, NGrids
-            this_level = self.ds.index.grid_levels[:, 0] == level
-            corners = np.rollaxis(
-                self.ds.index.grid_corners[:, :, this_level], 2
-            ).astype("float32")
-            indices = (
-                ((np.arange(corners.shape[0]) * 8)[:, None] + _CORNER_INDICES[None, :])
-                .ravel()
-                .astype("uint32")
-            )
-            corners.shape = (corners.size // 3, 3)
-            geometry = pythreejs.BufferGeometry(
-                attributes=dict(
-                    position=pythreejs.BufferAttribute(array=corners, normalized=False),
-                    index=pythreejs.BufferAttribute(array=indices, normalized=False),
-                )
-            )
-            material = pythreejs.LineBasicMaterial(
-                color=color, linewidth=1, linecap="round", linejoin="round"
-            )
-            segments = pythreejs.LineSegments(geometry=geometry, material=material)
-            grid_views.append(segments)
-        return grid_views
-
-    @traitlets.default("r2_falloff")
-    def _r2_falloff_default(self):
-        x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
-        r = (x**2 + y**2) ** -0.5
-        r = np.clip(r, 0.0, 5.0)
-        r = (r - r.min()) / (r.max() - r.min())
-        image_data = np.empty((32, 32, 4), dtype="f4")
-        image_data[:, :, :3] = r[:, :, None]
-        image_data[:, :, 3] = 1.0
-        image_data = (image_data * 255).astype("u1")
-        image_texture = pythreejs.BaseDataTexture(data=image_data)
-        return image_texture
-
-    @traitlets.default("colormap_texture")
-    def _colormap_texture_default(self):
-        viridis = mcm.get_cmap("viridis")
-        values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
-        values = np.stack(
-            [
-                values[:, :],
-            ]
-            * 256,
-            axis=1,
-        ).copy(order="C")
-        colormap_texture = pythreejs.BaseDataTexture(data=values)
-        return colormap_texture
+    @traitlets.observe("domain_view_components")
+    def _update_domain_view_components(self, change):
+        # The renderer needs to be updated here, but we should not need to update
+        # individual widgets.
+        # We retain the first two, which will be the camera and an ambient light source.
+        new_children = []
+        for c in change["new"]:
+            new_children.extend(c.view)
+        self.renderer.scene.children = self.renderer.scene.children[:3] + tuple(
+            new_children
+        )
 
     @traitlets.default("renderer")
     def _renderer_default(self):
@@ -167,7 +107,7 @@ class AMRDomainViewer(DomainViewer):
             far=2e3,
         )
         scene = pythreejs.Scene(
-            children=[camera, pythreejs.AmbientLight(color="#dddddd")] + self.grid_views
+            children=[camera, pythreejs.AmbientLight(color="#dddddd"), self.domain_axes]
         )
         orbit_control = pythreejs.OrbitControls(controlling=camera)
         renderer = pythreejs.Renderer(
@@ -187,29 +127,6 @@ class AMRDomainViewer(DomainViewer):
 
     def widget(self):
         # Alright let's set this all up.
-        grid_contents = []
-        for i, view in enumerate(self.grid_views):
-            visible = ipywidgets.Checkbox(value=view.visible, description=f"Level {i}")
-            ipywidgets.jslink((visible, "value"), (view, "visible"))
-            color_picker = ipywidgets.ColorPicker(
-                value=view.material.color, concise=True
-            )
-            ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
-            line_slider = ipywidgets.FloatSlider(
-                value=view.material.linewidth, min=0.0, max=10.0
-            )
-            ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
-            grid_contents.extend([visible, color_picker, line_slider])
-
-        dropdown = ipywidgets.Dropdown(
-            options=["inferno", "viridis", "plasma", "magma", "cividis"],
-            value="viridis",
-            description="Colormap:",
-            disable=False,
-        )
-
-        traitlets.link((dropdown, "value"), (self, "grid_colormap"))
-
         button_add = ipywidgets.Button(description="Add Keyframe")
         button_rem = ipywidgets.Button(description="Delete Keyframe")
 
@@ -303,6 +220,16 @@ class AMRDomainViewer(DomainViewer):
         view_buttons.append(ipywidgets.Button(description="◆"))
         view_buttons[-1].on_click(view_isometric)
 
+        tab = ipywidgets.Tab(children=[])
+
+        def _update_tabs(change):
+            tab.children = [_.widget() for _ in self.domain_view_components]
+            for i, c in enumerate(self.domain_view_components):
+                tab.set_title(i, f"{c.display_name}")
+
+        _update_tabs(None)
+        self.observe(_update_tabs, ["domain_view_components"])
+
         return ipywidgets.HBox(
             [
                 self.renderer,
@@ -321,20 +248,139 @@ class AMRDomainViewer(DomainViewer):
                         _camera_widget(self.renderer.camera, self.renderer),
                     ]
                 ),
-                ipywidgets.VBox(
-                    [
-                        dropdown,
-                        ipywidgets.GridBox(
-                            grid_contents,
-                            layout=ipywidgets.Layout(
-                                width=r"60%",
-                                grid_template_columns=r"30% 10% auto",
-                                align_items="stretch",
-                            ),
-                        ),
-                    ]
-                ),
+                tab,
             ]
+        )
+
+
+class DomainViewComponent(traitlets.HasTraits):
+    parent = traitlets.Instance(DomainViewer)
+    display_name = "Unknown"
+
+
+class ParticleComponent(DomainViewComponent):
+    r2_falloff = traitlets.Instance(pythreejs.Texture)
+    display_name = "Particles"
+
+    @traitlets.default("r2_falloff")
+    def _r2_falloff_default(self):
+        x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
+        r = (x**2 + y**2) ** -0.5
+        r = np.clip(r, 0.0, 5.0)
+        r = (r - r.min()) / (r.max() - r.min())
+        image_data = np.empty((32, 32, 4), dtype="f4")
+        image_data[:, :, :3] = r[:, :, None]
+        image_data[:, :, 3] = 1.0
+        image_data = (image_data * 255).astype("u1")
+        image_texture = pythreejs.BaseDataTexture(data=image_data)
+        return image_texture
+
+
+class AMRGridComponent(DomainViewComponent):
+    grid_views = traitlets.List(trait=traitlets.Instance(pythreejs.LineSegments))
+    colormap_texture = traitlets.Instance(pythreejs.Texture)
+    cmap_truncate = traitlets.CFloat(0.5)
+    grid_colormap = traitlets.Unicode()
+    display_name = "Grids"
+
+    @property
+    def view(self):
+        return self.grid_views
+
+    @traitlets.observe("grid_colormap")
+    def _update_grid_colormap(self, change):
+
+        cmap = mcm.get_cmap(change["new"])
+        for level, segments in enumerate(self.grid_views):
+            color = mcolors.to_hex(
+                cmap(self.cmap_truncate * level / self.parent.ds.max_level)
+            )
+            segments.material.color = color
+
+    @traitlets.default("grid_views")
+    def _grid_views_default(self):
+        # This needs to generate the geometries and access the materials
+        grid_views = []
+        cmap = mcm.get_cmap("inferno")
+        for level in range(self.parent.ds.max_level + 1):
+            # We truncate at half of the colormap so that we just get a slight
+            # linear progression
+            color = mcolors.to_hex(
+                cmap(self.cmap_truncate * level / self.parent.ds.max_level)
+            )
+            # Corners is shaped like 8, 3, NGrids
+            this_level = self.parent.ds.index.grid_levels[:, 0] == level
+            corners = np.rollaxis(
+                self.parent.ds.index.grid_corners[:, :, this_level], 2
+            ).astype("float32")
+            indices = (
+                ((np.arange(corners.shape[0]) * 8)[:, None] + _CORNER_INDICES[None, :])
+                .ravel()
+                .astype("uint32")
+            )
+            corners.shape = (corners.size // 3, 3)
+            geometry = pythreejs.BufferGeometry(
+                attributes=dict(
+                    position=pythreejs.BufferAttribute(array=corners, normalized=False),
+                    index=pythreejs.BufferAttribute(array=indices, normalized=False),
+                )
+            )
+            material = pythreejs.LineBasicMaterial(
+                color=color, linewidth=1, linecap="round", linejoin="round"
+            )
+            segments = pythreejs.LineSegments(geometry=geometry, material=material)
+            grid_views.append(segments)
+        return grid_views
+
+    @traitlets.default("colormap_texture")
+    def _colormap_texture_default(self):
+        viridis = mcm.get_cmap("viridis")
+        values = (viridis(np.mgrid[0.0:1.0:256j]) * 255).astype("u1")
+        values = np.stack(
+            [
+                values[:, :],
+            ]
+            * 256,
+            axis=1,
+        ).copy(order="C")
+        colormap_texture = pythreejs.BaseDataTexture(data=values)
+        return colormap_texture
+
+    def widget(self):
+        grid_contents = []
+        for i, view in enumerate(self.grid_views):
+            visible = ipywidgets.Checkbox(value=view.visible, description=f"Level {i}")
+            ipywidgets.jslink((visible, "value"), (view, "visible"))
+            color_picker = ipywidgets.ColorPicker(
+                value=view.material.color, concise=True
+            )
+            ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
+            line_slider = ipywidgets.FloatSlider(
+                value=view.material.linewidth, min=0.0, max=10.0
+            )
+            ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
+            grid_contents.extend([visible, color_picker, line_slider])
+
+        dropdown = ipywidgets.Dropdown(
+            options=["inferno", "viridis", "plasma", "magma", "cividis"],
+            value="viridis",
+            description="Colormap:",
+            disable=False,
+        )
+
+        traitlets.link((dropdown, "value"), (self, "grid_colormap"))
+        return ipywidgets.VBox(
+            [
+                dropdown,
+                ipywidgets.GridBox(
+                    grid_contents,
+                    layout=ipywidgets.Layout(
+                        width=r"60%",
+                        grid_template_columns=r"30% 10% auto",
+                        align_items="stretch",
+                    ),
+                ),
+            ],
         )
 
 
