@@ -28,10 +28,15 @@ class DatasetViewer(traitlets.HasTraits):
 
     @traitlets.default("components")
     def _components_default(self):
-        adv = DomainViewer(ds=self.ds, viewer=self)
+        dv = DomainViewer(ds=self.ds, viewer=self)
         fdv = FieldDefinitionViewer(ds=self.ds, viewer=self)
         pv = ParametersViewer(ds=self.ds, viewer=self)
-        return [adv, fdv, pv]
+        if hasattr(self.ds.index, "grid_corners"):
+            # Can't use += or append
+            dv.domain_view_components = dv.domain_view_components + [
+                AMRGridComponent(parent=dv)
+            ]
+        return [dv, fdv, pv]
 
     def widget(self):
         tab = ipywidgets.Tab(
@@ -54,29 +59,18 @@ class FieldDefinitionViewer(DatasetViewerComponent):
 
 
 class DomainViewer(DatasetViewerComponent):
-    domain_axes = traitlets.Instance(pythreejs.AxesHelper)
     name = "Domain Viewer"
     renderer = traitlets.Instance(pythreejs.Renderer)
-    position_list = traitlets.List([])
     domain_view_components = traitlets.List(
         trait=traitlets.ForwardDeclaredInstance("DomainViewComponent")
     )
 
-    @traitlets.default("domain_axes")
-    def _domain_axes_default(self):
-        offset_vector = (self.ds.domain_left_edge - self.ds.domain_center) * 0.1
-        position = tuple(
-            (self.ds.domain_left_edge + offset_vector).in_units("code_length").d
-        )
-        # We probably don't want to use the AxesHelper as it doesn't expose the
-        # material, which can result in it not being easy to see.  But for now...
-        ah = pythreejs.AxesHelper(
-            position=position,
-            scale=tuple(self.ds.domain_width.in_units("code_length").d),
-        )
-        return ah
+    @traitlets.default("domain_view_components")
+    def _domain_view_components_default(self):
+        return [CameraPathView(parent=self), AxesView(parent=self)]
 
-    @traitlets.observe("domain_view_components")
+    traitlets.observe("domain_view_components")
+
     def _update_domain_view_components(self, change):
         # The renderer needs to be updated here, but we should not need to update
         # individual widgets.
@@ -84,7 +78,7 @@ class DomainViewer(DatasetViewerComponent):
         new_children = []
         for c in change["new"]:
             new_children.extend(c.view)
-        self.renderer.scene.children = self.renderer.scene.children[:3] + tuple(
+        self.renderer.scene.children = self.renderer.scene.children[:2] + tuple(
             new_children
         )
 
@@ -106,9 +100,10 @@ class DomainViewer(DatasetViewerComponent):
             near=1e-2,
             far=2e3,
         )
-        scene = pythreejs.Scene(
-            children=[camera, pythreejs.AmbientLight(color="#dddddd"), self.domain_axes]
-        )
+        children = [camera, pythreejs.AmbientLight(color="#dddddd")]
+        for c in self.domain_view_components:
+            children.extend(c.view)
+        scene = pythreejs.Scene(children=children)
         orbit_control = pythreejs.OrbitControls(controlling=camera)
         renderer = pythreejs.Renderer(
             scene=scene,
@@ -124,6 +119,38 @@ class DomainViewer(DatasetViewerComponent):
         orbit_control.target = center
         renderer.layout.border = "1px solid darkgrey"
         return renderer
+
+    def widget(self):
+        tab = ipywidgets.Tab(children=[])
+
+        def _update_tabs(change):
+            tab.children = [_.widget() for _ in self.domain_view_components]
+            for i, c in enumerate(self.domain_view_components):
+                tab.set_title(i, f"{c.display_name}")
+
+        _update_tabs(None)
+        self.observe(_update_tabs, ["domain_view_components"])
+
+        return ipywidgets.HBox(
+            [
+                self.renderer,
+                tab,
+            ]
+        )
+
+
+class DomainViewComponent(traitlets.HasTraits):
+    parent = traitlets.Instance(DomainViewer)
+    display_name = "Unknown"
+
+
+class CameraPathView(DomainViewComponent):
+    display_name = "Camera"
+    position_list = traitlets.List([])
+
+    @property
+    def view(self):
+        return []
 
     def widget(self):
         # Alright let's set this all up.
@@ -161,14 +188,14 @@ class DomainViewer(DatasetViewerComponent):
             )
             camera_action_box.children = [
                 pythreejs.AnimationAction(
-                    pythreejs.AnimationMixer(self.renderer.camera),
+                    pythreejs.AnimationMixer(self.parent.renderer.camera),
                     camera_clip,
-                    self.renderer.camera,
+                    self.parent.renderer.camera,
                 )
             ]
 
         def on_button_add_clicked(b):
-            state = self.renderer.camera.get_state()
+            state = self.parent.renderer.camera.get_state()
 
             self.position_list = self.position_list + [
                 {attr: state[attr] for attr in ("position", "quaternion", "scale")}
@@ -186,20 +213,21 @@ class DomainViewer(DatasetViewerComponent):
         select = ipywidgets.Select(options=[], disabled=False)
 
         def on_selection_changed(change):
-            self.renderer.camera.set_state(change["new"])
+            self.parent.renderer.camera.set_state(change["new"])
 
         select.observe(on_selection_changed, ["value"])
 
-        center = self.ds.domain_center.in_units("code_length").d
+        center = self.parent.ds.domain_center.in_units("code_length").d
 
         def _create_clicked(axi, ax):
             def view_button_clicked(button):
                 vec = [0, 0, 0]
                 vec[axi] = 2.0
-                self.renderer.camera.position = tuple(
-                    center + (self.ds.domain_width.in_units("code_length").d * vec)
+                self.parent.renderer.camera.position = tuple(
+                    center
+                    + (self.parent.ds.domain_width.in_units("code_length").d * vec)
                 )
-                self.renderer.camera.lookAt(center)
+                self.parent.renderer.camera.lookAt(center)
 
             return view_button_clicked
 
@@ -212,50 +240,59 @@ class DomainViewer(DatasetViewerComponent):
         # This could probably be stuck into the _create_clicked function, but my
         # first attempt didn't work, so I'm writing it out here.
         def view_isometric(button):
-            self.renderer.camera.position = tuple(
-                center + (self.ds.domain_width.in_units("code_length").d * 2)
+            self.parent.renderer.camera.position = tuple(
+                center + (self.parent.ds.domain_width.in_units("code_length").d * 2)
             )
-            self.renderer.camera.lookAt(center)
+            self.parent.renderer.camera.lookAt(center)
 
         view_buttons.append(ipywidgets.Button(description="◆"))
         view_buttons[-1].on_click(view_isometric)
 
-        tab = ipywidgets.Tab(children=[])
-
-        def _update_tabs(change):
-            tab.children = [_.widget() for _ in self.domain_view_components]
-            for i, c in enumerate(self.domain_view_components):
-                tab.set_title(i, f"{c.display_name}")
-
-        _update_tabs(None)
-        self.observe(_update_tabs, ["domain_view_components"])
-
-        return ipywidgets.HBox(
+        return ipywidgets.VBox(
             [
-                self.renderer,
-                ipywidgets.VBox(
-                    [
-                        ipywidgets.TwoByTwoLayout(
-                            top_left=view_buttons[0],
-                            top_right=view_buttons[2],
-                            bottom_left=view_buttons[1],
-                            bottom_right=view_buttons[3],
-                        ),
-                        ipywidgets.HBox([button_add, button_rem]),
-                        ipywidgets.Label("Keyframes"),
-                        select,
-                        camera_action_box,
-                        _camera_widget(self.renderer.camera, self.renderer),
-                    ]
+                ipywidgets.TwoByTwoLayout(
+                    top_left=view_buttons[0],
+                    top_right=view_buttons[2],
+                    bottom_left=view_buttons[1],
+                    bottom_right=view_buttons[3],
                 ),
-                tab,
+                ipywidgets.HBox([button_add, button_rem]),
+                ipywidgets.Label("Keyframes"),
+                select,
+                camera_action_box,
+                _camera_widget(self.parent.renderer.camera, self.parent.renderer),
             ]
         )
 
 
-class DomainViewComponent(traitlets.HasTraits):
-    parent = traitlets.Instance(DomainViewer)
-    display_name = "Unknown"
+class AxesView(DomainViewComponent):
+    display_name = "Axes"
+    domain_axes = traitlets.Instance(pythreejs.AxesHelper)
+
+    @traitlets.default("domain_axes")
+    def _domain_axes_default(self):
+        offset_vector = (
+            self.parent.ds.domain_left_edge - self.parent.ds.domain_center
+        ) * 0.1
+        position = tuple(
+            (self.parent.ds.domain_left_edge + offset_vector).in_units("code_length").d
+        )
+        # We probably don't want to use the AxesHelper as it doesn't expose the
+        # material, which can result in it not being easy to see.  But for now...
+        ah = pythreejs.AxesHelper(
+            position=position,
+            scale=tuple(self.parent.ds.domain_width.in_units("code_length").d),
+        )
+        return ah
+
+    @property
+    def view(self):
+        return [self.domain_axes]
+
+    def widget(self):
+        checkbox = ipywidgets.Checkbox(value=True, description="Visible")
+        ipywidgets.jslink((checkbox, "value"), (self.domain_axes, "visible"))
+        return checkbox
 
 
 class ParticleComponent(DomainViewComponent):
@@ -282,10 +319,11 @@ class AMRGridComponent(DomainViewComponent):
     cmap_truncate = traitlets.CFloat(0.5)
     grid_colormap = traitlets.Unicode()
     display_name = "Grids"
+    group = traitlets.Instance(pythreejs.Group)
 
     @property
     def view(self):
-        return self.grid_views
+        return [self.group]
 
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
@@ -296,6 +334,10 @@ class AMRGridComponent(DomainViewComponent):
                 cmap(self.cmap_truncate * level / self.parent.ds.max_level)
             )
             segments.material.color = color
+
+    @traitlets.default("group")
+    def _group_default(self):
+        return pythreejs.Group()
 
     @traitlets.default("grid_views")
     def _grid_views_default(self):
@@ -330,6 +372,7 @@ class AMRGridComponent(DomainViewComponent):
             )
             segments = pythreejs.LineSegments(geometry=geometry, material=material)
             grid_views.append(segments)
+            self.group.add(segments)
         return grid_views
 
     @traitlets.default("colormap_texture")
@@ -347,6 +390,10 @@ class AMRGridComponent(DomainViewComponent):
         return colormap_texture
 
     def widget(self):
+        group_visible = ipywidgets.Checkbox(
+            value=self.group.visible, description="Visible"
+        )
+        ipywidgets.jslink((group_visible, "value"), (self.group, "visible"))
         grid_contents = []
         for i, view in enumerate(self.grid_views):
             visible = ipywidgets.Checkbox(value=view.visible, description=f"Level {i}")
@@ -371,6 +418,7 @@ class AMRGridComponent(DomainViewComponent):
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
         return ipywidgets.VBox(
             [
+                group_visible,
                 dropdown,
                 ipywidgets.GridBox(
                     grid_contents,

@@ -6,7 +6,7 @@ from ._version import __version__
 EXTENSION_VERSION = "~" + __version__
 
 from .dataset_viewer import (
-    AMRDomainViewer,
+    AMRGridComponent,
     DatasetViewer,
     FieldDefinitionViewer,
     ParametersViewer,
