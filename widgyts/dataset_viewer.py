@@ -323,7 +323,10 @@ class ParticleComponent(DomainViewComponent):
         pp = pythreejs.Points(
             geometry=pg,
             material=pythreejs.PointsMaterial(
-                color="#000000", size=1.0, map=self.r2_falloff
+                color="#000000",
+                map=self.r2_falloff,
+                transparent=True,
+                depthTest=False,
             ),
         )
         return pp
@@ -331,7 +334,7 @@ class ParticleComponent(DomainViewComponent):
     def widget(self):
         checkbox = ipywidgets.Checkbox(value=True, description="Visible")
         ipywidgets.jslink((checkbox, "value"), (self.particle_view, "visible"))
-        slider = ipywidgets.FloatSlider(value=0.1, min=0.0, max=2.0, step=0.01)
+        slider = ipywidgets.FloatLogSlider(min=-3, max=1, value=0.1)
         ipywidgets.jslink((slider, "value"), (self.particle_view.material, "size"))
         return ipywidgets.VBox([checkbox, slider])
 
@@ -340,7 +343,8 @@ class ParticleComponent(DomainViewComponent):
         x, y = np.mgrid[-0.5:0.5:32j, -0.5:0.5:32j]
         r = (x**2 + y**2) ** -0.5
         r = np.clip(r, 0.0, 10.0)
-        r = (r - r.min()) / (r.max() - r.min())
+        r = (r - r[0, 15]) / (r.max() - r[0, 15].min())
+        r = np.clip(r, 0.0, 1.0)
         image_data = np.empty((32, 32, 4), dtype="f4")
         image_data[:, :, :] = r[:, :, None]
         image_data = (image_data * 255).astype("u1")
