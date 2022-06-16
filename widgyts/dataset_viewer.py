@@ -325,18 +325,24 @@ class ParticleComponent(DomainViewComponent):
             material=pythreejs.PointsMaterial(
                 color="#000000",
                 map=self.r2_falloff,
-                transparent=True,
+                transparent=False,
                 depthTest=False,
             ),
         )
         return pp
 
     def widget(self):
+        widgets = []
         checkbox = ipywidgets.Checkbox(value=True, description="Visible")
         ipywidgets.jslink((checkbox, "value"), (self.particle_view, "visible"))
+        widgets.append(checkbox)
+
         slider = ipywidgets.FloatLogSlider(min=-3, max=1, value=0.1)
         ipywidgets.jslink((slider, "value"), (self.particle_view.material, "size"))
-        return ipywidgets.VBox([checkbox, slider])
+        widgets.append(slider)
+
+        widgets.extend(_material_widget(self.particle_view.material))
+        return ipywidgets.VBox(widgets)
 
     @traitlets.default("r2_falloff")
     def _r2_falloff_default(self):
@@ -490,6 +496,57 @@ def _camera_widget(camera, renderer):
 
     hb = ipywidgets.VBox([ipywidgets.Label("Camera Position"), x, y, z, go_button])
     return hb
+
+
+def _material_widget(material):
+    # Some PointsMaterial bits
+    widgets = []
+    alpha_value = ipywidgets.FloatSlider(
+        value=material.alphaTest, min=0.0, max=1.0, description="Alpha Test Value"
+    )
+    ipywidgets.jslink((alpha_value, "value"), (material, "alphaTest"))
+    widgets.append(alpha_value)
+    transparent = ipywidgets.Checkbox(
+        value=material.transparent, description="Transparent"
+    )
+    # These have to be dlink because of dropdown objects allowing python
+    # computation
+    ipywidgets.dlink((transparent, "value"), (material, "transparent"))
+    widgets.append(transparent)
+
+    depth_test = ipywidgets.Checkbox(value=material.depthTest, description="Depth Test")
+    ipywidgets.dlink((depth_test, "value"), (material, "depthTest"))
+    widgets.append(depth_test)
+    blending = ipywidgets.Dropdown(
+        options=pythreejs.BlendingMode, description="Blending", value=material.blending
+    )
+    ipywidgets.dlink(
+        (blending, "value"),
+        (material, "blending"),
+    )
+    widgets.append(blending)
+
+    for comp in [""]:  # no "Alpha" for now I guess
+        widgets.append(
+            ipywidgets.Dropdown(
+                options=pythreejs.Equations, description=f"blendEquation{comp}"
+            )
+        )
+        ipywidgets.dlink((widgets[-1], "value"), (material, f"blendEquation{comp}"))
+
+    for fac in ["Src", "Dst"]:  # no SrcAlpha or DstAlpha for now
+        widgets.append(
+            ipywidgets.Dropdown(
+                options=pythreejs.BlendFactors,
+                description=f"blend{fac}",
+                value=getattr(material, f"blend{fac}"),
+            )
+        )
+        ipywidgets.dlink(
+            (widgets[-1], "value"),
+            (material, f"blend{fac}"),
+        )
+    return widgets
 
 
 # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
