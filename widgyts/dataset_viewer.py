@@ -1,16 +1,17 @@
 import json
 
 import ipywidgets
-from ipywidgets import widget_serialization
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 import numpy as np
 import pythreejs
 import traitlets
 from IPython.display import JSON, display
+from ipywidgets import widget_serialization
 
 from yt.data_objects.api import Dataset
 from yt.units import display_ytarray
+
 from . import EXTENSION_VERSION
 
 _CORNER_INDICES = np.array(

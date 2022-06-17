@@ -9,9 +9,9 @@ from .dataset_viewer import (
     AMRGridComponent,
     DatasetViewer,
     FieldDefinitionViewer,
+    FullscreenButton,
     ParametersViewer,
     ParticleComponent,
-    FullscreenButton,
 )
 from .image_canvas import *
 
