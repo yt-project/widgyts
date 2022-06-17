@@ -11,6 +11,7 @@ from .dataset_viewer import (
     FieldDefinitionViewer,
     ParametersViewer,
     ParticleComponent,
+    FullscreenButton,
 )
 from .image_canvas import *
 

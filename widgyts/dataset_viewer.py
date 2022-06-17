@@ -1,6 +1,7 @@
 import json
 
 import ipywidgets
+from ipywidgets import widget_serialization
 import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 import numpy as np
@@ -10,6 +11,7 @@ from IPython.display import JSON, display
 
 from yt.data_objects.api import Dataset
 from yt.units import display_ytarray
+from . import EXTENSION_VERSION
 
 _CORNER_INDICES = np.array(
     [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7],
@@ -316,8 +318,12 @@ class ParticleComponent(DomainViewComponent):
                 position=pythreejs.BufferAttribute(
                     array=self.positions.astype("f4"), normalized=False
                 ),
-                # value=pythreejs.BufferAttribute(array=self.radii, normalized=False),
-                # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+                index=pythreejs.BufferAttribute(
+                    array=np.arange(self.positions.shape[0]).astype("u8"),
+                    normalized=False
+                    # value=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+                    # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+                ),
             )
         )
         pp = pythreejs.Points(
@@ -477,6 +483,19 @@ class AMRGridComponent(DomainViewComponent):
                 ),
             ],
         )
+
+
+class FullscreenButton(ipywidgets.Button):
+    _model_name = traitlets.Unicode("FullscreenButtonModel").tag(sync=True)
+    _model_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
+    _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+    _view_name = traitlets.Unicode("FullscreenButtonView").tag(sync=True)
+    _view_module = traitlets.Unicode("@yt-project/yt-widgets").tag(sync=True)
+    _view_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
+
+    renderer = traitlets.Instance(pythreejs.Renderer).tag(
+        sync=True, **widget_serialization
+    )
 
 
 def _camera_widget(camera, renderer):
