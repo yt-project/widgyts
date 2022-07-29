@@ -140,6 +140,17 @@ class DomainViewer(DatasetViewerComponent):
             ]
         )
 
+    def add_particles(self, dobj, ptype="all", radii_field="particle_ones"):
+        """
+        This function accepts a data object, which is then queried for particle
+        positions and (optionally) a 'radii' field.  This is then added as a
+        component to the dataset viewer.
+        """
+        pos = dobj[ptype, "particle_position"]
+        radii = dobj[ptype, radii_field]
+        pv = ParticleComponent(positions=pos, radii=radii)
+        self.domain_view_components = self.domain_view_components + [pv]
+
 
 class DomainViewComponent(traitlets.HasTraits):
     parent = traitlets.Instance(DomainViewer)
@@ -334,7 +345,7 @@ class ParticleComponent(DomainViewComponent):
             material=pythreejs.PointsMaterial(
                 color="#000000",
                 map=self.r2_falloff,
-                transparent=False,
+                transparent=True,
                 depthTest=False,
             ),
         )
@@ -523,6 +534,11 @@ def _camera_widget(camera, renderer):
 def _material_widget(material):
     # Some PointsMaterial bits
     widgets = []
+    if material.has_trait("color"):
+        color = ipywidgets.ColorPicker(value="#000000", description="Color")
+        ipywidgets.jslink((color, "value"), (material, "color"))
+        widgets.append(color)
+
     alpha_value = ipywidgets.FloatSlider(
         value=material.alphaTest, min=0.0, max=1.0, description="Alpha Test Value"
     )
