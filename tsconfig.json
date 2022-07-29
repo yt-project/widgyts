@@ -18,8 +18,17 @@
     "strict": true,
     "strictNullChecks": false,
     "target": "es2017",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "src/@types",
+      "node_modules/@types"
+    ],
     "skipLibCheck": true
   },
-  "include": ["src/*"]
+  "include": [
+    "src/*",
+    "src/@types/jupyter-threejs.d.ts"
+  ]
 }

@@ -9,6 +9,7 @@ from .dataset_viewer import (
     AMRGridComponent,
     DatasetViewer,
     FieldDefinitionViewer,
+    FullscreenButton,
     ParametersViewer,
     ParticleComponent,
 )

@@ -60,13 +60,17 @@
   },
   "dependencies": {
     "@data-exp-lab/yt-tools": "^0.4.1",
+    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3 || ^4",
     "@jupyterlab/application": "^3.0.4",
     "@jupyterlab/coreutils": "^5.0.2",
     "@jupyterlab/mainmenu": "^3.0.3",
     "@jupyterlab/services": "^6.0.3",
-    "@jupyter-widgets/base": "^1.1.10 || ^2 || ^3 || ^4",
+    "@types/fscreen": "^1.0.1",
     "@types/node": "^10.11.6",
-    "ipycanvas": "^0.8.2"
+    "@types/three": "^0.141.0",
+    "fscreen": "^1.2.0",
+    "ipycanvas": "^0.8.2",
+    "jupyter-threejs": "^2.3.0"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",

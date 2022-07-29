@@ -11,7 +11,9 @@ import {
   VariableMeshModel,
   WidgytsCanvasModel,
   WidgytsCanvasView,
-  FieldArrayModel
+  FieldArrayModel,
+  FullscreenButtonModel,
+  FullscreenButtonView
 } from './widgyts';
 
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -30,7 +32,9 @@ const widgytsPlugin: JupyterFrontEndPlugin<void> = {
         VariableMeshModel,
         WidgytsCanvasModel,
         WidgytsCanvasView,
-        FieldArrayModel
+        FieldArrayModel,
+        FullscreenButtonModel,
+        FullscreenButtonView
       }
     });
   },
