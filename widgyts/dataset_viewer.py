@@ -314,6 +314,10 @@ class ParticleComponent(DomainViewComponent):
 
     @traitlets.default("particle_view")
     def _particle_view_default(self):
+        # Eventually, we will want to supply these additional attributes:
+        # value=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+        # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+        # in the attributes dict.
         pg = pythreejs.BufferGeometry(
             attributes=dict(
                 position=pythreejs.BufferAttribute(
@@ -321,9 +325,7 @@ class ParticleComponent(DomainViewComponent):
                 ),
                 index=pythreejs.BufferAttribute(
                     array=np.arange(self.positions.shape[0]).astype("u8"),
-                    normalized=False
-                    # value=pythreejs.BufferAttribute(array=self.radii, normalized=False),
-                    # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
+                    normalized=False,
                 ),
             )
         )
