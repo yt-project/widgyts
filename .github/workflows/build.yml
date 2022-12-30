@@ -50,7 +50,7 @@ jobs:
       run: |
         jlpm
         jlpm run eslint:check
-        python -m pip install git+https://github.com/yt-project/yt.git
+        python -m pip install yt
         python -m pip install .
 
         jupyter server extension list 2>&1 | grep -ie "widgyts.*OK"
