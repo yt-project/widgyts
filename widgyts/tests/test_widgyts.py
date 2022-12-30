@@ -5,7 +5,7 @@ from unittest import TestCase
 # import pytest
 from numpy import array_equal
 
-from widgyts import AMRGridComponent, DatasetViewer, WidgytsCanvasViewer
+from widgyts import AMRGridComponent, DatasetViewer, DomainViewer, WidgytsCanvasViewer
 from yt.testing import fake_amr_ds
 
 # from traitlets import HasTraits, TraitError
@@ -134,7 +134,7 @@ class TestControls(TestCase):
 
 class TestDatasetViewer(TestCase):
     def setUp(self):
-        ds = fake_amr_ds(fields=["density"], units=["g/cm**3"])
+        ds = fake_amr_ds(fields=[("gas", "density")], units=["g/cm**3"])
         self.viewer = DatasetViewer(ds=ds)
 
     def test_component_traits(self):
@@ -148,9 +148,14 @@ class TestDatasetViewer(TestCase):
 
     def test_amr_data_viewer(self):
 
-        assert isinstance(self.viewer.components[0], AMRGridComponent)
-        adv = self.viewer.components[0]
+        assert isinstance(self.viewer.components[0], DomainViewer)
+        dv = self.viewer.components[0]
+        assert dv.has_trait("renderer")
+        assert dv.has_trait("domain_view_components")
+        assert isinstance(dv.domain_view_components[2], AMRGridComponent)
 
-        trait_list = ["domain_axes", "grid_views", "renderer", "cmap_truncate"]
+        adv = dv.domain_view_components[2]
+
+        trait_list = ["grid_views", "cmap_truncate"]
         for trait in trait_list:
             assert adv.has_trait(trait)

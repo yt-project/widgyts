@@ -8,6 +8,7 @@ EXTENSION_VERSION = "~" + __version__
 from .dataset_viewer import (
     AMRGridComponent,
     DatasetViewer,
+    DomainViewer,
     FieldDefinitionViewer,
     FullscreenButton,
     ParametersViewer,
