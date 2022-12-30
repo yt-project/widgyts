@@ -52,10 +52,8 @@ jobs:
           python -m pip install .
 
           echo "Checking serverextension list"
-          jupyter server extension list
           jupyter server extension list 2>&1 | grep -ie "widgyts.*OK"
           echo "Checking labextension list"
-          jupyter labextension list
           jupyter labextension list 2>&1 | grep -ie "@yt-project/yt-widgets.*OK"
 
           echo "Checking browser check"
