@@ -3,7 +3,7 @@ requires = ["jupyter_packaging~=0.10,<2", "jupyterlab~=3.1", "setuptools>=40.8.0
 build-backend = "jupyter_packaging.build_api"
 [tool.black]
 line-length = 88
-target-version = ['py36', 'py37', 'py38']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -46,3 +46,17 @@ known_third_party = [
 ]
 known_first_party = ["yt"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.jupyter-packaging.options]
+skip-if-exists = ["widgyts/labextension/static/style.js"]
+ensured-targets = ["widgyts/labextension/static/style.js", "widgyts/labextension/package.json"]
+
+[tool.jupyter-packaging.builder]
+factory = "jupyter_packaging.npm_builder"
+
+[tool.jupyter-packaging.build-args]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.check-manifest]
+ignore = ["widgyts/labextension/**", "yarn.lock", ".*", "package-lock.json"]
