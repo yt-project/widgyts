@@ -16,14 +16,12 @@ class ColormapContainer(ipywidgets.Widget):
     def _colormap_values_default(self):
         """Adds available colormaps from matplotlib."""
         colormaps = {}
-        import matplotlib.cm as mplcm
+        import matplotlib
 
-        cmap_list = mplcm._cmap_registry.keys()
-        for colormap in cmap_list:
-            cmap = mplcm.get_cmap(colormap)
+        for cmap_name, cmap in matplotlib.colormaps.items():
             vals = (cmap(np.mgrid[0.0:1.0:256j]) * 255).astype("uint8")
             # right now let's just flatten the arrays. Later we can
             # serialize each cmap on its own.
             table = vals.flatten().tolist()
-            colormaps[colormap] = table
+            colormaps[cmap_name] = table
         return colormaps
