@@ -9,6 +9,7 @@ import traitlets
 from IPython.display import JSON, display
 from ipywidgets import widget_serialization
 
+import yt.utilities.lib.mesh_triangulation as mt
 from yt.data_objects.api import Dataset
 from yt.units import display_ytarray
 
@@ -394,7 +395,6 @@ class ParticleComponent(DomainViewComponent):
         )
         ipywidgets.jslink((slider, "value"), (self.particle_view.material, "size"))
         widgets.append(slider)
-
         widgets.extend(_material_widget(self.particle_view.material))
         return ipywidgets.VBox(widgets, layout=ipywidgets.Layout(width="auto"))
 
@@ -428,7 +428,6 @@ class AMRGridComponent(DomainViewComponent):
 
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
-
         cmap = mcm.get_cmap(change["new"])
         for level, segments in enumerate(self.grid_views):
             color = mcolors.to_hex(
@@ -538,6 +537,95 @@ class AMRGridComponent(DomainViewComponent):
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
         grid_box = ipywidgets.VBox(grid_contents)
         return ipywidgets.VBox(children=[group_visible, dropdown, grid_box])
+
+
+class UnstructuredMeshComponent(DomainViewComponent):
+    mesh_views = traitlets.List(trait=traitlets.Instance(pythreejs.BufferGeometry))
+    group = traitlets.Instance(pythreejs.Group)
+
+    @traitlets.default("mesh_views")
+    def _mesh_views_default(self):
+        mesh_views = []
+        for mesh in self.parent.ds.index.meshes:
+            material = pythreejs.MeshBasicMaterial(
+                color="#ff0000", vertexColors="VertexColors", side="DoubleSide"
+            )
+            indices = mt.triangulate_indices(
+                mesh.connectivity_indices - mesh._index_offset
+            )
+            # We need to convert these to the triangulated mesh.
+            attributes = dict(
+                position=pythreejs.BufferAttribute(
+                    mesh.connectivity_coords, normalized=False
+                ),
+                index=pythreejs.BufferAttribute(
+                    indices.ravel(order="C").astype("u4"), normalized=False
+                ),
+                color=pythreejs.BufferAttribute(
+                    (mesh.connectivity_coords * 255).astype("u1")
+                ),
+            )
+            geometry = pythreejs.BufferGeometry(attributes=attributes)
+            geometry.exec_three_obj_method("computeFaceNormals")
+            mesh_view = pythreejs.Mesh(
+                geometry=geometry, material=material, position=[0, 0, 0]
+            )
+            mesh_views.append(mesh_view)
+            self.group.add(mesh_view)
+        return mesh_views
+
+    @property
+    def view(self):
+        return [self.group]
+
+    def widget(self):
+        group_visible = ipywidgets.Checkbox(
+            value=self.group.visible, description="Visible"
+        )
+        ipywidgets.jslink((group_visible, "value"), (self.group, "visible"))
+        mesh_contents = []
+        for i, view in enumerate(self.mesh_views):
+            visible = ipywidgets.Checkbox(
+                value=view.visible,
+                description=f"Level {i}",
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
+            )
+            ipywidgets.jslink((visible, "value"), (view, "visible"))
+            color_picker = ipywidgets.ColorPicker(
+                value=view.material.color,
+                concise=True,
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
+            )
+            ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
+            line_slider = ipywidgets.FloatSlider(
+                value=view.material.linewidth,
+                min=0.0,
+                max=10.0,
+                layout=ipywidgets.Layout(flex="4 1 auto", width="auto"),
+            )
+            ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
+            mesh_contents.append(
+                ipywidgets.Box(
+                    children=[visible, color_picker, line_slider],
+                    layout=ipywidgets.Layout(
+                        display="flex",
+                        flex_flow="row",
+                        align_items="stretch",
+                        width="100%",
+                    ),
+                )
+            )
+
+        dropdown = ipywidgets.Dropdown(
+            options=["inferno", "viridis", "plasma", "magma", "cividis"],
+            value="viridis",
+            disable=False,
+            description="Colormap:",
+        )
+
+        traitlets.link((dropdown, "value"), (self, "mesh_colormap"))
+        mesh_box = ipywidgets.VBox(mesh_contents)
+        return ipywidgets.VBox(children=[group_visible, dropdown, mesh_box])
 
 
 class FullscreenButton(ipywidgets.Button):
