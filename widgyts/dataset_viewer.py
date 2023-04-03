@@ -428,7 +428,6 @@ class AMRGridComponent(DomainViewComponent):
 
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
-
         cmap = mcm.get_cmap(change["new"])
         for level, segments in enumerate(self.grid_views):
             color = mcolors.to_hex(
