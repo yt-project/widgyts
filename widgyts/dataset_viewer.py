@@ -40,6 +40,11 @@ class DatasetViewer(traitlets.HasTraits):
             dv.domain_view_components = dv.domain_view_components + [
                 AMRGridComponent(parent=dv)
             ]
+        elif hasattr(self.ds.index, "meshes"):
+            # here, we've got a nice li'l mesh
+            dv.domain_view_components = dv.domain_view_components + [
+                UnstructuredMeshComponent(parent=dv)
+            ]
         return [dv, fdv, pv]
 
     def widget(self):
@@ -540,15 +545,23 @@ class AMRGridComponent(DomainViewComponent):
 
 
 class UnstructuredMeshComponent(DomainViewComponent):
-    mesh_views = traitlets.List(trait=traitlets.Instance(pythreejs.BufferGeometry))
+    mesh_views = traitlets.List(trait=traitlets.Instance(pythreejs.Mesh))
     group = traitlets.Instance(pythreejs.Group)
+    display_name = "Mesh View"
+
+    @traitlets.default("group")
+    def _group_default(self):
+        return pythreejs.Group()
 
     @traitlets.default("mesh_views")
     def _mesh_views_default(self):
         mesh_views = []
         for mesh in self.parent.ds.index.meshes:
             material = pythreejs.MeshBasicMaterial(
-                color="#ff0000", vertexColors="VertexColors", side="DoubleSide"
+                color="#ff0000",
+                # vertexColors="VertexColors",
+                side="DoubleSide",
+                wireframe=True,
             )
             indices = mt.triangulate_indices(
                 mesh.connectivity_indices - mesh._index_offset
@@ -598,12 +611,14 @@ class UnstructuredMeshComponent(DomainViewComponent):
             )
             ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
             line_slider = ipywidgets.FloatSlider(
-                value=view.material.linewidth,
+                value=view.material.wireframeLinewidth,
                 min=0.0,
                 max=10.0,
                 layout=ipywidgets.Layout(flex="4 1 auto", width="auto"),
             )
-            ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
+            ipywidgets.jslink(
+                (line_slider, "value"), (view.material, "wireframeLinewidth")
+            )
             mesh_contents.append(
                 ipywidgets.Box(
                     children=[visible, color_picker, line_slider],
@@ -623,7 +638,7 @@ class UnstructuredMeshComponent(DomainViewComponent):
             description="Colormap:",
         )
 
-        traitlets.link((dropdown, "value"), (self, "mesh_colormap"))
+        # traitlets.link((dropdown, "value"), (self, "mesh_colormap"))
         mesh_box = ipywidgets.VBox(mesh_contents)
         return ipywidgets.VBox(children=[group_visible, dropdown, mesh_box])
 
