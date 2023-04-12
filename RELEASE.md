@@ -1,7 +1,8 @@
 - To release a new version of widgyts on PyPI:
 
-Update _version.py (set release version, remove 'dev')
-git add the _version.py file and git commit
+Update package.json and setup.cfg to update version and remove `dev`
+`git add package.json setup.cfg`
+`git commit -m "Bumping version"`
 `python setup.py sdist upload`
 `python setup.py bdist_wheel upload`
 `git tag -a X.X.X -m 'comment'`
