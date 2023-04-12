@@ -1,4 +1,4 @@
-name: Publish Python distributions to PyPI
+name: Publish Python distributions to PyPI and npm
 
 on:
   push:
@@ -34,6 +34,15 @@ jobs:
 #       password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 #       repository_url: https://test.pypi.org/legacy/
     - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Publish to NPM
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        registry-url: 'https://registry.npm.org/'
+    - run: npm ci
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
