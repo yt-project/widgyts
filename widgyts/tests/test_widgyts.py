@@ -147,7 +147,6 @@ class TestDatasetViewer(TestCase):
         assert len(self.viewer.components) == 3
 
     def test_amr_data_viewer(self):
-
         assert isinstance(self.viewer.components[0], DomainViewer)
         dv = self.viewer.components[0]
         assert dv.has_trait("renderer")
