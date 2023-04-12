@@ -11,12 +11,12 @@ jobs:
         python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v3
     - name: Install node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
        node-version: '18.x'
     - name: Install dependencies
