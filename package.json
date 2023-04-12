@@ -2,7 +2,10 @@
   "name": "@yt-project/yt-widgets",
   "version": "0.5.0",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
-  "author": "Data Exploration Lab",
+  "author": {
+    "name": "The yt Project",
+    "email": "yt-dev@python.org"
+  },
   "contributors": [
     {
       "name": "Nathanael Claussen",
@@ -29,8 +32,7 @@
   "license": "BSD-3-Clause",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf,wasm}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "style/index.js"
+    "style/**/*.{css,.js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -41,22 +43,20 @@
   },
   "scripts": {
     "build": "jlpm run build:lib && jlpm run build:labextension:dev",
-    "build:all": "jlpm run build:labextension",
+    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
-    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
     "clean": "jlpm run clean:lib",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "clean:labextension": "rimraf widgyts/labextension",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:labextension": "rimraf jupyterlab_nodeeditor/labextension",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
-    "install:extension": "jupyter labextension develop --overwrite .",
-    "prepare": "jlpm run clean && jlpm run build:prod",
+    "install:extension": "jlpm run build",
     "watch": "run-p watch:src watch:labextension",
-    "watch:labextension": "jupyter labextension watch .",
-    "watch:src": "tsc -w"
+    "watch:src": "tsc -w",
+    "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
     "@data-exp-lab/yt-tools": "^0.4.1",

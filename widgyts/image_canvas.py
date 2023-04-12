@@ -69,6 +69,8 @@ class VariableMeshModel(ipywidgets.Widget):
         ):
             return
         v = self.data_source[field_name]
+        if isinstance(field_name, tuple):
+            field_name = field_name[1]
         new_field = FieldArrayModel(field_name=field_name, array=v.tobytes())
         new_field_values = self.field_values + [new_field]
         # Do an update of the trait!
@@ -315,6 +317,8 @@ class WidgytsCanvasViewer(ipycanvas.Canvas):
     def from_obj(cls, obj, field="density"):
         vm = {_: obj[_].tobytes() for _ in ("px", "py", "pdx", "pdy")}
         # Bootstrap our field array model
+        if isinstance(field, tuple):
+            field = field[1]
         fv = [FieldArrayModel(field_name=field, array=obj[field].tobytes())]
         vmm = VariableMeshModel(**vm, data_source=obj, field_values=fv)
         frb = FRBModel(variable_mesh_model=vmm)

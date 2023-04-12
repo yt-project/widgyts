@@ -9,6 +9,7 @@ import traitlets
 from IPython.display import JSON, display
 from ipywidgets import widget_serialization
 
+import yt.utilities.lib.mesh_triangulation as mt
 from yt.data_objects.api import Dataset
 from yt.units import display_ytarray
 
@@ -38,6 +39,11 @@ class DatasetViewer(traitlets.HasTraits):
             # Can't use += or append
             dv.domain_view_components = dv.domain_view_components + [
                 AMRGridComponent(parent=dv)
+            ]
+        elif hasattr(self.ds.index, "meshes"):
+            # here, we've got a nice li'l mesh
+            dv.domain_view_components = dv.domain_view_components + [
+                UnstructuredMeshComponent(parent=dv)
             ]
         return [dv, fdv, pv]
 
@@ -123,7 +129,7 @@ class DomainViewer(DatasetViewerComponent):
         return renderer
 
     def widget(self):
-        tab = ipywidgets.Tab(children=[])
+        tab = ipywidgets.Tab(children=[], layout=ipywidgets.Layout(width="auto"))
 
         def _update_tabs(change):
             tab.children = [_.widget() for _ in self.domain_view_components]
@@ -133,11 +139,8 @@ class DomainViewer(DatasetViewerComponent):
         _update_tabs(None)
         self.observe(_update_tabs, ["domain_view_components"])
 
-        return ipywidgets.HBox(
-            [
-                self.renderer,
-                tab,
-            ]
+        return ipywidgets.AppLayout(
+            center=self.renderer, right_sidebar=tab, pane_widths=[0, "420px", 1]
         )
 
     def add_particles(self, dobj, ptype="all", radii_field="particle_ones"):
@@ -246,7 +249,11 @@ class CameraPathView(DomainViewComponent):
 
         view_buttons = []
         for axi, ax in enumerate("XYZ"):
-            view_buttons.append(ipywidgets.Button(description=ax))
+            view_buttons.append(
+                ipywidgets.Button(
+                    description=ax,
+                )
+            )
 
             view_buttons[-1].on_click(_create_clicked(axi, ax))
 
@@ -258,23 +265,52 @@ class CameraPathView(DomainViewComponent):
             )
             self.parent.renderer.camera.lookAt(center)
 
-        view_buttons.append(ipywidgets.Button(description="◆"))
+        view_buttons.append(
+            ipywidgets.Button(
+                description="◆",
+            )
+        )
         view_buttons[-1].on_click(view_isometric)
 
+        boxrow_layout = ipywidgets.Layout(
+            display="flex", flex_flow="row", align_items="stretch"
+        )
+        button_box_layout = ipywidgets.Layout(display="flex", flex_flow="column")
+        button_box = ipywidgets.Box(
+            children=[
+                ipywidgets.Box(
+                    [view_buttons[0], view_buttons[2]],
+                    layout=boxrow_layout,
+                ),
+                ipywidgets.Box(
+                    [view_buttons[1], view_buttons[3]],
+                    layout=boxrow_layout,
+                ),
+                ipywidgets.Box(
+                    [button_add, button_rem],
+                    layout=boxrow_layout,
+                ),
+                ipywidgets.Box(
+                    [ipywidgets.Label("Keyframes")],
+                    layout=boxrow_layout,
+                ),
+                ipywidgets.Box(
+                    [select],
+                    layout=boxrow_layout,
+                ),
+                ipywidgets.Box(
+                    [camera_action_box],
+                    layout=boxrow_layout,
+                ),
+            ],
+            layout=button_box_layout,
+        )
         return ipywidgets.VBox(
             [
-                ipywidgets.TwoByTwoLayout(
-                    top_left=view_buttons[0],
-                    top_right=view_buttons[2],
-                    bottom_left=view_buttons[1],
-                    bottom_right=view_buttons[3],
-                ),
-                ipywidgets.HBox([button_add, button_rem]),
-                ipywidgets.Label("Keyframes"),
-                select,
-                camera_action_box,
+                button_box,
                 _camera_widget(self.parent.renderer.camera, self.parent.renderer),
-            ]
+            ],
+            layout=ipywidgets.Layout(width="auto"),
         )
 
 
@@ -305,7 +341,9 @@ class AxesView(DomainViewComponent):
     def widget(self):
         checkbox = ipywidgets.Checkbox(value=True, description="Visible")
         ipywidgets.jslink((checkbox, "value"), (self.domain_axes, "visible"))
-        return checkbox
+        return ipywidgets.VBox(
+            children=[checkbox], layout=ipywidgets.Layout(width="auto")
+        )
 
 
 class ParticleComponent(DomainViewComponent):
@@ -357,12 +395,13 @@ class ParticleComponent(DomainViewComponent):
         ipywidgets.jslink((checkbox, "value"), (self.particle_view, "visible"))
         widgets.append(checkbox)
 
-        slider = ipywidgets.FloatLogSlider(min=-3, max=1, value=0.1)
+        slider = ipywidgets.FloatLogSlider(
+            min=-3, max=-0.2, value=0.1, description="Size"
+        )
         ipywidgets.jslink((slider, "value"), (self.particle_view.material, "size"))
         widgets.append(slider)
-
         widgets.extend(_material_widget(self.particle_view.material))
-        return ipywidgets.VBox(widgets)
+        return ipywidgets.VBox(widgets, layout=ipywidgets.Layout(width="auto"))
 
     @traitlets.default("r2_falloff")
     def _r2_falloff_default(self):
@@ -394,7 +433,6 @@ class AMRGridComponent(DomainViewComponent):
 
     @traitlets.observe("grid_colormap")
     def _update_grid_colormap(self, change):
-
         cmap = mcm.get_cmap(change["new"])
         for level, segments in enumerate(self.grid_views):
             color = mcolors.to_hex(
@@ -463,40 +501,146 @@ class AMRGridComponent(DomainViewComponent):
         ipywidgets.jslink((group_visible, "value"), (self.group, "visible"))
         grid_contents = []
         for i, view in enumerate(self.grid_views):
-            visible = ipywidgets.Checkbox(value=view.visible, description=f"Level {i}")
+            visible = ipywidgets.Checkbox(
+                value=view.visible,
+                description=f"Level {i}",
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
+            )
             ipywidgets.jslink((visible, "value"), (view, "visible"))
             color_picker = ipywidgets.ColorPicker(
-                value=view.material.color, concise=True
+                value=view.material.color,
+                concise=True,
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
             )
             ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
             line_slider = ipywidgets.FloatSlider(
-                value=view.material.linewidth, min=0.0, max=10.0
+                value=view.material.linewidth,
+                min=0.0,
+                max=10.0,
+                layout=ipywidgets.Layout(flex="4 1 auto", width="auto"),
             )
             ipywidgets.jslink((line_slider, "value"), (view.material, "linewidth"))
-            grid_contents.extend([visible, color_picker, line_slider])
+            grid_contents.append(
+                ipywidgets.Box(
+                    children=[visible, color_picker, line_slider],
+                    layout=ipywidgets.Layout(
+                        display="flex",
+                        flex_flow="row",
+                        align_items="stretch",
+                        width="100%",
+                    ),
+                )
+            )
 
         dropdown = ipywidgets.Dropdown(
             options=["inferno", "viridis", "plasma", "magma", "cividis"],
             value="viridis",
-            description="Colormap:",
             disable=False,
+            description="Colormap:",
         )
 
         traitlets.link((dropdown, "value"), (self, "grid_colormap"))
-        return ipywidgets.VBox(
-            [
-                group_visible,
-                dropdown,
-                ipywidgets.GridBox(
-                    grid_contents,
-                    layout=ipywidgets.Layout(
-                        width=r"60%",
-                        grid_template_columns=r"30% 10% auto",
-                        align_items="stretch",
-                    ),
+        grid_box = ipywidgets.VBox(grid_contents)
+        return ipywidgets.VBox(children=[group_visible, dropdown, grid_box])
+
+
+class UnstructuredMeshComponent(DomainViewComponent):
+    mesh_views = traitlets.List(trait=traitlets.Instance(pythreejs.Mesh))
+    group = traitlets.Instance(pythreejs.Group)
+    display_name = "Mesh View"
+
+    @traitlets.default("group")
+    def _group_default(self):
+        return pythreejs.Group()
+
+    @traitlets.default("mesh_views")
+    def _mesh_views_default(self):
+        mesh_views = []
+        for mesh in self.parent.ds.index.meshes:
+            material = pythreejs.MeshBasicMaterial(
+                color="#ff0000",
+                # vertexColors="VertexColors",
+                side="DoubleSide",
+                wireframe=True,
+            )
+            indices = mt.triangulate_indices(
+                mesh.connectivity_indices - mesh._index_offset
+            )
+            # We need to convert these to the triangulated mesh.
+            attributes = dict(
+                position=pythreejs.BufferAttribute(
+                    mesh.connectivity_coords, normalized=False
                 ),
-            ],
+                index=pythreejs.BufferAttribute(
+                    indices.ravel(order="C").astype("u4"), normalized=False
+                ),
+                color=pythreejs.BufferAttribute(
+                    (mesh.connectivity_coords * 255).astype("u1")
+                ),
+            )
+            geometry = pythreejs.BufferGeometry(attributes=attributes)
+            geometry.exec_three_obj_method("computeFaceNormals")
+            mesh_view = pythreejs.Mesh(
+                geometry=geometry, material=material, position=[0, 0, 0]
+            )
+            mesh_views.append(mesh_view)
+            self.group.add(mesh_view)
+        return mesh_views
+
+    @property
+    def view(self):
+        return [self.group]
+
+    def widget(self):
+        group_visible = ipywidgets.Checkbox(
+            value=self.group.visible, description="Visible"
         )
+        ipywidgets.jslink((group_visible, "value"), (self.group, "visible"))
+        mesh_contents = []
+        for i, view in enumerate(self.mesh_views):
+            visible = ipywidgets.Checkbox(
+                value=view.visible,
+                description=f"Level {i}",
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
+            )
+            ipywidgets.jslink((visible, "value"), (view, "visible"))
+            color_picker = ipywidgets.ColorPicker(
+                value=view.material.color,
+                concise=True,
+                layout=ipywidgets.Layout(flex="1 1 auto", width="auto"),
+            )
+            ipywidgets.jslink((color_picker, "value"), (view.material, "color"))
+            line_slider = ipywidgets.FloatSlider(
+                value=view.material.wireframeLinewidth,
+                min=0.0,
+                max=10.0,
+                layout=ipywidgets.Layout(flex="4 1 auto", width="auto"),
+            )
+            ipywidgets.jslink(
+                (line_slider, "value"), (view.material, "wireframeLinewidth")
+            )
+            mesh_contents.append(
+                ipywidgets.Box(
+                    children=[visible, color_picker, line_slider],
+                    layout=ipywidgets.Layout(
+                        display="flex",
+                        flex_flow="row",
+                        align_items="stretch",
+                        width="100%",
+                    ),
+                )
+            )
+
+        dropdown = ipywidgets.Dropdown(
+            options=["inferno", "viridis", "plasma", "magma", "cividis"],
+            value="viridis",
+            disable=False,
+            description="Colormap:",
+        )
+
+        # traitlets.link((dropdown, "value"), (self, "mesh_colormap"))
+        mesh_box = ipywidgets.VBox(mesh_contents)
+        return ipywidgets.VBox(children=[group_visible, dropdown, mesh_box])
 
 
 class FullscreenButton(ipywidgets.Button):
