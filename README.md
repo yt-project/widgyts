@@ -60,7 +60,7 @@ development installation, do:
 
 To install the latest released version,
 
-    $ jupyter labextension install @data-exp-lab/yt-widgets
+    $ jupyter labextension install @yt-project/yt-widgets
 
 Using
 -----
