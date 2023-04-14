@@ -92,13 +92,13 @@ class DomainViewer(DatasetViewerComponent):
 
     @traitlets.default("renderer")
     def _renderer_default(self):
-        center = tuple(self.ds.domain_center.in_units("code_length").d)
+        center = tuple(self.ds.domain_center.in_units("unitary").d)
         right = tuple(
             (
                 self.ds.domain_right_edge
                 + (self.ds.domain_right_edge - self.ds.domain_center) * 2.0
             )
-            .in_units("code_length")
+            .in_units("unitary")
             .d
         )
         camera = pythreejs.PerspectiveCamera(
@@ -233,7 +233,7 @@ class CameraPathView(DomainViewComponent):
 
         select.observe(on_selection_changed, ["value"])
 
-        center = self.parent.ds.domain_center.in_units("code_length").d
+        center = self.parent.ds.domain_center.in_units("unitary").d
 
         def _create_clicked(axi, ax):
             def view_button_clicked(button):
@@ -241,7 +241,7 @@ class CameraPathView(DomainViewComponent):
                 vec[axi] = 2.0
                 self.parent.renderer.camera.position = tuple(
                     center
-                    + (self.parent.ds.domain_width.in_units("code_length").d * vec)
+                    + (self.parent.ds.domain_width.in_units("unitary").d * vec)
                 )
                 self.parent.renderer.camera.lookAt(center)
 
@@ -261,7 +261,7 @@ class CameraPathView(DomainViewComponent):
         # first attempt didn't work, so I'm writing it out here.
         def view_isometric(button):
             self.parent.renderer.camera.position = tuple(
-                center + (self.parent.ds.domain_width.in_units("code_length").d * 2)
+                center + (self.parent.ds.domain_width.in_units("unitary").d * 2)
             )
             self.parent.renderer.camera.lookAt(center)
 
@@ -322,15 +322,15 @@ class AxesView(DomainViewComponent):
     def _domain_axes_default(self):
         offset_vector = (
             self.parent.ds.domain_left_edge - self.parent.ds.domain_center
-        ) * 0.1
+        ).in_units('unitary') * 0.1
         position = tuple(
-            (self.parent.ds.domain_left_edge + offset_vector).in_units("code_length").d
+            (self.parent.ds.domain_left_edge + offset_vector).in_units("unitary").d
         )
         # We probably don't want to use the AxesHelper as it doesn't expose the
         # material, which can result in it not being easy to see.  But for now...
         ah = pythreejs.AxesHelper(
             position=position,
-            scale=tuple(self.parent.ds.domain_width.in_units("code_length").d),
+            scale=tuple(self.parent.ds.domain_width.in_units("unitary").d),
         )
         return ah
 
@@ -457,8 +457,13 @@ class AMRGridComponent(DomainViewComponent):
             )
             # Corners is shaped like 8, 3, NGrids
             this_level = self.parent.ds.index.grid_levels[:, 0] == level
+            level_corners = self.parent.ds.index.grid_corners[:, :, this_level]
+            # We don't know if level_corners will be unyt-ful or not, but if it *is*
+            # it will be in the units of the grid_left_edges
+            uq = self.parent.ds.index.grid_left_edge.uq
+            level_corners = (getattr(level_corners, 'd', level_corners) * uq).in_units('unitary')
             corners = np.rollaxis(
-                self.parent.ds.index.grid_corners[:, :, this_level], 2
+                level_corners, 2
             ).astype("float32")
             indices = (
                 ((np.arange(corners.shape[0]) * 8)[:, None] + _CORNER_INDICES[None, :])
