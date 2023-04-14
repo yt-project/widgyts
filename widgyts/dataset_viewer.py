@@ -240,8 +240,7 @@ class CameraPathView(DomainViewComponent):
                 vec = [0, 0, 0]
                 vec[axi] = 2.0
                 self.parent.renderer.camera.position = tuple(
-                    center
-                    + (self.parent.ds.domain_width.in_units("unitary").d * vec)
+                    center + (self.parent.ds.domain_width.in_units("unitary").d * vec)
                 )
                 self.parent.renderer.camera.lookAt(center)
 
@@ -322,7 +321,7 @@ class AxesView(DomainViewComponent):
     def _domain_axes_default(self):
         offset_vector = (
             self.parent.ds.domain_left_edge - self.parent.ds.domain_center
-        ).in_units('unitary') * 0.1
+        ).in_units("unitary") * 0.1
         position = tuple(
             (self.parent.ds.domain_left_edge + offset_vector).in_units("unitary").d
         )
@@ -461,10 +460,10 @@ class AMRGridComponent(DomainViewComponent):
             # We don't know if level_corners will be unyt-ful or not, but if it *is*
             # it will be in the units of the grid_left_edges
             uq = self.parent.ds.index.grid_left_edge.uq
-            level_corners = (getattr(level_corners, 'd', level_corners) * uq).in_units('unitary')
-            corners = np.rollaxis(
-                level_corners, 2
-            ).astype("float32")
+            level_corners = (getattr(level_corners, "d", level_corners) * uq).in_units(
+                "unitary"
+            )
+            corners = np.rollaxis(level_corners, 2).astype("float32")
             indices = (
                 ((np.arange(corners.shape[0]) * 8)[:, None] + _CORNER_INDICES[None, :])
                 .ravel()
