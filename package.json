@@ -1,6 +1,6 @@
 {
   "name": "@yt-project/yt-widgets",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A Custom Jupyter Widget Library for Interactive Visualization with yt",
   "author": {
     "name": "The yt Project",
