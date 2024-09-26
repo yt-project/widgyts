@@ -1,62 +1,163 @@
 [build-system]
-requires = ["jupyter_packaging~=0.10,<2", "jupyterlab~=3.1", "setuptools>=40.8.0", "wheel>=0.36.2"]
-build-backend = "jupyter_packaging.build_api"
+requires = [
+    "hatchling",
+    "jupyterlab~=3.1",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "widgyts"
+description = "A Custom Jupyter Widget Library for Interactive Visualization with yt"
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [
+    { name = "The yt Project", email = "yt-dev@python.org" },
+]
+keywords = [
+    "Jupyter",
+    "JupyterLab",
+    "JupyterLab3",
+]
+classifiers = [
+    "Framework :: Jupyter",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "ipycanvas>=0.4.7",
+    "ipywidgets>=7.5.1",
+    "jupyterlab~=3.0",
+    "numpy>=1.14",
+    "pythreejs>=2.2.0",
+    "traitlets>=4.3.3",
+    "yt>=4.0.3",
+]
+version = "0.5.1"
+
+[project.license]
+file = "LICENSE"
+
+[project.urls]
+Documentation = "https://widgyts.readthedocs.org/"
+Homepage = "https://yt-project.org/"
+Source = "https://github.com/yt-project/widgyts/"
+Tracker = "https://github.com/yt-project/widgyts/issues"
+
+[tool.hatch.build]
+artifacts = [
+    "widgyts/labextension",
+]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"widgyts/labextension/static" = "share/jupyter/labextensions/@yt-project/yt-widgets/static"
+"install.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/install.json"
+"widgyts/labextension/build_log.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/build_log.json"
+"widgyts/labextension/package.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/package.json"
+jupyter-config = "etc/jupyter/jupyter_server_config.d"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    ".github",
+]
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = [
+    "hatch-jupyter-builder>=0.9.1",
+]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "widgyts/labextension/static/style.js",
+    "widgyts/labextension/package.json",
+]
+skip-if-exists = [
+    "widgyts/labextension/static/style.js",
+]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_dir = "widgyts/labextension"
+source_dir = "src"
+build_cmd = "install:extension"
+npm = [
+    "jlpm",
+]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = [
+    "jlpm",
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | src
-)/
-'''
+target-version = [
+    "py38",
+    "py39",
+    "py310",
+    "py311",
+]
+include = "\\.pyi?$"
+exclude = "/(\n    \\.eggs\n  | \\.git\n  | \\.hg\n  | \\.mypy_cache\n  | \\.tox\n  | \\.venv\n  | _build\n  | buck-out\n  | build\n  | dist\n  | src\n)/\n"
 
-
-# To be kept consistent with "Import Formatting" section in CONTRIBUTING.rst
 [tool.isort]
 profile = "black"
 combine_as_imports = true
-# isort can't be applied to yt/__init__.py because it creates circular imports
-skip =  ["src", "docs"]
-known_third_party = [
-  "IPython",
-  "nose",
-  "numpy",
-  "sympy",
-  "matplotlib",
-  "unyt",
-  "git",
-  "yaml",
-  "dateutil",
-  "requests",
-  "coverage",
-  "pytest",
-  "pyx",
-  "glue",
+skip = [
+    "src",
+    "docs",
 ]
-known_first_party = ["yt"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_third_party = [
+    "IPython",
+    "nose",
+    "numpy",
+    "sympy",
+    "matplotlib",
+    "unyt",
+    "git",
+    "yaml",
+    "dateutil",
+    "requests",
+    "coverage",
+    "pytest",
+    "pyx",
+    "glue",
+]
+known_first_party = [
+    "yt",
+]
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "THIRDPARTY",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+]
 
-[tool.jupyter-packaging.options]
-skip-if-exists = ["widgyts/labextension/static/style.js"]
-ensured-targets = ["widgyts/labextension/static/style.js", "widgyts/labextension/package.json"]
+[tool.tbump]
+field = [
+    { name = "channel", default = "" },
+    { name = "release", default = "" },
+]
 
-[tool.jupyter-packaging.builder]
-factory = "jupyter_packaging.npm_builder"
+[tool.tbump.version]
+current = "0.5.1"
+regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
 
-[tool.jupyter-packaging.build-args]
-build_cmd = "build:prod"
-npm = ["jlpm"]
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
 
-[tool.check-manifest]
-ignore = ["widgyts/labextension/**", "yarn.lock", ".*", "package-lock.json"]
+[[tool.tbump.file]]
+src = "pyproject.toml"
+version_template = "version = \"{major}.{minor}.{patch}{channel}{release}\""
+
+[[tool.tbump.file]]
+src = "widgyts/_version.py"
+
+[[tool.tbump.file]]
+src = "package.json"
+version_template = "\"version\": \"{major}.{minor}.{patch}{channel}{release}\""
