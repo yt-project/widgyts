@@ -37,7 +37,7 @@ To install using pip from this directory:
 
 ### Development installation
 
-The following assumes you're using conda. If not, you'll need to install nodejs 
+The following assumes you're using conda. If not, you'll need to install nodejs
 in your environemnt separately.
 
 ```bash
@@ -58,7 +58,7 @@ jupyter labextension develop --overwrite .
 jlpm run build
 ```
 
-Note that `jupyterlab` provides `jlpm`, a jupyter-flavored version of `yarn`, 
+Note that `jupyterlab` provides `jlpm`, a jupyter-flavored version of `yarn`,
 provided by `jupyterlab`.
 
 ### How to see your changes
