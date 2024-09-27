@@ -59,7 +59,7 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel.shared-data]
 "widgyts/labextension/static" = "share/jupyter/labextensions/@yt-project/yt-widgets/static"
-"./install.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/install.json"
+"install.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/install.json"
 "widgyts/labextension/build_log.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/build_log.json"
 "widgyts/labextension/package.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/package.json"
 jupyter-config = "etc/jupyter/jupyter_server_config.d"
