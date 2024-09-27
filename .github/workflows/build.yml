@@ -17,14 +17,15 @@ jobs:
         node-version: '18.x'
     - name: Install dependencies
       run: python -m pip install -U jupyterlab~=4.0
-    - name: Build the extension
-      run: |
-        jlpm
-        jlpm run eslint:check
-        python -m pip install yt
-        python -m pip install .
-
+    - name: install ts modules
+      run: jlpm
+    - name: jlpm lint check
+      run: jlpm run eslint:check
+    - name: install python package
+      run: python -m pip install .
+    - name: check for widgyts in extensions
+      run:
         jupyter server extension list 2>&1 | grep -ie "widgyts.*OK"
-
         jupyter labextension list 2>&1 | grep -ie "@yt-project/yt-widgets.*OK"
-        python -m jupyterlab.browser_check
+    - name: run jupyterlab browser check
+      run: python -m jupyterlab.browser_check
