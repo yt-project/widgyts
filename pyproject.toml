@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 name = "widgyts"
 description = "A Custom Jupyter Widget Library for Interactive Visualization with yt"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 authors = [
     { name = "The yt Project", email = "yt-dev@python.org" },
 ]
@@ -23,10 +23,9 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
     "ipycanvas>=0.4.7",
@@ -95,7 +94,6 @@ npm = [
 [tool.black]
 line-length = 88
 target-version = [
-    "py38",
     "py39",
     "py310",
     "py311",
