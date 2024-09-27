@@ -1,5 +1,4 @@
-widgyts
-===============================
+# widgyts
 
 [![Documentation
 Status](https://readthedocs.org/projects/widgyts/badge/?version=latest)](https://widgyts.readthedocs.io/en/latest/?badge=latest)
@@ -19,14 +18,12 @@ package `@data-exp-lab/yt-tools`.
 Check out our [SciPy 2018 talk](https://www.youtube.com/watch?v=5dl_m_6T2bU)
 and the [associated slides](https://munkm.github.io/2018-07-13-scipy/) for more info!
 
-Documentation
--------------
+## Documentation
 
 Our documentation is hosted at readthedocs. Take a look
 [here](https://widgyts.readthedocs.io/en/latest/).
 
-Installation
-------------
+## Installation
 
 To install using pip from the most recent released version:
 
@@ -38,32 +35,51 @@ To install using pip from this directory:
     $ cd widgyts
     $ pip install .
 
-For a development installation (requires npm),
+### Development installation
 
-    $ git clone https://github.com/yt-project/widgyts.git
-    $ cd widgyts
-    $ pip install -e .
-    $ jupyter serverextension enable --py --sys-prefix widgyts
-    $ jupyter nbextension install --py --symlink --sys-prefix widgyts
-    $ jupyter nbextension enable --py --sys-prefix widgyts
+The following assumes you're using conda. If not, you'll need to install nodejs
+in your environemnt separately.
 
-Note that in previous versions, serverextension was not provided and you were
-required to set up your own mimetype in your local configuration.  This is no
-longer the case and you are now able to use this server extension to set up the
-correct wasm mimetype.
+```bash
+conda create -n widgyts-dev -c conda-forge nodejs python=3.10 jupyterlab=3
+conda activate widgyts-dev
+```
 
-To install the jupyterlab extension, you will need to make sure you are on a
-recent enough version of Jupyterlab, preferably 0.35 or above.  For a
-development installation, do:
+Install the python. This will also build the TS package.
+```bash
+pip install -e "."
+```
 
-    $ jupyter labextension install js
+When developing your extensions, you need to manually enable your extensions with the
+notebook / lab frontend. For lab, this is done by the command:
 
-To install the latest released version,
+```
+jupyter labextension develop --overwrite .
+jlpm run build
+```
 
-    $ jupyter labextension install @yt-project/yt-widgets
+Note that `jupyterlab` provides `jlpm`, a jupyter-flavored version of `yarn`,
+provided by `jupyterlab`.
 
-Using
------
+### How to see your changes
+#### Typescript:
+If you use JupyterLab to develop then you can watch the source directory and run JupyterLab at the same time in different
+terminals to watch for changes in the extension's source and automatically rebuild the widget.
+
+```bash
+# Watch the source directory in one terminal, automatically rebuilding when needed
+jlpm run watch
+# Run JupyterLab in another terminal
+jupyter lab
+```
+
+After a change wait for the build to finish and then refresh your browser and the changes should take effect.
+
+#### Python:
+If you make a change to the python code then you will need to restart the notebook kernel to have it take effect.
+
+## Using
+
 
 To use this, you will need to have yt installed.  Importing it monkeypatches
 the Slice and Projection objects, so you are now able to do:
