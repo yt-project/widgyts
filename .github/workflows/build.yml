@@ -13,6 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      # https://github.com/jupyterlab/maintainer-tools/blob/main/.github/actions/base-setup/action.yml
       with:
         python_version: ${{ matrix.python-version }}
         node_version: '18.x'
