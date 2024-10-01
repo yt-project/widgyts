@@ -41,13 +41,13 @@ The following assumes you're using conda. If not, you'll need to install nodejs
 in your environemnt separately.
 
 ```bash
-conda create -n widgyts-dev -c conda-forge nodejs python=3.10 jupyterlab=3
+conda create -n widgyts-dev -c conda-forge nodejs python=3.10 jupyterlab=4
 conda activate widgyts-dev
 ```
 
 Install the python. This will also build the TS package.
 ```bash
-pip install -e "."
+pip install -e .
 ```
 
 When developing your extensions, you need to manually enable your extensions with the

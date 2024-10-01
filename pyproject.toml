@@ -1,7 +1,8 @@
 [build-system]
 requires = [
-    "hatchling",
-    "jupyterlab~=3.1",
+    "hatchling>=1.21.1",
+    "jupyterlab>=4.0.0,<5",
+    "hatch-nodejs-version>=0.3.2",
 ]
 build-backend = "hatchling.build"
 
@@ -16,7 +17,7 @@ authors = [
 keywords = [
     "Jupyter",
     "JupyterLab",
-    "JupyterLab3",
+    "JupyterLab4",
 ]
 classifiers = [
     "Framework :: Jupyter",
@@ -29,8 +30,8 @@ classifiers = [
 ]
 dependencies = [
     "ipycanvas>=0.4.7",
-    "ipywidgets>=7.5.1",
-    "jupyterlab~=3.0",
+    "ipywidgets>=8.0.0",
+    "jupyterlab>=4.0",
     "numpy>=1.14",
     "pythreejs>=2.2.0",
     "traitlets>=4.3.3",
@@ -49,8 +50,12 @@ Tracker = "https://github.com/yt-project/widgyts/issues"
 
 [tool.hatch.build]
 artifacts = [
+    "widgyts/labextension/*.tgz",
     "widgyts/labextension",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel.shared-data]
 "widgyts/labextension/static" = "share/jupyter/labextensions/@yt-project/yt-widgets/static"
@@ -66,7 +71,7 @@ exclude = [
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = [
-    "hatch-jupyter-builder>=0.9.1",
+    "hatch-jupyter-builder>=0.8.3",
 ]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
@@ -77,7 +82,15 @@ skip-if-exists = [
     "widgyts/labextension/static/style.js",
 ]
 
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+path = "."
+build_cmd = "build:prod"
+npm = [
+    "jlpm",
+]
+
 [tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+path = "."
 build_dir = "widgyts/labextension"
 source_dir = "src"
 build_cmd = "install:extension"
@@ -85,11 +98,7 @@ npm = [
     "jlpm",
 ]
 
-[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
-build_cmd = "build:prod"
-npm = [
-    "jlpm",
-]
+
 
 [tool.black]
 line-length = 88

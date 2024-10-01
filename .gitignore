@@ -116,5 +116,4 @@ dmypy.json
 
 # yarn build related
 .yarn/
-.yarnrc.yml
 yarn.lock
