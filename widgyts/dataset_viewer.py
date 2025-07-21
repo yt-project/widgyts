@@ -472,7 +472,9 @@ class AMRGridComponent(DomainViewComponent):
             corners.shape = (corners.size // 3, 3)
             geometry = pythreejs.BufferGeometry(
                 attributes={
-                    "position": pythreejs.BufferAttribute(array=corners, normalized=False),
+                    "position": pythreejs.BufferAttribute(
+                        array=corners, normalized=False
+                    ),
                     "index": pythreejs.BufferAttribute(array=indices, normalized=False),
                 }
             )
