@@ -99,26 +99,25 @@ npm = [
     "jlpm",
 ]
 
-
-
-[tool.black]
-line-length = 88
-target-version = [
-    "py39",
-    "py310",
-    "py311",
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "W",
+    "C4",   # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "G",    # flake8-logging-format
+    "TCH",  # flake8-type-checking
+    "YTT",  # flake8-2020
+    "UP",   # pyupgrade
+    "I",    # isort
+    "NPY",  # numpy specific rules
+    "RUF031"# incorrectly-parenthesized-tuple-in-subscript
 ]
-include = "\\.pyi?$"
-exclude = "/(\n    \\.eggs\n  | \\.git\n  | \\.hg\n  | \\.mypy_cache\n  | \\.tox\n  | \\.venv\n  | _build\n  | buck-out\n  | build\n  | dist\n  | src\n)/\n"
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-skip = [
-    "src",
-    "docs",
-]
-known_third_party = [
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-third-party = [
     "IPython",
     "nose",
     "numpy",
@@ -134,15 +133,13 @@ known_third_party = [
     "pyx",
     "glue",
 ]
-known_first_party = [
+known-first-party = [
     "yt",
 ]
-sections = [
-    "FUTURE",
-    "STDLIB",
-    "THIRDPARTY",
-    "FIRSTPARTY",
-    "LOCALFOLDER",
+
+[tool.ruff.lint.per-file-ignores]
+"examples/galaxy_display.ipynb" = [
+    "F401", # unused-import
 ]
 
 [tool.tbump]

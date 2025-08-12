@@ -367,15 +367,15 @@ class ParticleComponent(DomainViewComponent):
         # size=pythreejs.BufferAttribute(array=self.radii, normalized=False),
         # in the attributes dict.
         pg = pythreejs.BufferGeometry(
-            attributes=dict(
-                position=pythreejs.BufferAttribute(
+            attributes={
+                "position": pythreejs.BufferAttribute(
                     array=self.positions.astype("f4"), normalized=False
                 ),
-                index=pythreejs.BufferAttribute(
+                "index": pythreejs.BufferAttribute(
                     array=np.arange(self.positions.shape[0]).astype("u8"),
                     normalized=False,
                 ),
-            )
+            }
         )
         pp = pythreejs.Points(
             geometry=pg,
@@ -471,10 +471,12 @@ class AMRGridComponent(DomainViewComponent):
             )
             corners.shape = (corners.size // 3, 3)
             geometry = pythreejs.BufferGeometry(
-                attributes=dict(
-                    position=pythreejs.BufferAttribute(array=corners, normalized=False),
-                    index=pythreejs.BufferAttribute(array=indices, normalized=False),
-                )
+                attributes={
+                    "position": pythreejs.BufferAttribute(
+                        array=corners, normalized=False
+                    ),
+                    "index": pythreejs.BufferAttribute(array=indices, normalized=False),
+                }
             )
             material = pythreejs.LineBasicMaterial(
                 color=color, linewidth=1, linecap="round", linejoin="round"
@@ -571,17 +573,17 @@ class UnstructuredMeshComponent(DomainViewComponent):
                 mesh.connectivity_indices - mesh._index_offset
             )
             # We need to convert these to the triangulated mesh.
-            attributes = dict(
-                position=pythreejs.BufferAttribute(
+            attributes = {
+                "position": pythreejs.BufferAttribute(
                     mesh.connectivity_coords, normalized=False
                 ),
-                index=pythreejs.BufferAttribute(
+                "index": pythreejs.BufferAttribute(
                     indices.ravel(order="C").astype("u4"), normalized=False
                 ),
-                color=pythreejs.BufferAttribute(
+                "color": pythreejs.BufferAttribute(
                     (mesh.connectivity_coords * 255).astype("u1")
                 ),
-            )
+            }
             geometry = pythreejs.BufferGeometry(attributes=attributes)
             geometry.exec_three_obj_method("computeFaceNormals")
             mesh_view = pythreejs.Mesh(

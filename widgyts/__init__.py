@@ -1,3 +1,13 @@
+__all__ = [
+    "AMRGridComponent",
+    "DatasetViewer",
+    "DomainViewer",
+    "FieldDefinitionViewer",
+    "FullscreenButton",
+    "ParametersViewer",
+    "ParticleComponent",
+]
+
 import json
 from pathlib import Path
 
@@ -5,7 +15,7 @@ from ._version import __version__
 
 EXTENSION_VERSION = "~" + __version__
 
-from .dataset_viewer import (
+from .dataset_viewer import (  # noqa: E402
     AMRGridComponent,
     DatasetViewer,
     DomainViewer,
@@ -14,7 +24,7 @@ from .dataset_viewer import (
     ParametersViewer,
     ParticleComponent,
 )
-from .image_canvas import *
+from .image_canvas import *  # noqa: F403, E402
 
 HERE = Path(__file__).parent.resolve()
 
