@@ -9,7 +9,7 @@ repos:
     - id: check-executables-have-shebangs
     - id: check-yaml
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.0
     hooks:
     - id: pyupgrade
       args: [--py38-plus]
@@ -19,7 +19,7 @@ repos:
     - id: black-jupyter
 
 -   repo: https://github.com/PyCQA/isort
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
     - id: isort
       name: isort (python)
