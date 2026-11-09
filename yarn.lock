@@ -1307,7 +1307,7 @@ __metadata:
     fscreen: ^1.2.0
     ipycanvas: ^0.14.3
     jupyter-threejs: ^2.4.1
-    npm-run-all2: ^7.0.1
+    npm-run-all2: ^9.0.4
     prettier: ^3.0.0
     rimraf: ^5.0.1
     typescript: ~5.5.4
@@ -1438,10 +1438,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-styles@npm:^6.1.0, ansi-styles@npm:^6.2.1":
+"ansi-styles@npm:^6.1.0":
   version: 6.2.3
   resolution: "ansi-styles@npm:6.2.3"
   checksum: f1b0829cf048cce870a305819f65ce2adcebc097b6d6479e12e955fd6225df9b9eb8b497083b764df796d94383ff20016cc4dbbae5b40f36138fb65a9d33c2e2
+  languageName: node
+  linkType: hard
+
+"ansi-styles@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "ansi-styles@npm:7.0.0"
+  checksum: 94754b81c531cede91c0d49146f8adac80314c1d6503e3b1609bf4a61eeacd95b9ff732978bcef1ed23120968c5e75841f087536a112e0d38283b8b1dd8d18a8
   languageName: node
   linkType: hard
 
@@ -2621,10 +2628,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isexe@npm:^3.1.1":
-  version: 3.1.5
-  resolution: "isexe@npm:3.1.5"
-  checksum: ae479f6b0505507f1a73c1d57be6d0546e59fc9202bb0d5b31ba8ff5f3e79dd385bce57a2e60c5645aba567018cbbfc663519cd28367e9962242d97dd151d2ab
+"isexe@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "isexe@npm:4.0.0"
+  checksum: 2ead327ef596042ef9c9ec5f236b316acfaedb87f4bb61b3c3d574fb2e9c8a04b67305e04733bde52c24d9622fdebd3270aadb632adfbf9cadef88fe30f479e5
   languageName: node
   linkType: hard
 
@@ -2705,10 +2712,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-parse-even-better-errors@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "json-parse-even-better-errors@npm:4.0.0"
-  checksum: da1ae7ef0cc9db02972a06a71322f26bdcda5d7f648c23b28ce7f158ba35707461bcbd91945d8aace10d8d79c383b896725c65ffa410242352692328aa9b5edf
+"json-parse-even-better-errors@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "json-parse-even-better-errors@npm:6.0.0"
+  checksum: 52f10c3c999f646f1c3fbbf84e0cee6ef3939609bb99d704e7b9a98544325f5a33b4439f2ddb89b5ffcad7171b47658b5365742de398fb3e1145a38ac3c15d1f
   languageName: node
   linkType: hard
 
@@ -3019,7 +3026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.0, minimatch@npm:^9.0.4":
+"minimatch@npm:^9.0.4":
   version: 9.0.9
   resolution: "minimatch@npm:9.0.9"
   dependencies:
@@ -3089,31 +3096,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-normalize-package-bin@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "npm-normalize-package-bin@npm:4.0.0"
-  checksum: e1a0971e5640bc116c5197f9707d86dc404b6d8e13da2c7ea82baa5583b8da279a3c8607234aa1d733c2baac3b3eba87b156f021f20ae183dc4806530e61675d
+"npm-normalize-package-bin@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "npm-normalize-package-bin@npm:6.0.0"
+  checksum: 0d9b2a629b488bec426abc64718a5fdf095b40039b58d218f112eb51feb17249f2b362084b787ace8a0b44c56908621b9ca87a40c9c08db9630046a90f5cabdf
   languageName: node
   linkType: hard
 
-"npm-run-all2@npm:^7.0.1":
-  version: 7.0.2
-  resolution: "npm-run-all2@npm:7.0.2"
+"npm-run-all2@npm:^9.0.4":
+  version: 9.0.4
+  resolution: "npm-run-all2@npm:9.0.4"
   dependencies:
-    ansi-styles: ^6.2.1
+    ansi-styles: ^7.0.0
     cross-spawn: ^7.0.6
     memorystream: ^0.3.1
-    minimatch: ^9.0.0
-    pidtree: ^0.6.0
-    read-package-json-fast: ^4.0.0
-    shell-quote: ^1.7.3
-    which: ^5.0.0
+    picomatch: ^4.0.2
+    pidtree: ^1.0.0
+    read-package-json-fast: ^6.0.0
+    shell-quote: ^1.12.0
+    which: ^7.0.0
   bin:
     npm-run-all: bin/npm-run-all/index.js
     npm-run-all2: bin/npm-run-all/index.js
     run-p: bin/run-p/index.js
     run-s: bin/run-s/index.js
-  checksum: ef8f46b61482fccc2e4acef0001f841d0bffb134e1a6955d411bdbe80ae73de9773a83acefb2b7fc3c6a936244f7b9b145c703b16f9f06226e64dde616d42f11
+  checksum: 09ae9b4c91dd148776b0f7c941072d72e1fb22d07b0c93ab8aff84091c79e485b9278e026422673c9e4b7b1891d25fa04d7fd87a624d72d3596eb70395078525
   languageName: node
   linkType: hard
 
@@ -3286,19 +3293,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picomatch@npm:^4.0.4":
+"picomatch@npm:^4.0.2, picomatch@npm:^4.0.4":
   version: 4.0.7
   resolution: "picomatch@npm:4.0.7"
   checksum: a97edd7659fc7f39769734bcacd8e9c2f8711d0c30f0caf143577c4d59b3338e17e884ead92805701c71d54040067909e8d3dd45ed814fc8af154ca747fb06a4
   languageName: node
   linkType: hard
 
-"pidtree@npm:^0.6.0":
-  version: 0.6.1
-  resolution: "pidtree@npm:0.6.1"
+"pidtree@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "pidtree@npm:1.0.0"
   bin:
     pidtree: bin/pidtree.js
-  checksum: 1c1f93b1d69846942294dbcd7d3f90decf6965555c28ea37ee18c778272cc860d9be6c14c2e74290829abf0b35e2729e6706402e62e209fe62671949e206b961
+  checksum: 2a7a9d1f3dee7f6ea5d7d7c8145c5af47b3d69102c1ccb91f92926d067857571dd38ceb38e13740f7ce5926ab7aefc8532e1af15e443ea0619105c7124221a73
   languageName: node
   linkType: hard
 
@@ -3507,13 +3514,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"read-package-json-fast@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "read-package-json-fast@npm:4.0.0"
+"read-package-json-fast@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "read-package-json-fast@npm:6.0.0"
   dependencies:
-    json-parse-even-better-errors: ^4.0.0
-    npm-normalize-package-bin: ^4.0.0
-  checksum: bf0becd7d0b652dcc5874b466d1dbd98313180e89505c072f35ff48a1ad6bdaf2427143301e1924d64e4af5064cda8be5df16f14de882f03130e29051bbaab87
+    json-parse-even-better-errors: ^6.0.0
+    npm-normalize-package-bin: ^6.0.0
+  checksum: 22fc66c316533f000ec12ed08ae79ab935a13f07c7e928dbb84af3674b0a47aa56fb8a03c170a9b2e4ecbfcb502f17cd3c79814002c3a3a30d17b1e668b1fc3c
   languageName: node
   linkType: hard
 
@@ -3771,7 +3778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shell-quote@npm:^1.7.3":
+"shell-quote@npm:^1.12.0":
   version: 1.12.0
   resolution: "shell-quote@npm:1.12.0"
   checksum: bbb3b6b244069da4114c5c0d2192786ff146123e1c29c298348871a3b8219cf45bdc9540c2f948e8874e2f7309186480a7ac0097159d0958aaafec25c5074731
@@ -4309,14 +4316,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"which@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "which@npm:5.0.0"
+"which@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "which@npm:7.0.0"
   dependencies:
-    isexe: ^3.1.1
+    isexe: ^4.0.0
   bin:
     node-which: bin/which.js
-  checksum: 6ec99e89ba32c7e748b8a3144e64bfc74aa63e2b2eacbb61a0060ad0b961eb1a632b08fb1de067ed59b002cec3e21de18299216ebf2325ef0f78e0f121e14e90
+  checksum: 913a43ac10df37602ba9795a004dd7ab12ba7dd592aca1f08ec333be1fdd6a49bbf119a88c3f8d0ea70eeb6251726e77069251424d73000299a0a840ed000732
   languageName: node
   linkType: hard
 
