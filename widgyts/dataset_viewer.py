@@ -185,14 +185,14 @@ class CameraPathView(DomainViewComponent):
                 camera_action_box.children[0].stop()
             camera_clip = pythreejs.AnimationClip(
                 tracks=[
-                    pythreejs.QuaternionKeyframeTrack(
-                        ".quaternion",
-                        values=[_["quaternion"] for _ in self.position_list],
-                        times=times,
-                    ),
                     pythreejs.VectorKeyframeTrack(
                         ".position",
                         values=[_["position"] for _ in self.position_list],
+                        times=times,
+                    ),
+                    pythreejs.QuaternionKeyframeTrack(
+                        ".quaternion",
+                        values=[_["quaternion"] for _ in self.position_list],
                         times=times,
                     ),
                     pythreejs.NumberKeyframeTrack(
@@ -221,7 +221,8 @@ class CameraPathView(DomainViewComponent):
         button_add.on_click(on_button_add_clicked)
 
         def on_button_rem_clicked(b):
-            del self.position_list[select.index]
+            if select.index is not None:
+                del self.position_list[select.index]
             _mirror_positions()
 
         button_rem.on_click(on_button_rem_clicked)
@@ -237,7 +238,7 @@ class CameraPathView(DomainViewComponent):
 
         def _create_clicked(axi, ax):
             def view_button_clicked(button):
-                vec = [0, 0, 0]
+                vec = [0.0, 0.0, 0.0]
                 vec[axi] = 2.0
                 self.parent.renderer.camera.position = tuple(
                     center + (self.parent.ds.domain_width.in_units("unitary").d * vec)
