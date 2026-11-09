@@ -73,7 +73,7 @@
     "@data-exp-lab/yt-tools": "^0.4.1",
     "@jupyter-widgets/base": "^6.0.0",
     "@jupyterlab/application": "^4.0.0",
-    "@types/three": "^0.141.0",
+    "@types/three": "^0.187.0",
     "fscreen": "^1.2.0",
     "ipycanvas": "^0.14.3",
     "jupyter-threejs": "^2.4.1"
