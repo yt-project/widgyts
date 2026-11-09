@@ -1,9 +1,101 @@
 [build-system]
-requires = ["jupyter_packaging~=0.10,<2", "jupyterlab~=3.1", "setuptools>=40.8.0", "wheel>=0.36.2"]
-build-backend = "jupyter_packaging.build_api"
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0.3.2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "widgyts"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+    { name = "The yt Project", email = "yt-dev@python.org" },
+]
+keywords = ["Jupyter", "JupyterLab", "JupyterLab4", "visualization", "yt"]
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "ipycanvas>=0.14",
+    "ipywidgets>=8.0",
+    "jupyter_server>=2.0.1,<3",
+    "numpy>=1.14",
+    "pythreejs>=2.4",
+    "traitlets>=5",
+    "yt>=4.0.3",
+]
+dynamic = ["version", "description", "urls"]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
+[tool.hatch.version]
+source = "nodejs"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "urls"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["widgyts/labextension"]
+exclude = [".github", ".vscode", "paper", "node_modules", ".yarn"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"widgyts/labextension" = "share/jupyter/labextensions/@yt-project/yt-widgets"
+"install.json" = "share/jupyter/labextensions/@yt-project/yt-widgets/install.json"
+"jupyter-config/widgyts.json" = "etc/jupyter/jupyter_server_config.d/widgyts.json"
+
+[tool.hatch.build.hooks.version]
+path = "widgyts/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "widgyts/labextension/static/style.js",
+    "widgyts/labextension/package.json",
+]
+skip-if-exists = ["widgyts/labextension/static/style.js"]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "widgyts/labextension"
+
+[tool.jupyter-releaser.options]
+version_cmd = "hatch version"
+
+[tool.jupyter-releaser.hooks]
+before-build-npm = [
+    "python -m pip install 'jupyterlab>=4.0.0,<5'",
+    "jlpm",
+    "jlpm build:prod",
+]
+before-build-python = ["jlpm clean:all"]
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
+
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -18,6 +110,7 @@ exclude = '''
   | build
   | dist
   | src
+  | node_modules
 )/
 '''
 
@@ -27,7 +120,7 @@ exclude = '''
 profile = "black"
 combine_as_imports = true
 # isort can't be applied to yt/__init__.py because it creates circular imports
-skip =  ["src", "docs"]
+skip =  ["src", "docs", "node_modules"]
 known_third_party = [
   "IPython",
   "nose",
@@ -46,17 +139,3 @@ known_third_party = [
 ]
 known_first_party = ["yt"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-
-[tool.jupyter-packaging.options]
-skip-if-exists = ["widgyts/labextension/static/style.js"]
-ensured-targets = ["widgyts/labextension/static/style.js", "widgyts/labextension/package.json"]
-
-[tool.jupyter-packaging.builder]
-factory = "jupyter_packaging.npm_builder"
-
-[tool.jupyter-packaging.build-args]
-build_cmd = "build:prod"
-npm = ["jlpm"]
-
-[tool.check-manifest]
-ignore = ["widgyts/labextension/**", "yarn.lock", ".*", "package-lock.json"]

@@ -1,7 +1,14 @@
-import json
-from pathlib import Path
+try:
+    from ._version import __version__
+except ImportError:
+    # Fallback when using the package in dev mode without installing
+    # in editable mode with pip. It is highly recommended to install
+    # the package from a stable release or in editable mode:
+    # https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
+    import warnings
 
-from ._version import __version__
+    warnings.warn("Importing 'widgyts' outside a proper installation.")
+    __version__ = "dev"
 
 EXTENSION_VERSION = "~" + __version__
 
@@ -16,14 +23,9 @@ from .dataset_viewer import (
 )
 from .image_canvas import *
 
-HERE = Path(__file__).parent.resolve()
-
-with (HERE / "labextension" / "package.json").open() as fid:
-    data = json.load(fid)
-
 
 def _jupyter_labextension_paths():
-    return [{"src": "labextension", "dest": data["name"]}]
+    return [{"src": "labextension", "dest": "@yt-project/yt-widgets"}]
 
 
 def _jupyter_server_extension_points():

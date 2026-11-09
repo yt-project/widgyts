@@ -48,11 +48,11 @@ class TestWidgytsCanvasViewer(TestCase):
         """Checks that the arrays passed into the WidgytsCanvasViewer match the original
         data"""
         vm = self.viewer.variable_mesh_model
-        px = self.data["px"]
-        py = self.data["py"]
-        pdx = self.data["pdx"]
-        pdy = self.data["pdy"]
-        val = self.data["density"]
+        px = self.data["px"].d
+        py = self.data["py"].d
+        pdx = self.data["pdx"].d
+        pdy = self.data["pdy"].d
+        val = self.data["density"].d
 
         assert array_equal(px, vm._px)
         assert array_equal(py, vm._py)

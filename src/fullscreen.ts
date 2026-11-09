@@ -50,7 +50,7 @@ export class FullscreenButtonView extends DOMWidgetView {
     this.el.classList.add('jupyter-widgets');
     this.el.classList.add('jupyter-button');
     this.el.classList.add('widget-button');
-    this.delegate('click', this.el, this._handle_click);
+    this.delegate('click', this._handle_click.bind(this));
     this.update(); // Set defaults.
   }
 

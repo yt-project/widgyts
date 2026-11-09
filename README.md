@@ -28,39 +28,33 @@ Our documentation is hosted at readthedocs. Take a look
 Installation
 ------------
 
-To install using pip from the most recent released version:
+widgyts requires JupyterLab 4 (or Notebook 7) and ipywidgets 8. To install
+the most recent released version:
 
     $ pip install widgyts
 
-To install using pip from this directory:
+This installs both the prebuilt JupyterLab extension and the server extension
+that registers the wasm mimetype; no further `jupyter labextension install`
+step is required.
+
+To install from this directory:
 
     $ git clone https://github.com/yt-project/widgyts.git
     $ cd widgyts
     $ pip install .
 
-For a development installation (requires npm),
+For a development installation (requires NodeJS; `jlpm` is provided by
+JupyterLab):
 
     $ git clone https://github.com/yt-project/widgyts.git
     $ cd widgyts
-    $ pip install -e .
-    $ jupyter serverextension enable --py --sys-prefix widgyts
-    $ jupyter nbextension install --py --symlink --sys-prefix widgyts
-    $ jupyter nbextension enable --py --sys-prefix widgyts
+    $ pip install -e "."
+    $ jupyter labextension develop . --overwrite
+    $ jupyter server extension enable widgyts
+    $ jlpm build
 
-Note that in previous versions, serverextension was not provided and you were
-required to set up your own mimetype in your local configuration.  This is no
-longer the case and you are now able to use this server extension to set up the
-correct wasm mimetype.
-
-To install the jupyterlab extension, you will need to make sure you are on a
-recent enough version of Jupyterlab, preferably 0.35 or above.  For a
-development installation, do:
-
-    $ jupyter labextension install js
-
-To install the latest released version,
-
-    $ jupyter labextension install @yt-project/yt-widgets
+You can then run `jlpm watch` in one terminal and `jupyter lab` in another
+to automatically rebuild the extension as you edit the TypeScript source.
 
 Using
 -----

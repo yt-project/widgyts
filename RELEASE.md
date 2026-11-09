@@ -1,12 +1,17 @@
-Some of this is covered by the Github action, but for posterity, to release a
-new version of widgyts on PyPI:
+Some of this is covered by the GitHub action, but for posterity, to release a
+new version of widgyts on PyPI and npm:
 
-1. Update package.json and setup.cfg to update version and remove `dev`
-2. `git add package.json setup.cfg`
+1. Update the version in `package.json` (the Python package version is read
+   from it by `hatch-nodejs-version`). Equivalently, `pip install hatch` and run
+   `hatch version <new_version>`.
+2. `git add package.json`
 3. `git commit -m "Bumping version"`
-4. `python setup.py sdist upload # Covered by the GHA`
-5. `python setup.py bdist_wheel upload # Covered by the GHA`
-6. `git tag -a vX.X.X -m 'comment'`
-7. `git push --tags`
-8. `jlpm install # Covered by the GHA`
-9. `jlpm publish # Covered by the GHA`
+4. `git tag -a vX.X.X -m 'comment'`
+5. `git push --tags`
+
+Pushing a `v*` tag triggers `.github/workflows/publish-to-pypi.yml`, which:
+
+- builds the sdist and wheel with `python -m build` and uploads them to PyPI
+- builds the extension with `jlpm build:prod` and runs `npm publish`
+
+To build the distributions locally: `pip install build && python -m build`.
