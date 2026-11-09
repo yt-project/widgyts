@@ -23,7 +23,6 @@ export class FieldArrayModel extends DOMWidgetModel {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.field_name = this.get('field_name');
@@ -58,7 +57,6 @@ export class VariableMeshModel extends DOMWidgetModel {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.variable_mesh = new yt_tools.VariableMesh(

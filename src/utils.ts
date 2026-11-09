@@ -11,7 +11,7 @@ export function serializeArray<T extends ArrayBufferView>(array: T): DataView {
 }
 
 export function arrayDeserializerFactory<T>(type: {
-  new (v: ArrayBuffer): T;
+  new (v: ArrayBufferLike): T;
 }): (a: DataView | null) => T | null {
   function arrayDeserializerImpl(dataview: DataView | null): T | null {
     if (dataview === null) {
