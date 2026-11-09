@@ -81,7 +81,7 @@
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
     "@types/fscreen": "^1.0.1",
-    "@types/node": "^20.0.0",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.57.0",
