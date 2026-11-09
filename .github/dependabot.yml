@@ -7,14 +7,22 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Only widen a range when a new release falls outside it, so minimum
+    # versions (e.g. of the JupyterLab-provided @jupyterlab/application and
+    # @jupyter-widgets/base) are not raised just because a newer one exists.
+    versioning-strategy: increase-if-necessary
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       npm-security:
         applies-to: security-updates
         patterns: ["*"]
-      npm-minor-and-patch:
+      # One PR per month for all version updates, majors included.
+      npm-all:
         applies-to: version-updates
         patterns: ["*"]
-        update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: /

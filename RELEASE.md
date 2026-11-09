@@ -11,7 +11,14 @@ new version of widgyts on PyPI and npm:
 
 Pushing a `v*` tag triggers `.github/workflows/publish-to-pypi.yml`, which:
 
+- checks that the tag matches the version in `package.json`
 - builds the sdist and wheel with `python -m build` and uploads them to PyPI
 - builds the extension with `jlpm build:prod` and runs `npm publish`
+
+Both uploads use trusted publishing, so no PyPI or npm tokens are stored in
+the repository. The one-time setup (a trusted publisher entry on pypi.org for
+`widgyts` and on npmjs.com for `@yt-project/yt-widgets`) is described at the
+top of the workflow file. The tag must be pushed to `yt-project/widgyts`, not
+a fork, for the publishers to accept it.
 
 To build the distributions locally: `pip install build && python -m build`.

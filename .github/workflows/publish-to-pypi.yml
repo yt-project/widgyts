@@ -1,5 +1,17 @@
 name: Publish Python distributions to PyPI and npm
 
+# Publishes widgyts to PyPI and @yt-project/yt-widgets to npm when a `v*` tag
+# is pushed.
+#
+# Both registries use trusted publishing (OIDC), so no tokens are stored in
+# the repository. One-time setup:
+# - pypi.org, project widgyts -> Publishing -> add a GitHub publisher:
+#   owner `yt-project`, repository `widgyts`,
+#   workflow `publish-to-pypi.yml`, environment `pypi`.
+# - npmjs.com, package @yt-project/yt-widgets -> Settings -> Trusted
+#   Publisher -> GitHub Actions: organization `yt-project`, repository
+#   `widgyts`, workflow `publish-to-pypi.yml`, environment `pypi`.
+
 on:
   push:
     tags:
@@ -9,13 +21,25 @@ jobs:
   build-and-publish:
     name: Build and Publish
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write # required for trusted publishing
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       with:
         python_version: "3.12"
+
+    - name: Check that the tag matches package.json
+      run: |
+        version=$(node -p "require('./package.json').version")
+        if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+          echo "::error::Tag $GITHUB_REF_NAME does not match package.json version v$version"
+          exit 1
+        fi
 
     - name: Install build tools
       run: python -m pip install -U build "jupyterlab>=4.0.0,<5"
@@ -25,14 +49,16 @@ jobs:
 
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Set up npm registry
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '20.x'
+        node-version: '24'
         registry-url: 'https://registry.npmjs.org/'
+
+    # Trusted publishing needs npm >= 11.5.1.
+    - name: Update npm
+      run: npm install -g npm@latest
 
     - name: Publish to npm
       run: |
@@ -40,5 +66,3 @@ jobs:
         jlpm install
         jlpm build:prod
         npm publish --access public
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
