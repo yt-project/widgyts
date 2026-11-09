@@ -11,38 +11,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+
+    - name: Base Setup
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       with:
-        python-version: "3.10"
-    - name: Install pypa/build
-      run: >-
-          python -m
-          pip install
-          build
-          --user
-    - name: Build source tarball
-      run: >-
-          python -m
-          build
-          --sdist
-          --outdir dist/
-          .
-#   - name: Publish distribution to Test PyPI
-#     uses: pypa/gh-action-pypi-publish@master
-#     with:
-#       password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-#       repository_url: https://test.pypi.org/legacy/
+        python_version: "3.12"
+
+    - name: Install build tools
+      run: python -m pip install -U build "jupyterlab>=4.0.0,<5"
+
+    - name: Build sdist and wheel
+      run: python -m build --outdir dist/ .
+
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
-    - name: Publish to NPM
-      uses: actions/setup-node@v3
+
+    - name: Set up npm registry
+      uses: actions/setup-node@v4
       with:
-        node-version: '16.x'
-        registry-url: 'https://registry.npm.org/'
-    - run: jlpm install
-    - run: jlpm publish
+        node-version: '20.x'
+        registry-url: 'https://registry.npmjs.org/'
+
+    - name: Publish to npm
+      run: |
+        set -eux
+        jlpm install
+        jlpm build:prod
+        npm publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -2,39 +2,89 @@ name: Build
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version:
-          - '3.10'
-          - '3.11'
-          - '3.12'
-          - '3.13'
       fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
-    - uses: actions/checkout@v4
-    - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      # https://github.com/jupyterlab/maintainer-tools/blob/main/.github/actions/base-setup/action.yml
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Base Setup
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       with:
         python_version: ${{ matrix.python-version }}
-        node_version: '18.x'
+
     - name: Install dependencies
-      run: python -m pip install -U jupyterlab~=4.0
-    - name: jlpm config
-      run: jlpm config set -H enableImmutableInstalls false
-    - name: install ts modules
-      run: jlpm
-    - name: jlpm lint check
-      run: jlpm run eslint:check
-    - name: install python package
-      run: python -m pip install .
-    - name: check for widgyts in extensions
+      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
+
+    - name: Lint the extension
       run: |
+        set -eux
+        jlpm
+        jlpm run lint:check
+
+    - name: Build the extension
+      run: |
+        set -eux
+        python -m pip install .
+
+        jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "widgyts.*OK"
 
+        jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "@yt-project/yt-widgets.*OK"
-    - name: run jupyterlab browser check
-      run: python -m jupyterlab.browser_check
+        python -m jupyterlab.browser_check
+
+    - name: Package the extension
+      if: matrix.python-version == '3.12'
+      run: |
+        set -eux
+        pip install build
+        python -m build
+        pip uninstall -y "widgyts" jupyterlab
+
+    - name: Upload extension packages
+      if: matrix.python-version == '3.12'
+      uses: actions/upload-artifact@v4
+      with:
+        name: extension-artifacts
+        path: dist/widgyts*
+        if-no-files-found: error
+
+  test_isolated:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        architecture: 'x64'
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: extension-artifacts
+
+    - name: Install and Test
+      run: |
+        set -eux
+        # Remove NodeJS, twice to take care of system and locally installed node versions.
+        sudo rm -rf $(which node)
+        sudo rm -rf $(which node)
+
+        pip install "jupyterlab>=4.0.0,<5" widgyts*.whl
+
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "widgyts.*OK"
+
+        jupyter labextension list
+        jupyter labextension list 2>&1 | grep -ie "@yt-project/yt-widgets.*OK"
+        python -m jupyterlab.browser_check --no-browser-test

@@ -47,34 +47,33 @@ Then navigate into the newly created directory and install using pip::
 Development Installation
 ------------------------
 
-For a development installation your machine will need npm to manage the
-associated javascript code and dependencies. ::
+``widgyts`` is a prebuilt JupyterLab 4 extension, so no ``jupyter
+labextension install`` step is needed for regular installations. For a
+development installation your machine will need `node.js
+<https://nodejs.org/en/>`_ (which provides the ``jlpm`` package manager bundled
+with JupyterLab) to build the javascript code::
 
   $ git clone https://github.com/yt-project/widgyts.git
-  $ cd widgyts/js
-  $ npm install
-  $ cd ../
-  $ pip install -e .
-  $ jupyter serverextension enable --py --sys-prefix widgyts
-  $ jupyter nbextension install --py --symlink --sys-prefix widgyts
-  $ jupyter nbextension enable --py --sys-prefix widgyts
+  $ cd widgyts
+  $ pip install -e "."
+  $ jupyter labextension develop . --overwrite
+  $ jupyter server extension enable widgyts
+  $ jlpm build
 
-If you are modifying code on the python side, you may have to periodically
-update your installation from the steps ``pip install`` onwards. If you are
-modifying javascript code, you'll need to rerun ``npm install`` to have your
-changes available in jupyter notebooks.
+If you are modifying javascript code, you can watch the source directory and
+rebuild automatically in one terminal while running JupyterLab in another::
 
-Note that in previous versions, serverextension was not provided and you were
-required to set up your own mimetype in your local configuration.  This is no
-longer the case and you are now able to use this server extension to set up the
-correct wasm mimetype.
+  $ jlpm watch
+  $ jupyter lab
 
-To install the jupyterlab extension, you will need to make sure you are on a
-recent enough version of Jupyterlab, preferably 0.35 or above.  For a
-development installation, do: ::
+Note that in previous versions, a server extension was not provided and you
+were required to set up your own mimetype in your local configuration.  This is
+no longer the case: the bundled server extension registers the correct wasm
+mimetype.
 
-    $ jupyter labextension install js
+To uninstall a development installation::
 
-To install the latest released version, ::
+  $ pip uninstall widgyts
 
-    $ jupyter labextension install @data-exp-lab/yt-widgets
+and remove the ``@yt-project/yt-widgets`` symlink from the ``labextensions``
+directory reported by ``jupyter labextension list``.
