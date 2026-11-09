@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # JS dependencies. `packageManager` in package.json pins yarn 3.5 (the
+  # version bundled with JupyterLab as `jlpm`), so Dependabot keeps yarn.lock
+  # in the same format instead of rewriting it for a newer yarn.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+      npm-minor-and-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]

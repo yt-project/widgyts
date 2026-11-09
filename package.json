@@ -32,6 +32,7 @@
     "url": "https://github.com/yt-project/widgyts/issues"
   },
   "license": "BSD-3-Clause",
+  "packageManager": "yarn@3.5.0",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf,wasm}",
     "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
@@ -81,9 +82,9 @@
     "@jupyterlab/builder": "^4.0.0",
     "@types/fscreen": "^1.0.1",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.1.0",
-    "@typescript-eslint/parser": "^6.1.0",
-    "eslint": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^5.0.0",
     "npm-run-all2": "^7.0.1",
